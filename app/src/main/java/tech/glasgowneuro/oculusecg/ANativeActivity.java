@@ -7,7 +7,7 @@ import android.widget.TextView;
 
 import tech.glasgowneuro.oculusecg.databinding.ActivityMainBinding;
 
-public class MainActivity extends android.app.NativeActivity {
+public class ANativeActivity extends android.app.NativeActivity {
   static {
     System.loadLibrary("openxr_loader");
     System.loadLibrary("oculusecg");

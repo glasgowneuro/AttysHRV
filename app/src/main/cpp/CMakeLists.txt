@@ -25,7 +25,7 @@ include_directories(
         ${OCULUS_OPENXR_MOBILE_SDK}/3rdParty/khronos/openxr/OpenXR-SDK/include
         ${OCULUS_OPENXR_MOBILE_SDK}/1stParty/OVR/Include/
         ${OCULUS_OPENXR_MOBILE_SDK}/OpenXR/Include
-        ${ANDROID_NDK}/sources/android/native_app_glue/
+#        ${ANDROID_NDK}/sources/android/native_app_glue/
 )
 set(CODEGEN_FOLDER ../app/.cxx/openxr)
 add_subdirectory(${OCULUS_OPENXR_MOBILE_SDK}/3rdParty/khronos/openxr/OpenXR-SDK/include ${CODEGEN_FOLDER})
@@ -57,6 +57,8 @@ find_library( # Sets the name of the path variable.
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
+
+# set (CMAKE_CXX_LINK_LIBRARY_FLAG "-u ANativeActivity_onCreate")
 
 target_link_libraries( # Specifies the target library.
         oculusecg
