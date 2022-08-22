@@ -1,5 +1,13 @@
 {
   "buildFiles": [
+    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/CMakeLists.txt",
+    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/include/CMakeLists.txt",
+    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/include/openxr/CMakeLists.txt",
+    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/CMakeLists.txt",
+    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/api_layers/CMakeLists.txt",
+    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/loader/CMakeLists.txt",
+    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/tests/CMakeLists.txt",
+    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/tests/hello_xr/CMakeLists.txt",
     "/home/bp1/sandbox/OculusECG/app/src/main/cpp/CMakeLists.txt"
   ],
   "cleanCommandsComponents": [
@@ -17,12 +25,73 @@
     "{LIST_OF_TARGETS_TO_BUILD}"
   ],
   "libraries": {
+    "XrApiLayer_api_dump::@74f60e5069711349eba2": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "XrApiLayer_api_dump",
+      "output": "/tmp/src/api_layers/libXrApiLayer_api_dump.so",
+      "runtimeFiles": []
+    },
+    "XrApiLayer_core_validation::@74f60e5069711349eba2": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "XrApiLayer_core_validation",
+      "output": "/tmp/src/api_layers/libXrApiLayer_core_validation.so",
+      "runtimeFiles": []
+    },
+    "android_native_app_glue::@816c380c965d4e50f493": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "android_native_app_glue"
+    },
+    "generate_openxr_header::@a90b41f7748bd7b91535": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "generate_openxr_header"
+    },
+    "hello_xr::@dee3f24dcfa7636a7a6f": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "hello_xr",
+      "output": "/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/x86/libhello_xr.so",
+      "runtimeFiles": [
+        "/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/x86/libopenxr_loader.so"
+      ]
+    },
     "oculusecg::@6890427a1f51a3e7e1df": {
       "toolchain": "toolchain",
       "abi": "x86",
       "artifactName": "oculusecg",
       "output": "/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/x86/liboculusecg.so",
       "runtimeFiles": []
+    },
+    "openxr-gfxwrapper::@816c380c965d4e50f493": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "openxr-gfxwrapper",
+      "output": "/tmp/src/libopenxr-gfxwrapper.a"
+    },
+    "openxr_loader::@d370a61a06c37e1b6802": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "openxr_loader",
+      "output": "/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/x86/libopenxr_loader.so",
+      "runtimeFiles": []
+    },
+    "run_hello_xr_glsl_compiles::@dee3f24dcfa7636a7a6f": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "run_hello_xr_glsl_compiles"
+    },
+    "uninstall::@bee335dbde87aa31bff4": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "uninstall"
+    },
+    "xr_global_generated_files::@816c380c965d4e50f493": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "xr_global_generated_files"
     }
   },
   "toolchains": {
@@ -31,7 +100,9 @@
       "cppCompilerExecutable": "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
     }
   },
-  "cFileExtensions": [],
+  "cFileExtensions": [
+    "c"
+  ],
   "cppFileExtensions": [
     "cpp"
   ]

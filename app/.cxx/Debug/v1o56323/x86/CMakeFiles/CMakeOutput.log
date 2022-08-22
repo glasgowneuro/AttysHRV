@@ -3,7 +3,7 @@ The host system is: Linux - 5.4.0-124-generic - x86_64
 Detecting C compiler ABI info compiled with the following output:
 Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_9e882 && [1/2] Building C object CMakeFiles/cmTC_9e882.dir/CMakeCCompilerABI.c.o
+Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_8314e && [1/2] Building C object CMakeFiles/cmTC_8314e.dir/CMakeCCompilerABI.c.o
 Android (7019983 based on r365631c3) clang version 9.0.9 (https://android.googlesource.com/toolchain/llvm-project a2a1e703c0edb03ba29944e529ccbf457742737b) (based on LLVM 9.0.9svn)
 Target: i686-none-linux-android30
 Thread model: posix
@@ -13,7 +13,7 @@ Found candidate GCC installation: /home/bp1/Android/Sdk/ndk/21.4.7075529/toolcha
 Selected GCC installation: /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x
 Candidate multilib: .;@m32
 Selected multilib: .;@m32
- "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" -cc1 -triple i686-none-linux-android30 -emit-obj -mrelax-all -mnoexecstack -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -pic-is-pie -mthread-model posix -mdisable-fp-elim -masm-verbose -mconstructor-aliases -munwind-tables -fuse-init-array -target-cpu i686 -target-feature +ssse3 -dwarf-column-info -debug-info-kind=limited -dwarf-version=4 -debugger-tuning=gdb -v -ffunction-sections -fdata-sections -coverage-notes-file /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_9e882.dir/CMakeCCompilerABI.c.gcno -resource-dir /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9 -dependency-file CMakeFiles/cmTC_9e882.dir/CMakeCCompilerABI.c.o.d -sys-header-deps -MT CMakeFiles/cmTC_9e882.dir/CMakeCCompilerABI.c.o -D ANDROID -D _FORTIFY_SOURCE=2 -isysroot /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/local/include -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/i686-linux-android -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include -Wformat -fdebug-compilation-dir /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp -ferror-limit 19 -fmessage-length 0 -stack-protector 2 -fobjc-runtime=gcc -fdiagnostics-show-option -o CMakeFiles/cmTC_9e882.dir/CMakeCCompilerABI.c.o -x c /home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakeCCompilerABI.c
+ "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" -cc1 -triple i686-none-linux-android30 -emit-obj -mrelax-all -mnoexecstack -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -pic-is-pie -mthread-model posix -mdisable-fp-elim -masm-verbose -mconstructor-aliases -munwind-tables -fuse-init-array -target-cpu i686 -target-feature +ssse3 -dwarf-column-info -debug-info-kind=limited -dwarf-version=4 -debugger-tuning=gdb -v -ffunction-sections -fdata-sections -coverage-notes-file /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_8314e.dir/CMakeCCompilerABI.c.gcno -resource-dir /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9 -dependency-file CMakeFiles/cmTC_8314e.dir/CMakeCCompilerABI.c.o.d -sys-header-deps -MT CMakeFiles/cmTC_8314e.dir/CMakeCCompilerABI.c.o -D ANDROID -D _FORTIFY_SOURCE=2 -isysroot /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/local/include -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/i686-linux-android -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include -Wformat -fdebug-compilation-dir /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp -ferror-limit 19 -fmessage-length 0 -stack-protector 2 -fobjc-runtime=gcc -fdiagnostics-show-option -o CMakeFiles/cmTC_8314e.dir/CMakeCCompilerABI.c.o -x c /home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakeCCompilerABI.c
 clang -cc1 version 9.0.9 based upon LLVM 9.0.9svn default target x86_64-unknown-linux-gnu
 ignoring nonexistent directory "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/include"
 #include "..." search starts here:
@@ -23,7 +23,7 @@ ignoring nonexistent directory "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchain
  /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/i686-linux-android
  /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include
 End of search list.
-[2/2] Linking C executable cmTC_9e882
+[2/2] Linking C executable cmTC_8314e
 Android (7019983 based on r365631c3) clang version 9.0.9 (https://android.googlesource.com/toolchain/llvm-project a2a1e703c0edb03ba29944e529ccbf457742737b) (based on LLVM 9.0.9svn)
 Target: i686-none-linux-android30
 Thread model: posix
@@ -33,7 +33,7 @@ Found candidate GCC installation: /home/bp1/Android/Sdk/ndk/21.4.7075529/toolcha
 Selected GCC installation: /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x
 Candidate multilib: .;@m32
 Selected multilib: .;@m32
- "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld" --sysroot=/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -pie -z noexecstack --warn-shared-textrel -z now -z relro --hash-style=gnu --hash-style=both --enable-new-dtags --eh-frame-hdr -m elf_i386 -dynamic-linker /system/bin/linker -o cmTC_9e882 /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtbegin_dynamic.o -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/lib/linux/i386 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/lib -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib --exclude-libs libgcc.a --exclude-libs libgcc_real.a --exclude-libs libatomic.a --build-id --fatal-warnings --no-undefined --gc-sections CMakeFiles/cmTC_9e882.dir/CMakeCCompilerABI.c.o -lgcc -ldl -lc -lgcc -ldl /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtend_android.o
+ "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld" --sysroot=/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -pie -z noexecstack --warn-shared-textrel -z now -z relro --hash-style=gnu --hash-style=both --enable-new-dtags --eh-frame-hdr -m elf_i386 -dynamic-linker /system/bin/linker -o cmTC_8314e /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtbegin_dynamic.o -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/lib/linux/i386 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/lib -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib --exclude-libs libgcc.a --exclude-libs libgcc_real.a --exclude-libs libatomic.a --build-id --fatal-warnings --no-undefined --gc-sections CMakeFiles/cmTC_8314e.dir/CMakeCCompilerABI.c.o -lgcc -ldl -lc -lgcc -ldl /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtend_android.o
 
 
 
@@ -56,7 +56,7 @@ Parsed C implicit link information from above output:
   link line regex: [^( *|.*[/\])(i686-linux-android-ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
   ignore line: [Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp]
   ignore line: []
-  ignore line: [Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_9e882 && [1/2] Building C object CMakeFiles/cmTC_9e882.dir/CMakeCCompilerABI.c.o]
+  ignore line: [Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_8314e && [1/2] Building C object CMakeFiles/cmTC_8314e.dir/CMakeCCompilerABI.c.o]
   ignore line: [Android (7019983 based on r365631c3) clang version 9.0.9 (https://android.googlesource.com/toolchain/llvm-project a2a1e703c0edb03ba29944e529ccbf457742737b) (based on LLVM 9.0.9svn)]
   ignore line: [Target: i686-none-linux-android30]
   ignore line: [Thread model: posix]
@@ -68,7 +68,7 @@ Parsed C implicit link information from above output:
   ignore line: [@m32]
   ignore line: [Selected multilib: .]
   ignore line: [@m32]
-  ignore line: [ "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" -cc1 -triple i686-none-linux-android30 -emit-obj -mrelax-all -mnoexecstack -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -pic-is-pie -mthread-model posix -mdisable-fp-elim -masm-verbose -mconstructor-aliases -munwind-tables -fuse-init-array -target-cpu i686 -target-feature +ssse3 -dwarf-column-info -debug-info-kind=limited -dwarf-version=4 -debugger-tuning=gdb -v -ffunction-sections -fdata-sections -coverage-notes-file /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_9e882.dir/CMakeCCompilerABI.c.gcno -resource-dir /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9 -dependency-file CMakeFiles/cmTC_9e882.dir/CMakeCCompilerABI.c.o.d -sys-header-deps -MT CMakeFiles/cmTC_9e882.dir/CMakeCCompilerABI.c.o -D ANDROID -D _FORTIFY_SOURCE=2 -isysroot /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/local/include -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/i686-linux-android -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include -Wformat -fdebug-compilation-dir /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp -ferror-limit 19 -fmessage-length 0 -stack-protector 2 -fobjc-runtime=gcc -fdiagnostics-show-option -o CMakeFiles/cmTC_9e882.dir/CMakeCCompilerABI.c.o -x c /home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakeCCompilerABI.c]
+  ignore line: [ "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" -cc1 -triple i686-none-linux-android30 -emit-obj -mrelax-all -mnoexecstack -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -pic-is-pie -mthread-model posix -mdisable-fp-elim -masm-verbose -mconstructor-aliases -munwind-tables -fuse-init-array -target-cpu i686 -target-feature +ssse3 -dwarf-column-info -debug-info-kind=limited -dwarf-version=4 -debugger-tuning=gdb -v -ffunction-sections -fdata-sections -coverage-notes-file /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_8314e.dir/CMakeCCompilerABI.c.gcno -resource-dir /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9 -dependency-file CMakeFiles/cmTC_8314e.dir/CMakeCCompilerABI.c.o.d -sys-header-deps -MT CMakeFiles/cmTC_8314e.dir/CMakeCCompilerABI.c.o -D ANDROID -D _FORTIFY_SOURCE=2 -isysroot /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/local/include -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/i686-linux-android -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include -Wformat -fdebug-compilation-dir /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp -ferror-limit 19 -fmessage-length 0 -stack-protector 2 -fobjc-runtime=gcc -fdiagnostics-show-option -o CMakeFiles/cmTC_8314e.dir/CMakeCCompilerABI.c.o -x c /home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakeCCompilerABI.c]
   ignore line: [clang -cc1 version 9.0.9 based upon LLVM 9.0.9svn default target x86_64-unknown-linux-gnu]
   ignore line: [ignoring nonexistent directory "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/include"]
   ignore line: [#include "..." search starts here:]
@@ -78,7 +78,7 @@ Parsed C implicit link information from above output:
   ignore line: [ /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/i686-linux-android]
   ignore line: [ /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include]
   ignore line: [End of search list.]
-  ignore line: [[2/2] Linking C executable cmTC_9e882]
+  ignore line: [[2/2] Linking C executable cmTC_8314e]
   ignore line: [Android (7019983 based on r365631c3) clang version 9.0.9 (https://android.googlesource.com/toolchain/llvm-project a2a1e703c0edb03ba29944e529ccbf457742737b) (based on LLVM 9.0.9svn)]
   ignore line: [Target: i686-none-linux-android30]
   ignore line: [Thread model: posix]
@@ -90,7 +90,7 @@ Parsed C implicit link information from above output:
   ignore line: [@m32]
   ignore line: [Selected multilib: .]
   ignore line: [@m32]
-  link line: [ "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld" --sysroot=/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -pie -z noexecstack --warn-shared-textrel -z now -z relro --hash-style=gnu --hash-style=both --enable-new-dtags --eh-frame-hdr -m elf_i386 -dynamic-linker /system/bin/linker -o cmTC_9e882 /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtbegin_dynamic.o -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/lib/linux/i386 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/lib -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib --exclude-libs libgcc.a --exclude-libs libgcc_real.a --exclude-libs libatomic.a --build-id --fatal-warnings --no-undefined --gc-sections CMakeFiles/cmTC_9e882.dir/CMakeCCompilerABI.c.o -lgcc -ldl -lc -lgcc -ldl /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtend_android.o]
+  link line: [ "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld" --sysroot=/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -pie -z noexecstack --warn-shared-textrel -z now -z relro --hash-style=gnu --hash-style=both --enable-new-dtags --eh-frame-hdr -m elf_i386 -dynamic-linker /system/bin/linker -o cmTC_8314e /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtbegin_dynamic.o -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/lib/linux/i386 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/lib -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib --exclude-libs libgcc.a --exclude-libs libgcc_real.a --exclude-libs libatomic.a --build-id --fatal-warnings --no-undefined --gc-sections CMakeFiles/cmTC_8314e.dir/CMakeCCompilerABI.c.o -lgcc -ldl -lc -lgcc -ldl /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtend_android.o]
     arg [/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld] ==> ignore
     arg [--sysroot=/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot] ==> ignore
     arg [-pie] ==> ignore
@@ -107,7 +107,7 @@ Parsed C implicit link information from above output:
     arg [-dynamic-linker] ==> ignore
     arg [/system/bin/linker] ==> ignore
     arg [-o] ==> ignore
-    arg [cmTC_9e882] ==> ignore
+    arg [cmTC_8314e] ==> ignore
     arg [/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtbegin_dynamic.o] ==> ignore
     arg [-L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/lib/linux/i386] ==> dir [/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/lib/linux/i386]
     arg [-L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x] ==> dir [/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x]
@@ -125,7 +125,7 @@ Parsed C implicit link information from above output:
     arg [--fatal-warnings] ==> ignore
     arg [--no-undefined] ==> ignore
     arg [--gc-sections] ==> ignore
-    arg [CMakeFiles/cmTC_9e882.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [CMakeFiles/cmTC_8314e.dir/CMakeCCompilerABI.c.o] ==> ignore
     arg [-lgcc] ==> lib [gcc]
     arg [-ldl] ==> lib [dl]
     arg [-lc] ==> lib [c]
@@ -146,7 +146,7 @@ Parsed C implicit link information from above output:
 Detecting CXX compiler ABI info compiled with the following output:
 Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_04c0b && [1/2] Building CXX object CMakeFiles/cmTC_04c0b.dir/CMakeCXXCompilerABI.cpp.o
+Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_49fff && [1/2] Building CXX object CMakeFiles/cmTC_49fff.dir/CMakeCXXCompilerABI.cpp.o
 Android (7019983 based on r365631c3) clang version 9.0.9 (https://android.googlesource.com/toolchain/llvm-project a2a1e703c0edb03ba29944e529ccbf457742737b) (based on LLVM 9.0.9svn)
 Target: i686-none-linux-android30
 Thread model: posix
@@ -156,7 +156,7 @@ Found candidate GCC installation: /home/bp1/Android/Sdk/ndk/21.4.7075529/toolcha
 Selected GCC installation: /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x
 Candidate multilib: .;@m32
 Selected multilib: .;@m32
- "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++" -cc1 -triple i686-none-linux-android30 -emit-obj -mrelax-all -mnoexecstack -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -pic-is-pie -mthread-model posix -mdisable-fp-elim -masm-verbose -mconstructor-aliases -munwind-tables -fuse-init-array -target-cpu i686 -target-feature +ssse3 -dwarf-column-info -debug-info-kind=limited -dwarf-version=4 -debugger-tuning=gdb -v -ffunction-sections -fdata-sections -coverage-notes-file /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_04c0b.dir/CMakeCXXCompilerABI.cpp.gcno -resource-dir /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9 -dependency-file CMakeFiles/cmTC_04c0b.dir/CMakeCXXCompilerABI.cpp.o.d -sys-header-deps -MT CMakeFiles/cmTC_04c0b.dir/CMakeCXXCompilerABI.cpp.o -D ANDROID -D _FORTIFY_SOURCE=2 -isysroot /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/c++/v1 -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/local/include -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/i686-linux-android -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include -Wformat -fdeprecated-macro -fdebug-compilation-dir /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp -ferror-limit 19 -fmessage-length 0 -stack-protector 2 -fobjc-runtime=gcc -fcxx-exceptions -fexceptions -fdiagnostics-show-option -o CMakeFiles/cmTC_04c0b.dir/CMakeCXXCompilerABI.cpp.o -x c++ /home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakeCXXCompilerABI.cpp
+ "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++" -cc1 -triple i686-none-linux-android30 -emit-obj -mrelax-all -mnoexecstack -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -pic-is-pie -mthread-model posix -mdisable-fp-elim -masm-verbose -mconstructor-aliases -munwind-tables -fuse-init-array -target-cpu i686 -target-feature +ssse3 -dwarf-column-info -debug-info-kind=limited -dwarf-version=4 -debugger-tuning=gdb -v -ffunction-sections -fdata-sections -coverage-notes-file /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_49fff.dir/CMakeCXXCompilerABI.cpp.gcno -resource-dir /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9 -dependency-file CMakeFiles/cmTC_49fff.dir/CMakeCXXCompilerABI.cpp.o.d -sys-header-deps -MT CMakeFiles/cmTC_49fff.dir/CMakeCXXCompilerABI.cpp.o -D ANDROID -D _FORTIFY_SOURCE=2 -isysroot /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/c++/v1 -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/local/include -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/i686-linux-android -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include -Wformat -fdeprecated-macro -fdebug-compilation-dir /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp -ferror-limit 19 -fmessage-length 0 -stack-protector 2 -fobjc-runtime=gcc -fcxx-exceptions -fexceptions -fdiagnostics-show-option -o CMakeFiles/cmTC_49fff.dir/CMakeCXXCompilerABI.cpp.o -x c++ /home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakeCXXCompilerABI.cpp
 clang -cc1 version 9.0.9 based upon LLVM 9.0.9svn default target x86_64-unknown-linux-gnu
 ignoring nonexistent directory "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/include"
 #include "..." search starts here:
@@ -167,7 +167,7 @@ ignoring nonexistent directory "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchain
  /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/i686-linux-android
  /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include
 End of search list.
-[2/2] Linking CXX executable cmTC_04c0b
+[2/2] Linking CXX executable cmTC_49fff
 Android (7019983 based on r365631c3) clang version 9.0.9 (https://android.googlesource.com/toolchain/llvm-project a2a1e703c0edb03ba29944e529ccbf457742737b) (based on LLVM 9.0.9svn)
 Target: i686-none-linux-android30
 Thread model: posix
@@ -177,7 +177,7 @@ Found candidate GCC installation: /home/bp1/Android/Sdk/ndk/21.4.7075529/toolcha
 Selected GCC installation: /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x
 Candidate multilib: .;@m32
 Selected multilib: .;@m32
- "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld" --sysroot=/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -pie -z noexecstack --warn-shared-textrel -z now -z relro --hash-style=gnu --hash-style=both --enable-new-dtags --eh-frame-hdr -m elf_i386 -dynamic-linker /system/bin/linker -o cmTC_04c0b /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtbegin_dynamic.o -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/lib/linux/i386 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/lib -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib --exclude-libs libgcc.a --exclude-libs libgcc_real.a --exclude-libs libatomic.a --build-id --fatal-warnings --no-undefined --gc-sections CMakeFiles/cmTC_04c0b.dir/CMakeCXXCompilerABI.cpp.o -Bstatic -lc++ -Bdynamic -lm -lgcc -ldl -lc -lgcc -ldl /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtend_android.o
+ "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld" --sysroot=/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -pie -z noexecstack --warn-shared-textrel -z now -z relro --hash-style=gnu --hash-style=both --enable-new-dtags --eh-frame-hdr -m elf_i386 -dynamic-linker /system/bin/linker -o cmTC_49fff /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtbegin_dynamic.o -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/lib/linux/i386 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/lib -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib --exclude-libs libgcc.a --exclude-libs libgcc_real.a --exclude-libs libatomic.a --build-id --fatal-warnings --no-undefined --gc-sections CMakeFiles/cmTC_49fff.dir/CMakeCXXCompilerABI.cpp.o -Bstatic -lc++ -Bdynamic -lm -lgcc -ldl -lc -lgcc -ldl /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtend_android.o
 
 
 
@@ -202,7 +202,7 @@ Parsed CXX implicit link information from above output:
   link line regex: [^( *|.*[/\])(i686-linux-android-ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
   ignore line: [Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp]
   ignore line: []
-  ignore line: [Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_04c0b && [1/2] Building CXX object CMakeFiles/cmTC_04c0b.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_49fff && [1/2] Building CXX object CMakeFiles/cmTC_49fff.dir/CMakeCXXCompilerABI.cpp.o]
   ignore line: [Android (7019983 based on r365631c3) clang version 9.0.9 (https://android.googlesource.com/toolchain/llvm-project a2a1e703c0edb03ba29944e529ccbf457742737b) (based on LLVM 9.0.9svn)]
   ignore line: [Target: i686-none-linux-android30]
   ignore line: [Thread model: posix]
@@ -214,7 +214,7 @@ Parsed CXX implicit link information from above output:
   ignore line: [@m32]
   ignore line: [Selected multilib: .]
   ignore line: [@m32]
-  ignore line: [ "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++" -cc1 -triple i686-none-linux-android30 -emit-obj -mrelax-all -mnoexecstack -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -pic-is-pie -mthread-model posix -mdisable-fp-elim -masm-verbose -mconstructor-aliases -munwind-tables -fuse-init-array -target-cpu i686 -target-feature +ssse3 -dwarf-column-info -debug-info-kind=limited -dwarf-version=4 -debugger-tuning=gdb -v -ffunction-sections -fdata-sections -coverage-notes-file /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_04c0b.dir/CMakeCXXCompilerABI.cpp.gcno -resource-dir /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9 -dependency-file CMakeFiles/cmTC_04c0b.dir/CMakeCXXCompilerABI.cpp.o.d -sys-header-deps -MT CMakeFiles/cmTC_04c0b.dir/CMakeCXXCompilerABI.cpp.o -D ANDROID -D _FORTIFY_SOURCE=2 -isysroot /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/c++/v1 -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/local/include -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/i686-linux-android -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include -Wformat -fdeprecated-macro -fdebug-compilation-dir /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp -ferror-limit 19 -fmessage-length 0 -stack-protector 2 -fobjc-runtime=gcc -fcxx-exceptions -fexceptions -fdiagnostics-show-option -o CMakeFiles/cmTC_04c0b.dir/CMakeCXXCompilerABI.cpp.o -x c++ /home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [ "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++" -cc1 -triple i686-none-linux-android30 -emit-obj -mrelax-all -mnoexecstack -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -pic-is-pie -mthread-model posix -mdisable-fp-elim -masm-verbose -mconstructor-aliases -munwind-tables -fuse-init-array -target-cpu i686 -target-feature +ssse3 -dwarf-column-info -debug-info-kind=limited -dwarf-version=4 -debugger-tuning=gdb -v -ffunction-sections -fdata-sections -coverage-notes-file /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_49fff.dir/CMakeCXXCompilerABI.cpp.gcno -resource-dir /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9 -dependency-file CMakeFiles/cmTC_49fff.dir/CMakeCXXCompilerABI.cpp.o.d -sys-header-deps -MT CMakeFiles/cmTC_49fff.dir/CMakeCXXCompilerABI.cpp.o -D ANDROID -D _FORTIFY_SOURCE=2 -isysroot /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/c++/v1 -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/local/include -internal-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/i686-linux-android -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/include -internal-externc-isystem /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include -Wformat -fdeprecated-macro -fdebug-compilation-dir /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp -ferror-limit 19 -fmessage-length 0 -stack-protector 2 -fobjc-runtime=gcc -fcxx-exceptions -fexceptions -fdiagnostics-show-option -o CMakeFiles/cmTC_49fff.dir/CMakeCXXCompilerABI.cpp.o -x c++ /home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakeCXXCompilerABI.cpp]
   ignore line: [clang -cc1 version 9.0.9 based upon LLVM 9.0.9svn default target x86_64-unknown-linux-gnu]
   ignore line: [ignoring nonexistent directory "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/include"]
   ignore line: [#include "..." search starts here:]
@@ -225,7 +225,7 @@ Parsed CXX implicit link information from above output:
   ignore line: [ /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/i686-linux-android]
   ignore line: [ /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include]
   ignore line: [End of search list.]
-  ignore line: [[2/2] Linking CXX executable cmTC_04c0b]
+  ignore line: [[2/2] Linking CXX executable cmTC_49fff]
   ignore line: [Android (7019983 based on r365631c3) clang version 9.0.9 (https://android.googlesource.com/toolchain/llvm-project a2a1e703c0edb03ba29944e529ccbf457742737b) (based on LLVM 9.0.9svn)]
   ignore line: [Target: i686-none-linux-android30]
   ignore line: [Thread model: posix]
@@ -237,7 +237,7 @@ Parsed CXX implicit link information from above output:
   ignore line: [@m32]
   ignore line: [Selected multilib: .]
   ignore line: [@m32]
-  link line: [ "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld" --sysroot=/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -pie -z noexecstack --warn-shared-textrel -z now -z relro --hash-style=gnu --hash-style=both --enable-new-dtags --eh-frame-hdr -m elf_i386 -dynamic-linker /system/bin/linker -o cmTC_04c0b /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtbegin_dynamic.o -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/lib/linux/i386 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/lib -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib --exclude-libs libgcc.a --exclude-libs libgcc_real.a --exclude-libs libatomic.a --build-id --fatal-warnings --no-undefined --gc-sections CMakeFiles/cmTC_04c0b.dir/CMakeCXXCompilerABI.cpp.o -Bstatic -lc++ -Bdynamic -lm -lgcc -ldl -lc -lgcc -ldl /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtend_android.o]
+  link line: [ "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld" --sysroot=/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot -pie -z noexecstack --warn-shared-textrel -z now -z relro --hash-style=gnu --hash-style=both --enable-new-dtags --eh-frame-hdr -m elf_i386 -dynamic-linker /system/bin/linker -o cmTC_49fff /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtbegin_dynamic.o -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/lib/linux/i386 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30 -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/lib -L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib --exclude-libs libgcc.a --exclude-libs libgcc_real.a --exclude-libs libatomic.a --build-id --fatal-warnings --no-undefined --gc-sections CMakeFiles/cmTC_49fff.dir/CMakeCXXCompilerABI.cpp.o -Bstatic -lc++ -Bdynamic -lm -lgcc -ldl -lc -lgcc -ldl /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtend_android.o]
     arg [/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld] ==> ignore
     arg [--sysroot=/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot] ==> ignore
     arg [-pie] ==> ignore
@@ -254,7 +254,7 @@ Parsed CXX implicit link information from above output:
     arg [-dynamic-linker] ==> ignore
     arg [/system/bin/linker] ==> ignore
     arg [-o] ==> ignore
-    arg [cmTC_04c0b] ==> ignore
+    arg [cmTC_49fff] ==> ignore
     arg [/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/30/crtbegin_dynamic.o] ==> ignore
     arg [-L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/lib/linux/i386] ==> dir [/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/lib/linux/i386]
     arg [-L/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x] ==> dir [/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x]
@@ -272,7 +272,7 @@ Parsed CXX implicit link information from above output:
     arg [--fatal-warnings] ==> ignore
     arg [--no-undefined] ==> ignore
     arg [--gc-sections] ==> ignore
-    arg [CMakeFiles/cmTC_04c0b.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [CMakeFiles/cmTC_49fff.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
     arg [-Bstatic] ==> ignore
     arg [-lc++] ==> lib [c++]
     arg [-Bdynamic] ==> ignore
@@ -294,3 +294,119 @@ Parsed CXX implicit link information from above output:
   implicit fwks: []
 
 
+Performing C++ SOURCE FILE Test HAVE_EGL succeeded with the following output:
+Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_71c0d && [1/2] Building CXX object CMakeFiles/cmTC_71c0d.dir/src.cxx.o
+[2/2] Linking CXX executable cmTC_71c0d
+
+
+Source file was:
+
+#include <EGL/egl.h>
+
+int main(int argc, char *argv[]) {
+    EGLint x = 0; EGLDisplay dpy = 0; EGLContext ctx = 0;
+    eglDestroyContext(dpy, ctx);
+}
+Determining if the include file pthread.h exists passed with the following output:
+Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_84c4d && [1/2] Building C object CMakeFiles/cmTC_84c4d.dir/CheckIncludeFile.c.o
+[2/2] Linking C executable cmTC_84c4d
+
+
+
+Determining if the timespec_get exist passed with the following output:
+Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_3e29b && [1/2] Building C object CMakeFiles/cmTC_3e29b.dir/CheckSymbolExists.c.o
+[2/2] Linking C executable cmTC_3e29b
+
+
+File /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <time.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef timespec_get
+  return ((int*)(&timespec_get))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Performing C++ SOURCE FILE Test SUPPORTS_Wall succeeded with the following output:
+Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_d1797 && [1/2] Building CXX object CMakeFiles/cmTC_d1797.dir/src.cxx.o
+[2/2] Linking CXX executable cmTC_d1797
+
+
+Source file was:
+int main() { return 0; }
+Performing C SOURCE FILE Test SUPPORTS_C_Wall succeeded with the following output:
+Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_2181f && [1/2] Building C object CMakeFiles/cmTC_2181f.dir/src.c.o
+[2/2] Linking C executable cmTC_2181f
+
+
+Source file was:
+int main(void) { return 0; }
+Performing C++ SOURCE FILE Test SUPPORTS_Werrorunusedparameter succeeded with the following output:
+Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_27e57 && [1/2] Building CXX object CMakeFiles/cmTC_27e57.dir/src.cxx.o
+[2/2] Linking CXX executable cmTC_27e57
+
+
+Source file was:
+int main() { return 0; }
+Performing C SOURCE FILE Test SUPPORTS_C_Werrorunusedparameter succeeded with the following output:
+Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_f0fdf && [1/2] Building C object CMakeFiles/cmTC_f0fdf.dir/src.c.o
+[2/2] Linking C executable cmTC_f0fdf
+
+
+Source file was:
+int main(void) { return 0; }
+Performing C++ SOURCE FILE Test SUPPORTS_Werrorunusedargument succeeded with the following output:
+Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_a5cfa && [1/2] Building CXX object CMakeFiles/cmTC_a5cfa.dir/src.cxx.o
+[2/2] Linking CXX executable cmTC_a5cfa
+
+
+Source file was:
+int main() { return 0; }
+Performing C SOURCE FILE Test SUPPORTS_C_Werrorunusedargument succeeded with the following output:
+Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_0e834 && [1/2] Building C object CMakeFiles/cmTC_0e834.dir/src.c.o
+[2/2] Linking C executable cmTC_0e834
+
+
+Source file was:
+int main(void) { return 0; }
+Performing C++ SOURCE FILE Test SUPPORTS_Wpointerarith succeeded with the following output:
+Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_7bc42 && [1/2] Building CXX object CMakeFiles/cmTC_7bc42.dir/src.cxx.o
+[2/2] Linking CXX executable cmTC_7bc42
+
+
+Source file was:
+int main() { return 0; }
+Performing C SOURCE FILE Test SUPPORTS_C_Wpointerarith succeeded with the following output:
+Change Dir: /home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja cmTC_88e88 && [1/2] Building C object CMakeFiles/cmTC_88e88.dir/src.c.o
+[2/2] Linking C executable cmTC_88e88
+
+
+Source file was:
+int main(void) { return 0; }

@@ -14,6 +14,12 @@ project("oculusecg")
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
+# set(PROJECT_SOURCE_DIR ../../../../OpenXR-SDK-Source/)
+
+set(BUILD_LOADER OFF)
+
+add_subdirectory(../../../../OpenXR-SDK-Source/ /tmp)
+
 add_library( # Sets the name of the library.
         oculusecg
 

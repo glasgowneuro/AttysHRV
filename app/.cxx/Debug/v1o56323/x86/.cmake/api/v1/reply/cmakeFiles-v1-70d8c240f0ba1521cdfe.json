@@ -355,6 +355,341 @@
 		{
 			"isGenerated" : true,
 			"path" : "/home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86/CMakeFiles/3.18.1-g262b901/CMakeCXXCompiler.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/CMakeLists.txt"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPythonInterp.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/cmake/cmake_uninstall.cmake.in"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/include/CMakeLists.txt"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/include/openxr/CMakeLists.txt"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/include/openxr/openxr_platform_defines.h"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/include/openxr/openxr_platform_defines.h"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/CMakeLists.txt"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/cmake/StdFilesystemFlags.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckCXXSourceCompiles.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/cmake/FindOpenGLES.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPkgConfig.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FeatureSummary.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/cmake/FindEGL.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckCXXSourceCompiles.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakePushCheckState.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPkgConfig.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FeatureSummary.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindVulkan.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindThreads.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckLibraryExists.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckIncludeFile.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckCSourceCompiles.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckIncludeFile.c.in"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckFunctionExists.c"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckFunctionExists.c"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckForPthreads.c"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/cmake/FindJsonCpp.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPkgConfig.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakeDependentOption.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckFunctionExists.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckFunctionExists.c"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckFunctionExists.c"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/common_config.h.in"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckSymbolExists.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakeConfigurableFile.in"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/version.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckCXXCompilerFlag.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckCXXSourceCompiles.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckCCompilerFlag.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CheckCSourceCompiles.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/loader/CMakeLists.txt"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/loader/openxr.pc.in"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/CMakePackageConfigHelpers.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/WriteBasicConfigVersionFile.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/loader/OpenXRConfig.cmake.in"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/bp1/Android/Sdk/cmake/3.18.1/share/cmake-3.18/Modules/BasicConfigVersion-SameMajorVersion.cmake.in"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/api_layers/CMakeLists.txt"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/api_layers/api_layer_platform_defines.h"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/tests/CMakeLists.txt"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/tests/hello_xr/CMakeLists.txt"
 		}
 	],
 	"kind" : "cmakeFiles",

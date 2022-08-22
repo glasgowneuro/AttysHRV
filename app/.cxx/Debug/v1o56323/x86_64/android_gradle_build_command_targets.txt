@@ -1,0 +1,11 @@
+Executable : /home/bp1/Android/Sdk/cmake/3.18.1/bin/ninja
+arguments : 
+-C
+/home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/x86_64
+XrApiLayer_api_dump
+XrApiLayer_core_validation
+hello_xr
+oculusecg
+openxr_loader
+jvmArgs : 
+
