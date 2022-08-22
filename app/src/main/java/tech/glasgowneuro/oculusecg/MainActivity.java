@@ -7,30 +7,9 @@ import android.widget.TextView;
 
 import tech.glasgowneuro.oculusecg.databinding.ActivityMainBinding;
 
-public class MainActivity extends AppCompatActivity {
-
-    // Used to load the 'oculusecg' library on application startup.
-    static {
-        System.loadLibrary("oculusecg");
-    }
-
-    private ActivityMainBinding binding;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        // Example of a call to a native method
-        TextView tv = binding.sampleText;
-        tv.setText(stringFromJNI());
-    }
-
-    /**
-     * A native method that is implemented by the 'oculusecg' native library,
-     * which is packaged with this application.
-     */
-    public native String stringFromJNI();
+public class MainActivity extends android.app.NativeActivity {
+  static {
+    System.loadLibrary("openxr_loader");
+    System.loadLibrary("oculusecg");
+  }
 }

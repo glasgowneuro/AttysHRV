@@ -7,3 +7,10 @@
 0	3	0	clean	862e7f49b9a2f944
 0	841	1661172537	CMakeFiles/oculusecg.dir/native-lib.cpp.o	4b1d2bacab564bba
 841	885	1661172537	/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/armeabi-v7a/liboculusecg.so	1680f890b370d806
+8	1112	1661173446	CMakeFiles/oculusecg.dir/native-lib.cpp.o	4b1d2bacab564bba
+0	1236	1661173446	CMakeFiles/oculusecg.dir/SimpleXrInput.cpp.o	bd14cdcf12cecf21
+1	1440	1661173446	CMakeFiles/oculusecg.dir/SpatialAnchorGl.cpp.o	d8fc5f1d8b897cff
+0	11	0	clean	862e7f49b9a2f944
+16	1651	1661175284	CMakeFiles/oculusecg.dir/native-lib.cpp.o	4b1d2bacab564bba
+1	1668	1661175284	CMakeFiles/oculusecg.dir/SimpleXrInput.cpp.o	bd14cdcf12cecf21
+8	2241	1661175285	CMakeFiles/oculusecg.dir/SpatialAnchorGl.cpp.o	d8fc5f1d8b897cff

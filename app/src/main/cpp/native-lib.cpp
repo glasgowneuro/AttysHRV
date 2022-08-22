@@ -10,3 +10,5 @@ Java_tech_glasgowneuro_oculusecg_MainActivity_stringFromJNI(
     std::string hello = "Hello from C++";
     return env->NewStringUTF(hello.c_str());
 }
+
+
