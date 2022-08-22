@@ -16,9 +16,19 @@ project("oculusecg")
 
 # set(PROJECT_SOURCE_DIR ../../../../OpenXR-SDK-Source/)
 
-set(BUILD_LOADER OFF)
+# set(BUILD_LOADER FALSE)
 
-add_subdirectory(../../../../OpenXR-SDK-Source/ /tmp)
+set(OCULUS_OPENXR_MOBILE_SDK ../../../../../ovr_openxr_mobile_sdk)
+add_library(ovr_openxr_loader SHARED IMPORTED)
+set_property(
+        TARGET
+        ovr_openxr_loader
+        PROPERTY
+        IMPORTED_LOCATION
+        ${OCULUS_OPENXR_MOBILE_SDK}/OpenXR/Libs/Android/${ANDROID_ABI}/${CMAKE_BUILD_TYPE}/libopenxr_loader.so
+)
+
+add_subdirectory(../../../../OpenXR-SDK-Source/ ../app/.cxx/openxr)
 
 add_library( # Sets the name of the library.
         oculusecg
