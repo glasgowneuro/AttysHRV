@@ -1,16 +1,6 @@
 # ninja log v5
-0	365	1661171866	CMakeFiles/oculusecg.dir/native-lib.cpp.o	dccfd3289e52031f
-365	416	1661171866	/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/arm64-v8a/liboculusecg.so	20bd7e1dc9c186fb
-0	412	1661172501	CMakeFiles/oculusecg.dir/native-lib.cpp.o	2bfe422b683b3b05
-412	463	1661172501	/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/arm64-v8a/liboculusecg.so	20bd7e1dc9c186fb
-0	3	0	clean	862e7f49b9a2f944
-0	3	0	clean	862e7f49b9a2f944
-0	646	1661172536	CMakeFiles/oculusecg.dir/native-lib.cpp.o	2bfe422b683b3b05
-646	732	1661172536	/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/arm64-v8a/liboculusecg.so	20bd7e1dc9c186fb
-1	666	1661173445	CMakeFiles/oculusecg.dir/native-lib.cpp.o	2bfe422b683b3b05
-1	764	1661173445	CMakeFiles/oculusecg.dir/SimpleXrInput.cpp.o	1dbb553b36ffa3cf
-1	891	1661173445	CMakeFiles/oculusecg.dir/SpatialAnchorGl.cpp.o	a41f4e000203187b
-0	8	0	clean	862e7f49b9a2f944
-26	1403	1661175282	CMakeFiles/oculusecg.dir/native-lib.cpp.o	2bfe422b683b3b05
-1	1453	1661175282	CMakeFiles/oculusecg.dir/SimpleXrInput.cpp.o	1dbb553b36ffa3cf
-14	1479	1661175282	CMakeFiles/oculusecg.dir/SpatialAnchorGl.cpp.o	a41f4e000203187b
+9	673	1661176466	CMakeFiles/oculusecg.dir/native-lib.cpp.o	c84cca521b0db858
+0	813	1661176466	CMakeFiles/oculusecg.dir/SimpleXrInput.cpp.o	440bb1e465c4356
+1	1016	1661176467	CMakeFiles/oculusecg.dir/SpatialAnchorGl.cpp.o	79917785f1fe44cf
+9	1289	1661176467	CMakeFiles/oculusecg.dir/SpatialAnchorXr.cpp.o	c2d16b98f94471b1
+1	102	1661176566	/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/arm64-v8a/liboculusecg.so	890ef12c46e4e6d3

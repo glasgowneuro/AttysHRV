@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.18.1)
 project("oculusecg")
 
 # set it to the oculus API
-set(OCULUS_OPENXR_MOBILE_SDK ../../../../../ovr_openxr_mobile_sdk)
+set(OCULUS_OPENXR_MOBILE_SDK /home/bp1/sandbox/ovr_openxr_mobile_sdk)
 
 add_library(openxr_loader SHARED IMPORTED)
 set_property(
@@ -25,6 +25,7 @@ include_directories(
         ${OCULUS_OPENXR_MOBILE_SDK}/3rdParty/khronos/openxr/OpenXR-SDK/include
         ${OCULUS_OPENXR_MOBILE_SDK}/1stParty/OVR/Include/
         ${OCULUS_OPENXR_MOBILE_SDK}/OpenXR/Include
+        ${ANDROID_NDK}/sources/android/native_app_glue/
 )
 set(CODEGEN_FOLDER ../app/.cxx/openxr)
 add_subdirectory(${OCULUS_OPENXR_MOBILE_SDK}/3rdParty/khronos/openxr/OpenXR-SDK/include ${CODEGEN_FOLDER})
@@ -60,6 +61,11 @@ find_library( # Sets the name of the path variable.
 target_link_libraries( # Specifies the target library.
         oculusecg
 
+        openxr_loader
+        nativewindow
+        android
+        GLESv3
+        EGL
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})

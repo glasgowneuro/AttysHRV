@@ -29,7 +29,9 @@
       "abi": "arm64-v8a",
       "artifactName": "oculusecg",
       "output": "/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/arm64-v8a/liboculusecg.so",
-      "runtimeFiles": []
+      "runtimeFiles": [
+        "/home/bp1/sandbox/ovr_openxr_mobile_sdk/OpenXR/Libs/Android/arm64-v8a/Debug/libopenxr_loader.so"
+      ]
     }
   },
   "toolchains": {

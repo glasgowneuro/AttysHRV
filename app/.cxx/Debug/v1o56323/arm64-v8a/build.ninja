@@ -112,7 +112,7 @@ build CMakeFiles/oculusecg.dir/SpatialAnchorGl.cpp.o: CXX_COMPILER__oculusecg_De
   DEFINES = -Doculusecg_EXPORTS
   DEP_FILE = CMakeFiles/oculusecg.dir/SpatialAnchorGl.cpp.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -I/home/bp1/sandbox/OculusECG/app/src/main/cpp/../../../../../ovr_openxr_mobile_sdk/3rdParty/khronos/openxr/OpenXR-SDK/include -I/home/bp1/sandbox/OculusECG/app/src/main/cpp/../../../../../ovr_openxr_mobile_sdk/1stParty/OVR/Include -I/home/bp1/sandbox/OculusECG/app/src/main/cpp/../../../../../ovr_openxr_mobile_sdk/OpenXR/Include
+  INCLUDES = -I/home/bp1/sandbox/ovr_openxr_mobile_sdk/3rdParty/khronos/openxr/OpenXR-SDK/include -I/home/bp1/sandbox/ovr_openxr_mobile_sdk/1stParty/OVR/Include -I/home/bp1/sandbox/ovr_openxr_mobile_sdk/OpenXR/Include -I/home/bp1/Android/Sdk/ndk/21.4.7075529/sources/android/native_app_glue
   OBJECT_DIR = CMakeFiles/oculusecg.dir
   OBJECT_FILE_DIR = CMakeFiles/oculusecg.dir
 
@@ -120,7 +120,7 @@ build CMakeFiles/oculusecg.dir/SimpleXrInput.cpp.o: CXX_COMPILER__oculusecg_Debu
   DEFINES = -Doculusecg_EXPORTS
   DEP_FILE = CMakeFiles/oculusecg.dir/SimpleXrInput.cpp.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -I/home/bp1/sandbox/OculusECG/app/src/main/cpp/../../../../../ovr_openxr_mobile_sdk/3rdParty/khronos/openxr/OpenXR-SDK/include -I/home/bp1/sandbox/OculusECG/app/src/main/cpp/../../../../../ovr_openxr_mobile_sdk/1stParty/OVR/Include -I/home/bp1/sandbox/OculusECG/app/src/main/cpp/../../../../../ovr_openxr_mobile_sdk/OpenXR/Include
+  INCLUDES = -I/home/bp1/sandbox/ovr_openxr_mobile_sdk/3rdParty/khronos/openxr/OpenXR-SDK/include -I/home/bp1/sandbox/ovr_openxr_mobile_sdk/1stParty/OVR/Include -I/home/bp1/sandbox/ovr_openxr_mobile_sdk/OpenXR/Include -I/home/bp1/Android/Sdk/ndk/21.4.7075529/sources/android/native_app_glue
   OBJECT_DIR = CMakeFiles/oculusecg.dir
   OBJECT_FILE_DIR = CMakeFiles/oculusecg.dir
 
@@ -128,7 +128,7 @@ build CMakeFiles/oculusecg.dir/SpatialAnchorXr.cpp.o: CXX_COMPILER__oculusecg_De
   DEFINES = -Doculusecg_EXPORTS
   DEP_FILE = CMakeFiles/oculusecg.dir/SpatialAnchorXr.cpp.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -I/home/bp1/sandbox/OculusECG/app/src/main/cpp/../../../../../ovr_openxr_mobile_sdk/3rdParty/khronos/openxr/OpenXR-SDK/include -I/home/bp1/sandbox/OculusECG/app/src/main/cpp/../../../../../ovr_openxr_mobile_sdk/1stParty/OVR/Include -I/home/bp1/sandbox/OculusECG/app/src/main/cpp/../../../../../ovr_openxr_mobile_sdk/OpenXR/Include
+  INCLUDES = -I/home/bp1/sandbox/ovr_openxr_mobile_sdk/3rdParty/khronos/openxr/OpenXR-SDK/include -I/home/bp1/sandbox/ovr_openxr_mobile_sdk/1stParty/OVR/Include -I/home/bp1/sandbox/ovr_openxr_mobile_sdk/OpenXR/Include -I/home/bp1/Android/Sdk/ndk/21.4.7075529/sources/android/native_app_glue
   OBJECT_DIR = CMakeFiles/oculusecg.dir
   OBJECT_FILE_DIR = CMakeFiles/oculusecg.dir
 
@@ -136,7 +136,7 @@ build CMakeFiles/oculusecg.dir/native-lib.cpp.o: CXX_COMPILER__oculusecg_Debug /
   DEFINES = -Doculusecg_EXPORTS
   DEP_FILE = CMakeFiles/oculusecg.dir/native-lib.cpp.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -I/home/bp1/sandbox/OculusECG/app/src/main/cpp/../../../../../ovr_openxr_mobile_sdk/3rdParty/khronos/openxr/OpenXR-SDK/include -I/home/bp1/sandbox/OculusECG/app/src/main/cpp/../../../../../ovr_openxr_mobile_sdk/1stParty/OVR/Include -I/home/bp1/sandbox/OculusECG/app/src/main/cpp/../../../../../ovr_openxr_mobile_sdk/OpenXR/Include
+  INCLUDES = -I/home/bp1/sandbox/ovr_openxr_mobile_sdk/3rdParty/khronos/openxr/OpenXR-SDK/include -I/home/bp1/sandbox/ovr_openxr_mobile_sdk/1stParty/OVR/Include -I/home/bp1/sandbox/ovr_openxr_mobile_sdk/OpenXR/Include -I/home/bp1/Android/Sdk/ndk/21.4.7075529/sources/android/native_app_glue
   OBJECT_DIR = CMakeFiles/oculusecg.dir
   OBJECT_FILE_DIR = CMakeFiles/oculusecg.dir
 
@@ -148,10 +148,10 @@ build CMakeFiles/oculusecg.dir/native-lib.cpp.o: CXX_COMPILER__oculusecg_Debug /
 #############################################
 # Link the shared library /home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/arm64-v8a/liboculusecg.so
 
-build /home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/arm64-v8a/liboculusecg.so: CXX_SHARED_LIBRARY_LINKER__oculusecg_Debug CMakeFiles/oculusecg.dir/SpatialAnchorGl.cpp.o CMakeFiles/oculusecg.dir/SimpleXrInput.cpp.o CMakeFiles/oculusecg.dir/SpatialAnchorXr.cpp.o CMakeFiles/oculusecg.dir/native-lib.cpp.o | /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/30/liblog.so
+build /home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/arm64-v8a/liboculusecg.so: CXX_SHARED_LIBRARY_LINKER__oculusecg_Debug CMakeFiles/oculusecg.dir/SpatialAnchorGl.cpp.o CMakeFiles/oculusecg.dir/SimpleXrInput.cpp.o CMakeFiles/oculusecg.dir/SpatialAnchorXr.cpp.o CMakeFiles/oculusecg.dir/native-lib.cpp.o | /home/bp1/sandbox/ovr_openxr_mobile_sdk/OpenXR/Libs/Android/arm64-v8a/Debug/libopenxr_loader.so /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/30/liblog.so
   LANGUAGE_COMPILE_FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O0 -fno-limit-debug-info
   LINK_FLAGS = -Wl,--exclude-libs,libgcc.a -Wl,--exclude-libs,libgcc_real.a -Wl,--exclude-libs,libatomic.a -static-libstdc++ -Wl,--build-id -Wl,--fatal-warnings -Wl,--no-undefined -Qunused-arguments
-  LINK_LIBRARIES = /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/30/liblog.so  -latomic -lm
+  LINK_LIBRARIES = /home/bp1/sandbox/ovr_openxr_mobile_sdk/OpenXR/Libs/Android/arm64-v8a/Debug/libopenxr_loader.so  -lnativewindow  -landroid  -lGLESv3  -lEGL  /home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/30/liblog.so  -latomic -lm
   OBJECT_DIR = CMakeFiles/oculusecg.dir
   POST_BUILD = :
   PRE_LINK = :
