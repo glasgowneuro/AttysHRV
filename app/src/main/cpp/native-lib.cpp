@@ -1,6 +1,8 @@
 #include <jni.h>
 #include <string>
 
+#include "native-lib.h"
+
 extern "C" JNIEXPORT jstring JNICALL
 Java_tech_glasgowneuro_oculusecg_MainActivity_stringFromJNI(
         JNIEnv* env,

@@ -1,14 +1,8 @@
 {
   "buildFiles": [
-    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/CMakeLists.txt",
-    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/include/CMakeLists.txt",
-    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/include/openxr/CMakeLists.txt",
-    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/CMakeLists.txt",
-    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/api_layers/CMakeLists.txt",
-    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/loader/CMakeLists.txt",
-    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/tests/CMakeLists.txt",
-    "/home/bp1/sandbox/OculusECG/OpenXR-SDK-Source/src/tests/hello_xr/CMakeLists.txt",
-    "/home/bp1/sandbox/OculusECG/app/src/main/cpp/CMakeLists.txt"
+    "/home/bp1/sandbox/OculusECG/app/src/main/cpp/CMakeLists.txt",
+    "/home/bp1/sandbox/ovr_openxr_mobile_sdk/3rdParty/khronos/openxr/OpenXR-SDK/include/CMakeLists.txt",
+    "/home/bp1/sandbox/ovr_openxr_mobile_sdk/3rdParty/khronos/openxr/OpenXR-SDK/include/openxr/CMakeLists.txt"
   ],
   "cleanCommandsComponents": [
     [
@@ -25,38 +19,10 @@
     "{LIST_OF_TARGETS_TO_BUILD}"
   ],
   "libraries": {
-    "XrApiLayer_api_dump::@70ec67a89760d48c8878": {
-      "toolchain": "toolchain",
-      "abi": "arm64-v8a",
-      "artifactName": "XrApiLayer_api_dump",
-      "output": "/home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/app/.cxx/openxr/src/api_layers/libXrApiLayer_api_dump.so",
-      "runtimeFiles": []
-    },
-    "XrApiLayer_core_validation::@70ec67a89760d48c8878": {
-      "toolchain": "toolchain",
-      "abi": "arm64-v8a",
-      "artifactName": "XrApiLayer_core_validation",
-      "output": "/home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/app/.cxx/openxr/src/api_layers/libXrApiLayer_core_validation.so",
-      "runtimeFiles": []
-    },
-    "android_native_app_glue::@4e31fa85ed3f1fe70214": {
-      "toolchain": "toolchain",
-      "abi": "arm64-v8a",
-      "artifactName": "android_native_app_glue"
-    },
-    "generate_openxr_header::@4927c5ab7db88823ce5d": {
+    "generate_openxr_header::@da5939e54922fecd4765": {
       "toolchain": "toolchain",
       "abi": "arm64-v8a",
       "artifactName": "generate_openxr_header"
-    },
-    "hello_xr::@a052f8af4fb116da02bf": {
-      "toolchain": "toolchain",
-      "abi": "arm64-v8a",
-      "artifactName": "hello_xr",
-      "output": "/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/arm64-v8a/libhello_xr.so",
-      "runtimeFiles": [
-        "/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/arm64-v8a/libopenxr_loader.so"
-      ]
     },
     "oculusecg::@6890427a1f51a3e7e1df": {
       "toolchain": "toolchain",
@@ -64,34 +30,6 @@
       "artifactName": "oculusecg",
       "output": "/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/arm64-v8a/liboculusecg.so",
       "runtimeFiles": []
-    },
-    "openxr-gfxwrapper::@4e31fa85ed3f1fe70214": {
-      "toolchain": "toolchain",
-      "abi": "arm64-v8a",
-      "artifactName": "openxr-gfxwrapper",
-      "output": "/home/bp1/sandbox/OculusECG/app/.cxx/Debug/v1o56323/app/.cxx/openxr/src/libopenxr-gfxwrapper.a"
-    },
-    "openxr_loader::@25ad5389d7d477d635c8": {
-      "toolchain": "toolchain",
-      "abi": "arm64-v8a",
-      "artifactName": "openxr_loader",
-      "output": "/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/arm64-v8a/libopenxr_loader.so",
-      "runtimeFiles": []
-    },
-    "run_hello_xr_glsl_compiles::@a052f8af4fb116da02bf": {
-      "toolchain": "toolchain",
-      "abi": "arm64-v8a",
-      "artifactName": "run_hello_xr_glsl_compiles"
-    },
-    "uninstall::@fe615c8a6dc9e8b670bc": {
-      "toolchain": "toolchain",
-      "abi": "arm64-v8a",
-      "artifactName": "uninstall"
-    },
-    "xr_global_generated_files::@4e31fa85ed3f1fe70214": {
-      "toolchain": "toolchain",
-      "abi": "arm64-v8a",
-      "artifactName": "xr_global_generated_files"
     }
   },
   "toolchains": {
@@ -100,9 +38,7 @@
       "cppCompilerExecutable": "/home/bp1/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
     }
   },
-  "cFileExtensions": [
-    "c"
-  ],
+  "cFileExtensions": [],
   "cppFileExtensions": [
     "cpp"
   ]

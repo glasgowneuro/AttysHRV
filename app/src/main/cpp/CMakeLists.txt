@@ -9,26 +9,25 @@ cmake_minimum_required(VERSION 3.18.1)
 
 project("oculusecg")
 
-# Creates and names a library, sets it as either STATIC
-# or SHARED, and provides the relative paths to its source code.
-# You can define multiple libraries, and CMake builds them for you.
-# Gradle automatically packages shared libraries with your APK.
-
-# set(PROJECT_SOURCE_DIR ../../../../OpenXR-SDK-Source/)
-
-# set(BUILD_LOADER FALSE)
-
+# set it to the oculus API
 set(OCULUS_OPENXR_MOBILE_SDK ../../../../../ovr_openxr_mobile_sdk)
-add_library(ovr_openxr_loader SHARED IMPORTED)
+
+add_library(openxr_loader SHARED IMPORTED)
 set_property(
         TARGET
-        ovr_openxr_loader
+        openxr_loader
         PROPERTY
         IMPORTED_LOCATION
         ${OCULUS_OPENXR_MOBILE_SDK}/OpenXR/Libs/Android/${ANDROID_ABI}/${CMAKE_BUILD_TYPE}/libopenxr_loader.so
 )
 
-add_subdirectory(../../../../OpenXR-SDK-Source/ ../app/.cxx/openxr)
+include_directories(
+        ${OCULUS_OPENXR_MOBILE_SDK}/3rdParty/khronos/openxr/OpenXR-SDK/include
+        ${OCULUS_OPENXR_MOBILE_SDK}/1stParty/OVR/Include/
+        ${OCULUS_OPENXR_MOBILE_SDK}/OpenXR/Include
+)
+set(CODEGEN_FOLDER ../app/.cxx/openxr)
+add_subdirectory(${OCULUS_OPENXR_MOBILE_SDK}/3rdParty/khronos/openxr/OpenXR-SDK/include ${CODEGEN_FOLDER})
 
 add_library( # Sets the name of the library.
         oculusecg
