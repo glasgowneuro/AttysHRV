@@ -43,23 +43,11 @@ using namespace OVR;
 #define EGL_OPENGL_ES3_BIT_KHR 0x0040
 #endif
 
-#if defined(ANDROID)
 #define DEBUG 1
 #define OVR_LOG_TAG "SpatialAnchorXr"
 
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, OVR_LOG_TAG, __VA_ARGS__)
 #define ALOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, OVR_LOG_TAG, __VA_ARGS__)
-#else
-#include <cinttypes>
-#define ALOGE(...)       \
-    printf("ERROR: ");   \
-    printf(__VA_ARGS__); \
-    printf("\n")
-#define ALOGV(...)       \
-    printf("VERBOSE: "); \
-    printf(__VA_ARGS__); \
-    printf("\n")
-#endif
 
 static const int CPU_LEVEL = 2;
 static const int GPU_LEVEL = 3;
@@ -246,7 +234,6 @@ struct ovrEgl {
     void Clear();
     void CreateContext(const ovrEgl* shareEgl);
     void DestroyContext();
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
     EGLint MajorVersion;
     EGLint MinorVersion;
     EGLDisplay Display;
@@ -254,14 +241,9 @@ struct ovrEgl {
     EGLSurface TinySurface;
     EGLSurface MainSurface;
     EGLContext Context;
-#elif defined(XR_USE_GRAPHICS_API_OPENGL)
-    HDC hDC;
-    HGLRC hGLRC;
-#endif //
 };
 
 void ovrEgl::Clear() {
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
     MajorVersion = 0;
     MinorVersion = 0;
     Display = 0;
@@ -269,13 +251,8 @@ void ovrEgl::Clear() {
     TinySurface = EGL_NO_SURFACE;
     MainSurface = EGL_NO_SURFACE;
     Context = EGL_NO_CONTEXT;
-#elif defined(XR_USE_GRAPHICS_API_OPENGL)
-    hDC = 0;
-    hGLRC = 0;
-#endif
 }
 
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
 void ovrEgl::CreateContext(const ovrEgl* shareEgl) {
     if (Display != 0) {
         return;
@@ -402,18 +379,6 @@ void ovrEgl::DestroyContext() {
     }
 }
 
-#elif defined(XR_USE_GRAPHICS_API_OPENGL)
-
-void ovrEgl::CreateContext(const ovrEgl*) {
-    ovrGl_CreateContext_Windows(&hDC, &hGLRC);
-}
-
-void ovrEgl::DestroyContext() {
-    ovrGl_DestroyContext_Windows();
-}
-
-#endif
-
 /*
 ================================================================================
 
@@ -454,10 +419,8 @@ struct ovrApp {
     bool IsComponentSupported(XrSpace space, XrSpaceComponentTypeFB type);
 
     ovrEgl Egl;
-#if defined(XR_USE_PLATFORM_ANDROID)
     ANativeWindow* NativeWindow;
     bool Resumed;
-#endif // defined(XR_USE_PLATFORM_ANDROID)
     bool ShouldExit;
     bool Focused;
 
@@ -497,10 +460,8 @@ struct ovrApp {
 };
 
 void ovrApp::Clear() {
-#if defined(XR_USE_PLATFORM_ANDROID)
     NativeWindow = NULL;
     Resumed = false;
-#endif // defined(XR_USE_PLATFORM_ANDROID)
     ShouldExit = false;
     Focused = false;
     instance = XR_NULL_HANDLE;
@@ -532,10 +493,8 @@ void ovrApp::Clear() {
 
 void ovrApp::HandleSessionStateChanges(XrSessionState state) {
     if (state == XR_SESSION_STATE_READY) {
-#if defined(XR_USE_PLATFORM_ANDROID)
         assert(Resumed);
         assert(NativeWindow != NULL);
-#endif // defined(XR_USE_PLATFORM_ANDROID)
         assert(SessionActive == false);
 
         XrSessionBeginInfo sessionBeginInfo = {};
@@ -548,7 +507,6 @@ void ovrApp::HandleSessionStateChanges(XrSessionState state) {
 
         SessionActive = (result == XR_SUCCESS);
 
-#if defined(XR_USE_PLATFORM_ANDROID)
         // Set session state once we have entered VR mode and have a valid session object.
         if (SessionActive) {
             XrPerfSettingsLevelEXT cpuPerfLevel = XR_PERF_SETTINGS_LEVEL_SUSTAINED_HIGH_EXT;
@@ -611,11 +569,8 @@ void ovrApp::HandleSessionStateChanges(XrSessionState state) {
             OXR(pfnSetAndroidApplicationThreadKHR(
                 Session, XR_ANDROID_THREAD_TYPE_RENDERER_MAIN_KHR, RenderThreadTid));
         }
-#endif // defined(XR_USE_PLATFORM_ANDROID)
     } else if (state == XR_SESSION_STATE_STOPPING) {
-#if defined(XR_USE_PLATFORM_ANDROID)
         assert(Resumed == false);
-#endif // defined(XR_USE_PLATFORM_ANDROID)
         assert(SessionActive);
 
         OXR(xrEndSession(Session));
@@ -891,7 +846,6 @@ Native Activity
 ================================================================================
 */
 
-#if defined(ANDROID)
 /**
  * Process the next main command.
  */
@@ -944,7 +898,6 @@ static void app_handle_cmd(struct android_app* androidApp, int32_t cmd) {
         }
     }
 }
-#endif // defined(ANDROID)
 
 static Matrix4f OvrFromXr(const XrMatrix4x4f& x) {
     return Matrix4f(
@@ -1063,18 +1016,13 @@ void PlaceAnchor(ovrApp& app, SimpleXrInput* input, const XrFrameState& frameSta
     ALOGV("Place Spatial Anchor initiated.");
 }
 
-#if defined(XR_USE_PLATFORM_ANDROID)
 /**
  * This is the main entry point of a native application that is using
  * android_native_app_glue.  It runs in its own thread, with its own
  * event loop for receiving input events and doing other things.
  */
 void android_main(struct android_app* androidApp) {
-#else
-int main() {
-#endif // defined(XR_USE_PLATFORM_ANDROID)
 
-#if defined(XR_USE_PLATFORM_ANDROID)
     ALOGV("----------------------------------------------------------------");
     ALOGV("android_app_entry()");
     ALOGV("    android_main()");
@@ -1084,12 +1032,10 @@ int main() {
 
     // Note that AttachCurrentThread will reset the thread name.
     prctl(PR_SET_NAME, (long)"OVR::Main", 0, 0, 0);
-#endif // defined(XR_USE_PLATFORM_ANDROID)
 
     ovrApp app;
     app.Clear();
 
-#if defined(XR_USE_PLATFORM_ANDROID)
     PFN_xrInitializeLoaderKHR xrInitializeLoaderKHR;
     xrGetInstanceProcAddr(
         XR_NULL_HANDLE, "xrInitializeLoaderKHR", (PFN_xrVoidFunction*)&xrInitializeLoaderKHR);
@@ -1102,7 +1048,6 @@ int main() {
         loaderInitializeInfoAndroid.applicationContext = androidApp->activity->clazz;
         xrInitializeLoaderKHR((XrLoaderInitInfoBaseHeaderKHR*)&loaderInitializeInfoAndroid);
     }
-#endif // defined(XR_USE_PLATFORM_ANDROID)
 
     // Log available layers.
     {
@@ -1142,19 +1087,13 @@ int main() {
 
     // Check that the extensions required are present.
     const char* const requiredExtensionNames[] = {
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
         XR_KHR_OPENGL_ES_ENABLE_EXTENSION_NAME,
-#elif defined(XR_USE_GRAPHICS_API_OPENGL)
-        XR_KHR_OPENGL_ENABLE_EXTENSION_NAME,
-#endif
-#if defined(XR_USE_PLATFORM_ANDROID)
         XR_EXT_PERFORMANCE_SETTINGS_EXTENSION_NAME,
         XR_KHR_ANDROID_THREAD_SETTINGS_EXTENSION_NAME,
-#endif // defined(XR_USE_PLATFORM_ANDROID)
         XR_FB_PASSTHROUGH_EXTENSION_NAME,
         XR_FB_SPATIAL_ENTITY_EXTENSION_NAME,
         XR_FB_SPATIAL_ENTITY_QUERY_EXTENSION_NAME,
-            XR_FB_SPATIAL_ENTITY_STORAGE_EXTENSION_NAME
+        XR_FB_SPATIAL_ENTITY_STORAGE_EXTENSION_NAME
     };
     const uint32_t numRequiredExtensions =
         sizeof(requiredExtensionNames) / sizeof(requiredExtensionNames[0]);
@@ -1279,7 +1218,6 @@ int main() {
 
     assert(ovrMaxLayerCount <= systemProperties.graphicsProperties.maxLayerCount);
 
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
     // Get the graphics requirements.
     PFN_xrGetOpenGLESGraphicsRequirementsKHR pfnGetOpenGLESGraphicsRequirementsKHR = NULL;
     OXR(xrGetInstanceProcAddr(
@@ -1290,18 +1228,6 @@ int main() {
     XrGraphicsRequirementsOpenGLESKHR graphicsRequirements = {};
     graphicsRequirements.type = XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_ES_KHR;
     OXR(pfnGetOpenGLESGraphicsRequirementsKHR(instance, systemId, &graphicsRequirements));
-#elif defined(XR_USE_GRAPHICS_API_OPENGL)
-    // Get the graphics requirements.
-    PFN_xrGetOpenGLGraphicsRequirementsKHR pfnGetOpenGLGraphicsRequirementsKHR = NULL;
-    OXR(xrGetInstanceProcAddr(
-        instance,
-        "xrGetOpenGLGraphicsRequirementsKHR",
-        (PFN_xrVoidFunction*)(&pfnGetOpenGLGraphicsRequirementsKHR)));
-
-    XrGraphicsRequirementsOpenGLKHR graphicsRequirements = {};
-    graphicsRequirements.type = XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_KHR;
-    OXR(pfnGetOpenGLGraphicsRequirementsKHR(instance, systemId, &graphicsRequirements));
-#endif
 
     // Create the EGL Context
     app.Egl.CreateContext(nullptr);
@@ -1320,29 +1246,17 @@ int main() {
 
     app.CpuLevel = CPU_LEVEL;
     app.GpuLevel = GPU_LEVEL;
-#if defined(ANDROID)
     app.MainThreadTid = gettid();
-#else
-    app.MainThreadTid = (int)std::hash<std::thread::id>{}(std::this_thread::get_id());
-#endif // defined(ANDROID)
 
     app.SystemId = systemId;
 
     // Create the OpenXR Session.
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
     XrGraphicsBindingOpenGLESAndroidKHR graphicsBinding = {};
     graphicsBinding.type = XR_TYPE_GRAPHICS_BINDING_OPENGL_ES_ANDROID_KHR;
     graphicsBinding.next = NULL;
     graphicsBinding.display = app.Egl.Display;
     graphicsBinding.config = app.Egl.Config;
     graphicsBinding.context = app.Egl.Context;
-#elif defined(XR_USE_GRAPHICS_API_OPENGL)
-    XrGraphicsBindingOpenGLWin32KHR graphicsBinding = {};
-    graphicsBinding.type = XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR;
-    graphicsBinding.next = NULL;
-    graphicsBinding.hDC = app.Egl.hDC;
-    graphicsBinding.hGLRC = app.Egl.hGLRC;
-#endif //
 
     XrSessionCreateInfo sessionCreateInfo = {};
     sessionCreateInfo.type = XR_TYPE_SESSION_CREATE_INFO;
@@ -1508,18 +1422,10 @@ int main() {
     // Create the swapchain.
     OXR(xrCreateSwapchain(app.Session, &swapChainCreateInfo, &app.ColorSwapChain));
     OXR(xrEnumerateSwapchainImages(app.ColorSwapChain, 0, &app.SwapChainLength, nullptr));
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
     auto images = new XrSwapchainImageOpenGLESKHR[app.SwapChainLength];
-#elif defined(XR_USE_GRAPHICS_API_OPENGL)
-    auto images = new XrSwapchainImageOpenGLKHR[app.SwapChainLength];
-#endif
     // Populate the swapchain image array.
     for (uint32_t i = 0; i < app.SwapChainLength; i++) {
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
         images[i] = {XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR};
-#elif defined(XR_USE_GRAPHICS_API_OPENGL)
-        images[i] = {XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR};
-#endif
     }
 
     OXR(xrEnumerateSwapchainImages(
@@ -1539,10 +1445,8 @@ int main() {
     delete[] images;
     delete[] colorTextures;
 
-#if defined(ANDROID)
     androidApp->userData = &app;
     androidApp->onAppCmd = app_handle_cmd;
-#endif // defined(ANDROID)
 
     bool stageBoundsDirty = true;
 
@@ -1657,15 +1561,10 @@ int main() {
     bool xButtonVal = false;
     bool xPrevButtonVal = false;
     
-#if defined(XR_USE_PLATFORM_ANDROID)
     while (androidApp->destroyRequested == 0)
-#else
-    while (true)
-#endif
     {
         frameCount++;
 
-#if defined(XR_USE_PLATFORM_ANDROID)
         // Read all pending events.
         for (;;) {
             int events;
@@ -1685,17 +1584,6 @@ int main() {
                 source->process(androidApp, source);
             }
         }
-#elif defined(XR_USE_PLATFORM_WIN32)
-        MSG msg;
-        while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0) {
-            if (msg.message == WM_QUIT) {
-                app.ShouldExit = true;
-            } else {
-                ::TranslateMessage(&msg);
-                ::DispatchMessage(&msg);
-            }
-        }
-#endif
 
         app.HandleXrEvents();
 
@@ -1971,7 +1859,5 @@ int main() {
     OXR(xrDestroySession(app.Session));
     OXR(xrDestroyInstance(instance));
 
-#if defined(XR_USE_PLATFORM_ANDROID)
     (*androidApp->activity->vm).DetachCurrentThread();
-#endif // defined(XR_USE_PLATFORM_ANDROID)
 }
