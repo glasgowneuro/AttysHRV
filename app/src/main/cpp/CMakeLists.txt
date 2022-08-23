@@ -12,6 +12,8 @@ project("oculusecg")
 # set it to the oculus API
 set(OCULUS_OPENXR_MOBILE_SDK /home/bp1/sandbox/ovr_openxr_mobile_sdk)
 
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+
 add_library(openxr_loader SHARED IMPORTED)
 set_property(
         TARGET
@@ -25,10 +27,13 @@ include_directories(
         ${OCULUS_OPENXR_MOBILE_SDK}/3rdParty/khronos/openxr/OpenXR-SDK/include
         ${OCULUS_OPENXR_MOBILE_SDK}/1stParty/OVR/Include/
         ${OCULUS_OPENXR_MOBILE_SDK}/OpenXR/Include
-#        ${ANDROID_NDK}/sources/android/native_app_glue/
+        ${ANDROID_NDK}/sources/android/native_app_glue/
 )
 set(CODEGEN_FOLDER ../app/.cxx/openxr)
 add_subdirectory(${OCULUS_OPENXR_MOBILE_SDK}/3rdParty/khronos/openxr/OpenXR-SDK/include ${CODEGEN_FOLDER})
+
+add_library(native_app_glue STATIC
+        ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
 
 add_library( # Sets the name of the library.
         oculusecg
@@ -66,6 +71,7 @@ target_link_libraries( # Specifies the target library.
         openxr_loader
         nativewindow
         android
+        native_app_glue
         GLESv3
         EGL
         # Links the target library to the log library
