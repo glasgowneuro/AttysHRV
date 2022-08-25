@@ -24,10 +24,8 @@
 
 #define NUM_EYES 2
 
-struct ovrGeometry {
+struct OvrGeometry {
     void Clear();
-    void CreateAxes();
-    void CreateStage();
     void Destroy();
     void CreateVAO();
     void DestroyVAO();
@@ -47,6 +45,9 @@ struct ovrGeometry {
     int IndexCount;
     VertexAttribPointer VertexAttribs[MAX_VERTEX_ATTRIB_POINTERS];
 };
+
+void CreateStage(OvrGeometry& ovrGeometry);
+void CreateAxes(OvrGeometry& ovrGeometry);
 
 struct ovrProgram {
     static constexpr int MAX_PROGRAM_UNIFORMS = 8;
@@ -72,11 +73,11 @@ struct ovrFramebuffer {
         const int height,
         const int multisamples,
         const int swapChainLength,
-        GLuint* colorTextures);
+        const GLuint* colorTextures);
     void Destroy();
-    void Bind(int element);
-    void Unbind();
-    void Resolve();
+    void Bind(int element) const;
+    static void Unbind();
+    static void Resolve();
     int Width;
     int Height;
     int Multisamples;
@@ -93,7 +94,7 @@ struct ovrScene {
     void Clear();
     void Create();
     void Destroy();
-    bool IsCreated();
+    bool IsCreated() const;
     void SetClearColor(const float* c);
     void CreateVAOs();
     void DestroyVAOs();
@@ -101,9 +102,11 @@ struct ovrScene {
     bool CreatedVAOs;
     GLuint SceneMatrices;
     ovrProgram StageProgram;
-    ovrGeometry Stage;
+    OvrGeometry Stage;
     ovrProgram AxesProgram;
-    ovrGeometry Axes;
+    OvrGeometry Axes;
+    ovrProgram ECGPlotProgram;
+    OvrGeometry ECGPlot;
     float ClearColor[4];
 
     std::vector<XrSpace> SpaceList;
