@@ -1664,33 +1664,6 @@ void android_main(struct android_app* androidApp) {
                 projections));
 
         auto& scene = app.AppRenderer.Scene;
-        scene.CubeData.clear();
-        {
-            ovrCubeData persistedCube;
-            persistedCube.ColorScale *= 0.0f;
-            persistedCube.ColorBias = OVR::Vector4f(1, 0.5, 0, 1); // Orange
-
-            for (XrSpace space : scene.SpaceList) {
-                // If anchor was placed, just update the anchor location
-                // Updating it regularly will prevent drift
-                XrSpaceLocation persistedAnchorLoc = {};
-                persistedAnchorLoc.type = XR_TYPE_SPACE_LOCATION;
-                XrResult res = XR_SUCCESS;
-                OXR(res = xrLocateSpace(
-                        space,
-                        app.LocalSpace,
-                        frameState.predictedDisplayTime,
-                        &persistedAnchorLoc));
-                if (res == XR_SUCCESS) {
-                    OVR::Posef localFromPersistedAnchor = FromXrPosef(persistedAnchorLoc.pose);
-                    persistedCube.Model = OVR::Matrix4f(localFromPersistedAnchor);
-                    persistedCube.Model *= OVR::Matrix4f::Scaling(0.01f, 0.01f, 0.05f);
-                    scene.CubeData.push_back(persistedCube);
-                } else {
-                    ALOGE("Failed getting anchor pose");
-                }
-            }
-        }
 
         // A Button: Place a world locked anchor.
         // B Button: Destroy the last-placed anchor.

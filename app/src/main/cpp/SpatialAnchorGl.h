@@ -26,7 +26,6 @@
 
 struct ovrGeometry {
     void Clear();
-    void CreateCube();
     void CreateAxes();
     void CreateStage();
     void Destroy();
@@ -90,13 +89,6 @@ struct ovrFramebuffer {
     Element* Elements;
 };
 
-struct ovrCubeData {
-    ovrCubeData() : ColorScale(1.0f, 1.0f, 1.0f, 1.0f), ColorBias(0.0f, 0.0f, 0.0f, 0.0f) {}
-    OVR::Vector4f ColorScale;
-    OVR::Vector4f ColorBias;
-    OVR::Matrix4f Model;
-};
-
 struct ovrScene {
     void Clear();
     void Create();
@@ -107,8 +99,6 @@ struct ovrScene {
     void DestroyVAOs();
     bool CreatedScene;
     bool CreatedVAOs;
-    ovrProgram CubeProgram;
-    ovrGeometry Cube;
     GLuint SceneMatrices;
     ovrProgram StageProgram;
     ovrGeometry Stage;
@@ -116,7 +106,6 @@ struct ovrScene {
     ovrGeometry Axes;
     float ClearColor[4];
 
-    std::vector<ovrCubeData> CubeData;
     std::vector<XrSpace> SpaceList;
 };
 

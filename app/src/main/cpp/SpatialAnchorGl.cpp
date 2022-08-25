@@ -223,68 +223,6 @@ void ovrGeometry::Clear() {
     }
 }
 
-void ovrGeometry::CreateCube() {
-    struct ovrCubeVertices {
-        signed char positions[8][4];
-        unsigned char colors[8][4];
-    };
-
-    static const ovrCubeVertices cubeVertices = {// positions
-                                                 {{-127, -127, -127, +127},
-                                                  {+127, -127, -127, +127},
-                                                  {-127, +127, -127, +127},
-                                                  {+127, +127, -127, +127},
-                                                  {-127, -127, +127, +127},
-                                                  {+127, -127, +127, +127},
-                                                  {-127, +127, +127, +127},
-                                                  {+127, +127, +127, +127}},
-                                                 // colors
-                                                 {{0x00, 0x00, 0x00, 0xff},
-                                                  {0xff, 0x00, 0x00, 0xff},
-                                                  {0x00, 0xff, 0x00, 0xff},
-                                                  {0xff, 0xff, 0x00, 0xff},
-                                                  {0x00, 0x00, 0xff, 0xff},
-                                                  {0xff, 0x00, 0xff, 0xff},
-                                                  {0x00, 0xff, 0xff, 0xff},
-                                                  {0xff, 0xff, 0xff, 0xff}}};
-
-    static const unsigned short cubeIndices[36] = {
-        0, 2, 1, 2, 3, 1, // back
-        4, 5, 6, 6, 5, 7, // front
-        6, 7, 2, 2, 7, 3, // top
-        4, 0, 5, 5, 0, 1, // bottom
-        0, 4, 2, 2, 4, 6, // left
-        5, 1, 7, 7, 1, 3 // right
-    };
-
-    VertexCount = 8;
-    IndexCount = 36;
-
-    VertexAttribs[0].Index = VERTEX_ATTRIBUTE_LOCATION_POSITION;
-    VertexAttribs[0].Size = 4;
-    VertexAttribs[0].Type = GL_BYTE;
-    VertexAttribs[0].Normalized = true;
-    VertexAttribs[0].Stride = sizeof(cubeVertices.positions[0]);
-    VertexAttribs[0].Pointer = (const GLvoid*)offsetof(ovrCubeVertices, positions);
-
-    VertexAttribs[1].Index = VERTEX_ATTRIBUTE_LOCATION_COLOR;
-    VertexAttribs[1].Size = 4;
-    VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
-    VertexAttribs[1].Normalized = true;
-    VertexAttribs[1].Stride = sizeof(cubeVertices.colors[0]);
-    VertexAttribs[1].Pointer = (const GLvoid*)offsetof(ovrCubeVertices, colors);
-
-    GL(glGenBuffers(1, &VertexBuffer));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-
-    GL(glGenBuffers(1, &IndexBuffer));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
-    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-}
-
 void ovrGeometry::CreateAxes() {
     struct ovrAxesVertices {
         float positions[6][3];
@@ -786,8 +724,6 @@ void ovrScene::Clear() {
     CreatedVAOs = false;
     SceneMatrices = 0;
 
-    CubeProgram.Clear();
-    Cube.Clear();
     StageProgram.Clear();
     Stage.Clear();
     AxesProgram.Clear();
@@ -800,9 +736,6 @@ bool ovrScene::IsCreated() {
 
 void ovrScene::CreateVAOs() {
     if (!CreatedVAOs) {
-        // Cube
-        Cube.CreateVAO();
-
         // Stage
         Stage.CreateVAO();
 
@@ -815,7 +748,6 @@ void ovrScene::CreateVAOs() {
 
 void ovrScene::DestroyVAOs() {
     if (CreatedVAOs) {
-        Cube.DestroyVAO();
         Stage.DestroyVAO();
         Axes.DestroyVAO();
 
@@ -824,10 +756,6 @@ void ovrScene::DestroyVAOs() {
 }
 
 void ovrScene::Create() {
-    // Cube
-    CubeProgram.Create(CUBE_VERTEX_SHADER, CUBE_FRAGMENT_SHADER);
-    Cube.CreateCube();
-
     // Setup the scene matrices.
     GL(glGenBuffers(1, &SceneMatrices));
     GL(glBindBuffer(GL_UNIFORM_BUFFER, SceneMatrices));
@@ -861,8 +789,6 @@ void ovrScene::Create() {
 void ovrScene::Destroy() {
     DestroyVAOs();
 
-    CubeProgram.Destroy();
-    Cube.Destroy();
     GL(glDeleteBuffers(1, &SceneMatrices));
     StageProgram.Destroy();
     Stage.Destroy();
@@ -938,37 +864,6 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     GL(glClearColor(
         Scene.ClearColor[0], Scene.ClearColor[1], Scene.ClearColor[2], Scene.ClearColor[3]));
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-    // Cubes
-    GL(glUseProgram(Scene.CubeProgram.Program));
-    GL(glBindBufferBase(
-        GL_UNIFORM_BUFFER,
-        Scene.CubeProgram.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
-        Scene.SceneMatrices));
-    if (Scene.CubeProgram.UniformLocation[ovrUniform::Index::VIEW_ID] >=
-        0) // NOTE: will not be present when multiview path is enabled.
-    {
-        GL(glUniform1i(Scene.CubeProgram.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
-    }
-    for (auto c : Scene.CubeData) {
-        GLint loc = Scene.CubeProgram.UniformLocation[ovrUniform::Index::MODEL_MATRIX];
-        if (loc >= 0) {
-            GL(glUniformMatrix4fv(loc, 1, GL_TRUE, &c.Model.M[0][0]));
-        }
-        loc = Scene.CubeProgram.UniformLocation[ovrUniform::Index::COLOR_SCALE];
-        if (loc >= 0) {
-            GL(glUniform4fv(loc, 1, &c.ColorScale.x));
-        }
-        loc = Scene.CubeProgram.UniformLocation[ovrUniform::Index::COLOR_BIAS];
-        if (loc >= 0) {
-            GL(glUniform4fv(loc, 1, &c.ColorBias.x));
-        }
-        GL(glBindVertexArray(Scene.Cube.VertexArrayObject));
-        GL(glDrawElements(GL_TRIANGLES, Scene.Cube.IndexCount, GL_UNSIGNED_SHORT, nullptr));
-    }
-
-    GL(glBindVertexArray(0));
-    GL(glUseProgram(0));
 
     GL(glLineWidth(3.0));
     // "tracking space" axes (could be LOCAL or LOCAL_FLOOR)
