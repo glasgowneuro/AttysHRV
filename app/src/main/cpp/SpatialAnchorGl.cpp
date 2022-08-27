@@ -212,7 +212,7 @@ static OvrVertexAttribute ProgramVertexAttributes[] = {
     {VERTEX_ATTRIBUTE_LOCATION_UV, "vertexUv"}};
 
 
-void CreateAxes(OvrGeometry &ovrGeometry) {
+void OvrAxes::Create() {
     struct ovrAxesVertices {
         float positions[6][3];
         unsigned char colors[6][4];
@@ -239,57 +239,57 @@ void CreateAxes(OvrGeometry &ovrGeometry) {
         5 // z axis - blue
     };
 
-    ovrGeometry.VertexCount = 6;
-    ovrGeometry.IndexCount = 6;
+    VertexCount = 6;
+    IndexCount = 6;
 
-    ovrGeometry.VertexAttribs[0].Index = VERTEX_ATTRIBUTE_LOCATION_POSITION;
-    ovrGeometry.VertexAttribs[0].Size = 3;
-    ovrGeometry.VertexAttribs[0].Type = GL_FLOAT;
-    ovrGeometry.VertexAttribs[0].Normalized = false;
-    ovrGeometry.VertexAttribs[0].Stride = sizeof(axesVertices.positions[0]);
-    ovrGeometry.VertexAttribs[0].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, positions);
+    VertexAttribs[0].Index = VERTEX_ATTRIBUTE_LOCATION_POSITION;
+    VertexAttribs[0].Size = 3;
+    VertexAttribs[0].Type = GL_FLOAT;
+    VertexAttribs[0].Normalized = false;
+    VertexAttribs[0].Stride = sizeof(axesVertices.positions[0]);
+    VertexAttribs[0].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, positions);
 
-    ovrGeometry.VertexAttribs[1].Index = VERTEX_ATTRIBUTE_LOCATION_COLOR;
-    ovrGeometry.VertexAttribs[1].Size = 4;
-    ovrGeometry.VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
-    ovrGeometry.VertexAttribs[1].Normalized = true;
-    ovrGeometry.VertexAttribs[1].Stride = sizeof(axesVertices.colors[0]);
-    ovrGeometry.VertexAttribs[1].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, colors);
+    VertexAttribs[1].Index = VERTEX_ATTRIBUTE_LOCATION_COLOR;
+    VertexAttribs[1].Size = 4;
+    VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
+    VertexAttribs[1].Normalized = true;
+    VertexAttribs[1].Stride = sizeof(axesVertices.colors[0]);
+    VertexAttribs[1].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, colors);
 
-    GL(glGenBuffers(1, &ovrGeometry.VertexBuffer));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, ovrGeometry.VertexBuffer));
+    GL(glGenBuffers(1, &VertexBuffer));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
     GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STATIC_DRAW));
     GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-    GL(glGenBuffers(1, &ovrGeometry.IndexBuffer));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ovrGeometry.IndexBuffer));
+    GL(glGenBuffers(1, &IndexBuffer));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
     GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STATIC_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
 
-void CreateStage(OvrGeometry& ovrGeometry) {
+void OvrStage::Create() {
     static const float stageVertices[12] = {
         -1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f};
 
     static const unsigned short stageIndices[6] = {0, 1, 2, 2, 1, 3};
 
-    ovrGeometry.VertexCount = 4;
-    ovrGeometry.IndexCount = 6;
+    VertexCount = 4;
+    IndexCount = 6;
 
-    ovrGeometry.VertexAttribs[0].Index = VERTEX_ATTRIBUTE_LOCATION_POSITION;
-    ovrGeometry.VertexAttribs[0].Size = 3;
-    ovrGeometry.VertexAttribs[0].Type = GL_FLOAT;
-    ovrGeometry.VertexAttribs[0].Normalized = false;
-    ovrGeometry.VertexAttribs[0].Stride = 3 * sizeof(float);
-    ovrGeometry.VertexAttribs[0].Pointer = (const GLvoid*)0;
+    VertexAttribs[0].Index = VERTEX_ATTRIBUTE_LOCATION_POSITION;
+    VertexAttribs[0].Size = 3;
+    VertexAttribs[0].Type = GL_FLOAT;
+    VertexAttribs[0].Normalized = false;
+    VertexAttribs[0].Stride = 3 * sizeof(float);
+    VertexAttribs[0].Pointer = (const GLvoid*)0;
 
-    GL(glGenBuffers(1, &ovrGeometry.VertexBuffer));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, ovrGeometry.VertexBuffer));
+    GL(glGenBuffers(1, &VertexBuffer));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
     GL(glBufferData(GL_ARRAY_BUFFER, sizeof(stageVertices), stageVertices, GL_STATIC_DRAW));
     GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-    GL(glGenBuffers(1, &ovrGeometry.IndexBuffer));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ovrGeometry.IndexBuffer));
+    GL(glGenBuffers(1, &IndexBuffer));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
     GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(stageIndices), stageIndices, GL_STATIC_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
@@ -333,7 +333,6 @@ void OvrGeometry::CreateVAO() {
     }
 
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
-
     GL(glBindVertexArray(0));
 }
 
@@ -755,18 +754,19 @@ void ovrScene::Create() {
         nullptr,
         GL_STATIC_DRAW));
     GL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+    GL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
     // Stage
     if (!StageProgram.Create(STAGE_VERTEX_SHADER, STAGE_FRAGMENT_SHADER)) {
         ALOGE("Failed to compile stage program");
     }
-    CreateStage(Stage);
+    Stage.Create();
 
     // Axes
     if (!AxesProgram.Create(AXES_VERTEX_SHADER, AXES_FRAGMENT_SHADER)) {
         ALOGE("Failed to compile axes program");
     }
-    CreateAxes(Axes);
+    Axes.Create();
 
     // Axes
     if (!ECGPlotProgram.Create(PLOT_VERTEX_SHADER, PLOT_FRAGEMENT_SHADER)) {
@@ -952,4 +952,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
 
     Framebuffer.Unbind();
+}
+
+void OvrECGPlot::Create() {
 }

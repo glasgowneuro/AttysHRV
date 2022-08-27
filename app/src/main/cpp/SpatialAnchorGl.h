@@ -25,6 +25,10 @@
 #define NUM_EYES 2
 
 struct OvrGeometry {
+    OvrGeometry() {
+        Clear();
+    }
+    virtual void Create() = 0;
     void Clear();
     void Destroy();
     void CreateVAO();
@@ -46,8 +50,17 @@ struct OvrGeometry {
     VertexAttribPointer VertexAttribs[MAX_VERTEX_ATTRIB_POINTERS];
 };
 
-void CreateStage(OvrGeometry& ovrGeometry);
-void CreateAxes(OvrGeometry& ovrGeometry);
+struct OvrAxes : OvrGeometry {
+    void Create();
+};
+
+struct OvrStage : OvrGeometry {
+    void Create();
+};
+
+struct OvrECGPlot : OvrGeometry {
+    void Create();
+};
 
 struct ovrProgram {
     static constexpr int MAX_PROGRAM_UNIFORMS = 8;
@@ -102,11 +115,10 @@ struct ovrScene {
     bool CreatedVAOs;
     GLuint SceneMatrices;
     ovrProgram StageProgram;
-    OvrGeometry Stage;
+    OvrStage Stage;
     ovrProgram AxesProgram;
-    OvrGeometry Axes;
+    OvrAxes Axes;
     ovrProgram ECGPlotProgram;
-    OvrGeometry ECGPlot;
     float ClearColor[4];
 
     std::vector<XrSpace> SpaceList;
