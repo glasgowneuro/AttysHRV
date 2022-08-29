@@ -24,15 +24,14 @@
 
 #define NUM_EYES 2
 
-struct OvrGeometry {
+class OvrGeometry {
+public:
     OvrGeometry() {
         Clear();
     }
     virtual void Create() = 0;
     void Clear();
     void Destroy();
-    void CreateVAO();
-    void DestroyVAO();
     static constexpr int MAX_VERTEX_ATTRIB_POINTERS = 3;
     struct VertexAttribPointer {
         GLint Index;
@@ -48,6 +47,9 @@ struct OvrGeometry {
     int VertexCount;
     int IndexCount;
     VertexAttribPointer VertexAttribs[MAX_VERTEX_ATTRIB_POINTERS];
+protected:
+    void CreateVAO();
+    void DestroyVAO();
 };
 
 struct OvrAxes : OvrGeometry {
@@ -109,10 +111,7 @@ struct ovrScene {
     void Destroy();
     bool IsCreated() const;
     void SetClearColor(const float* c);
-    void CreateVAOs();
-    void DestroyVAOs();
     bool CreatedScene;
-    bool CreatedVAOs;
     GLuint SceneMatrices;
     ovrProgram StageProgram;
     OvrStage Stage;

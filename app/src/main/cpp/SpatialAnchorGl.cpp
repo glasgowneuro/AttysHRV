@@ -265,6 +265,8 @@ void OvrAxes::Create() {
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
     GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STATIC_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+    CreateVAO();
 }
 
 void OvrStage::Create() {
@@ -292,6 +294,8 @@ void OvrStage::Create() {
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
     GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(stageIndices), stageIndices, GL_STATIC_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+    CreateVAO();
 }
 
 void OvrGeometry::Clear() {
@@ -307,6 +311,8 @@ void OvrGeometry::Clear() {
 }
 
 void OvrGeometry::Destroy() {
+    DestroyVAO();
+
     GL(glDeleteBuffers(1, &IndexBuffer));
     GL(glDeleteBuffers(1, &VertexBuffer));
 
@@ -709,7 +715,6 @@ void ovrScene::SetClearColor(const float* c) {
 
 void ovrScene::Clear() {
     CreatedScene = false;
-    CreatedVAOs = false;
     SceneMatrices = 0;
 
     StageProgram.Clear();
@@ -720,27 +725,6 @@ void ovrScene::Clear() {
 
 bool ovrScene::IsCreated() const {
     return CreatedScene;
-}
-
-void ovrScene::CreateVAOs() {
-    if (!CreatedVAOs) {
-        // Stage
-        Stage.CreateVAO();
-
-        // Axes
-        Axes.CreateVAO();
-
-        CreatedVAOs = true;
-    }
-}
-
-void ovrScene::DestroyVAOs() {
-    if (CreatedVAOs) {
-        Stage.DestroyVAO();
-        Axes.DestroyVAO();
-
-        CreatedVAOs = false;
-    }
 }
 
 void ovrScene::Create() {
@@ -775,14 +759,11 @@ void ovrScene::Create() {
 
     CreatedScene = true;
 
-    CreateVAOs();
     float c[] = {0.0, 0.0, 0.0, 0.0};
     SetClearColor(c);
 }
 
 void ovrScene::Destroy() {
-    DestroyVAOs();
-
     GL(glDeleteBuffers(1, &SceneMatrices));
     StageProgram.Destroy();
     Stage.Destroy();
