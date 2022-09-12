@@ -195,6 +195,8 @@ OvrGeometry
 ================================================================================
 */
 
+OvrECGPlot* ovrEcgPlotPtr = nullptr;
+
 enum VertexAttributeLocation {
     VERTEX_ATTRIBUTE_LOCATION_POSITION,
     VERTEX_ATTRIBUTE_LOCATION_COLOR,
@@ -950,6 +952,8 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
 }
 
 void OvrECGPlot::Create() {
+    ALOGV("OvrECGPlot::Create()");
+    ovrEcgPlotPtr = this;
     VertexCount = nPoints;
     IndexCount = (nPoints*2)+1;
 
@@ -997,19 +1001,26 @@ void OvrECGPlot::Create() {
 }
 
 void OvrECGPlot::updateData() {
-    for(int i = 0; i < nPoints; i++) {
-        axesVertices.positions[i][1] = (float)sin(i/10.0+offset);
-        axesVertices.positions[i][2] = 0;
-    }
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
     GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_DYNAMIC_DRAW));
     GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    offset += 0.1;
+}
+
+void OvrECGPlot::addData(float d) {
+    for(int i = nPoints-1; i > 0; i++) {
+        axesVertices.positions[i][1] = axesVertices.positions[i-1][1];
+    }
+    axesVertices.positions[0][1] = d;
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *env, jclass clazz,
-                                                            jdouble data) {
+                                                            jlong instance,
+                                                            jfloat data) {
     ALOGV("data = %f",data);
+    ovrEcgPlotPtr = (OvrECGPlot*)instance;
+    if (nullptr != ovrEcgPlotPtr) {
+        //ovrEcgPlotPtr->addData(data);
+    }
 }

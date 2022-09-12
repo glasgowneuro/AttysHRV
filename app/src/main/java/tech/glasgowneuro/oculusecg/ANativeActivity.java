@@ -12,6 +12,8 @@ import tech.glasgowneuro.oculusecg.databinding.ActivityMainBinding;
 public class ANativeActivity extends android.app.NativeActivity {
   static final String TAG = "OculusECG";
 
+  static private long instance = 0;
+
   static AttysComm attysComm;
 
   static {
@@ -19,16 +21,17 @@ public class ANativeActivity extends android.app.NativeActivity {
     System.loadLibrary("oculusecg");
   }
 
-  static native void dataUpdate(double data);
+  static native void dataUpdate(long inst, float v);
 
   static AttysComm.DataListener dataListener = new AttysComm.DataListener() {
     @Override
     public void gotData(long l, float[] f) {
-      dataUpdate(f[AttysComm.INDEX_Analogue_channel_1]);
+      dataUpdate(instance, f[AttysComm.INDEX_Analogue_channel_1]);
     }
   };
 
-  static void startAttysComm() {
+  static void startAttysComm(long inst) {
+    instance = inst;
     attysComm = new AttysComm();
     attysComm.registerDataListener(dataListener);
     attysComm.start();

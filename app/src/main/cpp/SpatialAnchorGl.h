@@ -71,6 +71,8 @@ struct OvrECGPlot : OvrGeometry {
 
     ovrAxesVertices axesVertices = {};
 
+    void addData(float d);
+
     unsigned short axesIndices[(nPoints*2)+1] = {};
 
     void Create();
