@@ -850,9 +850,8 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     GL(glBindVertexArray(0));
     GL(glUseProgram(0));
 
-
     // ECG Plot
-    // "tracking space" axes (could be LOCAL or LOCAL_FLOOR)
+    Scene.ECGPlot.updateData();
     GL(glUseProgram(Scene.ECGPlotProgram.Program));
     GL(glBindBufferBase(
             GL_UNIFORM_BUFFER,
@@ -952,11 +951,12 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
 
 void OvrECGPlot::Create() {
     VertexCount = nPoints;
-    IndexCount = nPoints;
+    IndexCount = (nPoints*2)+1;
 
     ALOGE("Creating ECG plot with %d vertices.",VertexCount);
     for(int i = 0; i < nPoints; i++) {
-        axesIndices[i] = i;
+        axesIndices[i*2] = i;
+        axesIndices[i*2+1 ] = i+1;
 
         axesVertices.colors[i][0] = 0;
         axesVertices.colors[i][1] = 255;
@@ -985,13 +985,22 @@ void OvrECGPlot::Create() {
 
     GL(glGenBuffers(1, &VertexBuffer));
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STATIC_DRAW));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_DYNAMIC_DRAW));
     GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
     GL(glGenBuffers(1, &IndexBuffer));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
-    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STATIC_DRAW));
+    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_DYNAMIC_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
     CreateVAO();
+}
+
+void OvrECGPlot::updateData() {
+    for(int i = 0; i < nPoints; i++) {
+        axesVertices.positions[i][0] = -1 + (float)i / (float)nPoints * 2.0f;
+        axesVertices.positions[i][1] = (float)sin(i/10.0+offset);
+        axesVertices.positions[i][2] = 0;
+    }
+    offset += 0.1;
 }

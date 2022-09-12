@@ -62,6 +62,7 @@ struct OvrStage : OvrGeometry {
 
 struct OvrECGPlot : OvrGeometry {
     static constexpr int nPoints = 200;
+    float offset = 0;
 
     struct ovrAxesVertices {
         float positions[nPoints][3];
@@ -70,9 +71,11 @@ struct OvrECGPlot : OvrGeometry {
 
     ovrAxesVertices axesVertices = {};
 
-    unsigned short axesIndices[nPoints] = {};
+    unsigned short axesIndices[(nPoints*2)+1] = {};
 
     void Create();
+
+    void updateData();
 };
 
 struct ovrProgram {
