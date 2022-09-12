@@ -998,7 +998,6 @@ void OvrECGPlot::Create() {
 
 void OvrECGPlot::updateData() {
     for(int i = 0; i < nPoints; i++) {
-        axesVertices.positions[i][0] = -1 + (float)i / (float)nPoints * 2.0f;
         axesVertices.positions[i][1] = (float)sin(i/10.0+offset);
         axesVertices.positions[i][2] = 0;
     }
@@ -1006,4 +1005,11 @@ void OvrECGPlot::updateData() {
     GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_DYNAMIC_DRAW));
     GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     offset += 0.1;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *env, jclass clazz,
+                                                            jdouble data) {
+    ALOGV("data = %f",data);
 }

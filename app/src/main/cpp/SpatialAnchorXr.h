@@ -8,12 +8,6 @@
 
 #define XR_USE_GRAPHICS_API_OPENGL_ES 1
 #define XR_USE_PLATFORM_ANDROID 1
-#elif defined(WIN32)
-#include "Render/GlWrapperWin32.h"
-
-#include <unknwn.h>
-#define XR_USE_GRAPHICS_API_OPENGL 1
-#define XR_USE_PLATFORM_WIN32 1
 #endif
 
 #include <openxr/openxr.h>

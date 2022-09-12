@@ -1034,6 +1034,19 @@ void android_main(struct android_app* androidApp) {
     // Note that AttachCurrentThread will reset the thread name.
     prctl(PR_SET_NAME, (long)"OVR::Main", 0, 0, 0);
 
+    jclass handlerClass = Env->GetObjectClass(androidApp->activity->clazz);
+    if (handlerClass == NULL) {
+        ALOGE("Handler to ANativeActivity is NULL");
+    } else {
+        jmethodID mid = Env->GetStaticMethodID(handlerClass, "startAttysComm", "()V");
+        if (mid == NULL) {
+            ALOGE("No handler to startAttysComm");
+        } else {
+            ALOGV("startAttysComm found");
+            Env->CallStaticVoidMethod(handlerClass,mid);
+        }
+    }
+
     ovrApp app;
     app.Clear();
 
