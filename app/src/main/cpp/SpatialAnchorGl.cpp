@@ -1002,5 +1002,8 @@ void OvrECGPlot::updateData() {
         axesVertices.positions[i][1] = (float)sin(i/10.0+offset);
         axesVertices.positions[i][2] = 0;
     }
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_DYNAMIC_DRAW));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     offset += 0.1;
 }
