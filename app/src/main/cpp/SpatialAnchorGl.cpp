@@ -546,23 +546,6 @@ static const char AXES_FRAGMENT_SHADER[] =
     "}\n";
 
 
-// Shaders
-static const GLchar* PLOT_VERTEX_SHADER = "#version 330 core\n"
-"layout (location = 0) in vec3 position;\n"
-"void main()\n"
-"{\n"
-"gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
-"gl_PointSize=1.5f;\n"
-"}\0";
-
-static const GLchar* PLOT_FRAGEMENT_SHADER = "#version 330 core\n"
-"out vec4 color;\n"
-"uniform vec4 u_Color;\n"
-"void main()\n"
-"{\n"
-"color = u_Color;\n"
-"}\n\0";
-
 /*
 ================================================================================
 
@@ -752,10 +735,12 @@ void ovrScene::Create() {
     }
     Axes.Create();
 
-    // Axes
-    if (!ECGPlotProgram.Create(PLOT_VERTEX_SHADER, PLOT_FRAGEMENT_SHADER)) {
+    // ECG
+    if (!ECGPlotProgram.Create(AXES_VERTEX_SHADER, AXES_FRAGMENT_SHADER)) {
         ALOGE("Failed to compile plot program");
     }
+    ALOGE("Creating ECGPlot");
+    ECGPlot.Create();
 
     CreatedScene = true;
 
@@ -865,6 +850,36 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     GL(glBindVertexArray(0));
     GL(glUseProgram(0));
 
+
+    // ECG Plot
+    // "tracking space" axes (could be LOCAL or LOCAL_FLOOR)
+    GL(glUseProgram(Scene.ECGPlotProgram.Program));
+    GL(glBindBufferBase(
+            GL_UNIFORM_BUFFER,
+            Scene.ECGPlotProgram.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
+            Scene.SceneMatrices));
+    if (Scene.ECGPlotProgram.UniformLocation[ovrUniform::Index::VIEW_ID] >=
+        0) // NOTE: will not be present when multiview path is enabled.
+    {
+        GL(glUniform1i(Scene.ECGPlotProgram.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
+    }
+    if (Scene.ECGPlotProgram.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
+        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
+        GL(glUniformMatrix4fv(
+                Scene.ECGPlotProgram.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
+                1,
+                GL_TRUE,
+                &scale.M[0][0]));
+    }
+    GL(glBindVertexArray(Scene.ECGPlot.VertexArrayObject));
+    GL(glDrawElements(GL_LINES, Scene.ECGPlot.IndexCount, GL_UNSIGNED_SHORT, nullptr));
+    GL(glBindVertexArray(0));
+    GL(glUseProgram(0));
+
+
+
+
+
     if (frameIn.HasStage) {
         // stage axes
         GL(glUseProgram(Scene.AxesProgram.Program));
@@ -936,4 +951,47 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
 }
 
 void OvrECGPlot::Create() {
+    VertexCount = nPoints;
+    IndexCount = nPoints;
+
+    ALOGE("Creating ECG plot with %d vertices.",VertexCount);
+    for(int i = 0; i < nPoints; i++) {
+        axesIndices[i] = i;
+
+        axesVertices.colors[i][0] = 0;
+        axesVertices.colors[i][1] = 255;
+        axesVertices.colors[i][2] = 255;
+        axesVertices.colors[i][3] = 255;
+
+        axesVertices.positions[i][0] = -1 + (float)i / (float)nPoints * 2.0f;
+        axesVertices.positions[i][1] = (float)sin(i/10.0);
+        ALOGV("pos = %f,%f", axesVertices.positions[i][0],axesVertices.positions[i][1]);
+        axesVertices.positions[i][2] = 0;
+    }
+
+    VertexAttribs[0].Index = VERTEX_ATTRIBUTE_LOCATION_POSITION;
+    VertexAttribs[0].Size = 3;
+    VertexAttribs[0].Type = GL_FLOAT;
+    VertexAttribs[0].Normalized = false;
+    VertexAttribs[0].Stride = sizeof(axesVertices.positions[0]);
+    VertexAttribs[0].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, positions);
+
+    VertexAttribs[1].Index = VERTEX_ATTRIBUTE_LOCATION_COLOR;
+    VertexAttribs[1].Size = 4;
+    VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
+    VertexAttribs[1].Normalized = true;
+    VertexAttribs[1].Stride = sizeof(axesVertices.colors[0]);
+    VertexAttribs[1].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, colors);
+
+    GL(glGenBuffers(1, &VertexBuffer));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STATIC_DRAW));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+    GL(glGenBuffers(1, &IndexBuffer));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
+    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STATIC_DRAW));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+    CreateVAO();
 }

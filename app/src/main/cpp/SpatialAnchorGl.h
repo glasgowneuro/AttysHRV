@@ -61,6 +61,17 @@ struct OvrStage : OvrGeometry {
 };
 
 struct OvrECGPlot : OvrGeometry {
+    static constexpr int nPoints = 200;
+
+    struct ovrAxesVertices {
+        float positions[nPoints][3];
+        unsigned char colors[nPoints][4];
+    };
+
+    ovrAxesVertices axesVertices = {};
+
+    unsigned short axesIndices[nPoints] = {};
+
     void Create();
 };
 
@@ -118,6 +129,7 @@ struct ovrScene {
     ovrProgram AxesProgram;
     OvrAxes Axes;
     ovrProgram ECGPlotProgram;
+    OvrECGPlot ECGPlot;
     float ClearColor[4];
 
     std::vector<XrSpace> SpaceList;
