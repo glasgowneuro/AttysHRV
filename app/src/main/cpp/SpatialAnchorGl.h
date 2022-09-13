@@ -49,7 +49,6 @@ public:
     VertexAttribPointer VertexAttribs[MAX_VERTEX_ATTRIB_POINTERS];
     void CreateVAO();
     void DestroyVAO();
-    void updateVAO();
 };
 
 struct OvrAxes : OvrGeometry {
@@ -76,8 +75,8 @@ struct OvrECGPlot : OvrGeometry {
     unsigned short axesIndices[(nPoints*2)+1] = {};
 
     void Create();
+    void update();
 
-    void updateData();
 };
 
 struct ovrProgram {

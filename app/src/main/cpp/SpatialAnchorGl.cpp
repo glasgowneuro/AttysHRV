@@ -342,11 +342,6 @@ void OvrGeometry::CreateVAO() {
     GL(glBindVertexArray(0));
 }
 
-void OvrGeometry::updateVAO() {
-    GL(glBindVertexArray(VertexArrayObject));
-    GL(glBindVertexArray(0));
-}
-
 void OvrGeometry::DestroyVAO() {
     GL(glDeleteVertexArrays(1, &VertexArrayObject));
 }
@@ -861,7 +856,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     GL(glUseProgram(0));
 
     // ECG Plot
-    Scene.ECGPlot.updateVAO();
+    Scene.ECGPlot.update();
     GL(glUseProgram(Scene.ECGPlotProgram.Program));
     GL(glBindBufferBase(
             GL_UNIFORM_BUFFER,
@@ -1005,6 +1000,12 @@ void OvrECGPlot::Create() {
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
     CreateVAO();
+}
+
+void OvrECGPlot::update() {
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_DYNAMIC_DRAW));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 
 void OvrECGPlot::addData(float d) {
