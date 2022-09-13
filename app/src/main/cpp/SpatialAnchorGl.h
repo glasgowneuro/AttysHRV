@@ -47,9 +47,9 @@ public:
     int VertexCount;
     int IndexCount;
     VertexAttribPointer VertexAttribs[MAX_VERTEX_ATTRIB_POINTERS];
-protected:
     void CreateVAO();
     void DestroyVAO();
+    void updateVAO();
 };
 
 struct OvrAxes : OvrGeometry {
