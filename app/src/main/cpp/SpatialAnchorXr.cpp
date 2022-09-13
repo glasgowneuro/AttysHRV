@@ -1032,6 +1032,8 @@ ovrApp app;
  */
 void android_main(struct android_app* androidApp) {
 
+    scenePtr = &app.Scene;
+
     ALOGV("----------------------------------------------------------------");
     ALOGV("android_app_entry()");
     ALOGV("    android_main()");

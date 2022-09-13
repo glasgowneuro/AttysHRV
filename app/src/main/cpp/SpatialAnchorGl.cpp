@@ -1046,6 +1046,8 @@ Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *env, jclass 
                                                             jlong instance,
                                                             jfloat data) {
     //ALOGV("data = %f",data);
-    auto p = (ovrScene*)instance;
-    p->hasAttysData(data);
+    //auto p = (ovrScene*)instance;
+    if (nullptr != scenePtr) {
+        scenePtr->hasAttysData(data);
+    }
 }

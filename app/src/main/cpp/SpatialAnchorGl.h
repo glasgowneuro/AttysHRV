@@ -156,3 +156,5 @@ struct ovrAppRenderer {
     ovrFramebuffer Framebuffer;
     ovrScene Scene;
 };
+
+extern ovrScene* scenePtr;
