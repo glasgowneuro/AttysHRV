@@ -874,10 +874,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
                 GL_TRUE,
                 &scale.M[0][0]));
     }
-    Scene.ECGPlot.updateBuffers();
-    GL(glBindVertexArray(Scene.ECGPlot.VertexArrayObject));
-    GL(glDrawElements(GL_LINES, Scene.ECGPlot.IndexCount, GL_UNSIGNED_SHORT, nullptr));
-    GL(glBindVertexArray(0));
+    Scene.ECGPlot.draw();
     GL(glUseProgram(0));
 
 
@@ -970,7 +967,7 @@ void OvrECGPlot::Create() {
         axesVertices.colors[i][3] = 255;
 
         axesVertices.positions[i][0] = -1 + (float)i / (float)nPoints * 2.0f;
-        axesVertices.positions[i][1] = (float)sin(i/10.0);
+        axesVertices.positions[i][1] = (float)sin(i/10.0) * 0.1;
         ALOGV("pos = %f,%f", axesVertices.positions[i][0],axesVertices.positions[i][1]);
         axesVertices.positions[i][2] = 0;
     }
@@ -990,31 +987,58 @@ void OvrECGPlot::Create() {
     VertexAttribs[1].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, colors);
 
     GL(glGenBuffers(1, &VertexBuffer));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STREAM_DRAW));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
     GL(glGenBuffers(1, &IndexBuffer));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
     GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STREAM_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-
-    CreateVAO();
-}
-
-void OvrECGPlot::updateBuffers() {
-    GL(glBufferSubData(VertexBuffer, 0, sizeof(axesVertices), &axesVertices));
 }
 
 void OvrECGPlot::addData(float d) {
     ALOGV("OvrECGPlot::addData = %f",d);
+
     for(int i = nPoints-1; i > 0; i--) {
-        axesVertices.positions[i][1] = d; //axesVertices.positions[i-1][1];
+        axesVertices.positions[i][1] = axesVertices.positions[i-1][1];
     }
-    for(int i = 0;i < nPoints; i++) {
-        axesVertices.positions[i][1] = d;
+    axesVertices.positions[0][1] = d;
+
+    for(int i = 0; i < nPoints; i++) {
+        axesVertices.positions[i][0] = -1 + (float) i / (float) nPoints * 2.0f;
+        axesVertices.positions[i][1] = (float) sin(i / 10.0 + offset) * 0.1;
+        offset += 0.1;
     }
+
 }
+
+void OvrECGPlot::draw() {
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STREAM_DRAW));
+
+    for (int i = 0; i < MAX_VERTEX_ATTRIB_POINTERS; i++) {
+        if (VertexAttribs[i].Index != -1) {
+            GL(glEnableVertexAttribArray(VertexAttribs[i].Index));
+            GL(glVertexAttribPointer(
+                    VertexAttribs[i].Index,
+                    VertexAttribs[i].Size,
+                    VertexAttribs[i].Type,
+                    VertexAttribs[i].Normalized,
+                    VertexAttribs[i].Stride,
+                    VertexAttribs[i].Pointer));
+        }
+    }
+
+    GL(glDrawElements(GL_LINES, IndexCount, GL_UNSIGNED_SHORT, axesIndices));
+
+    for (int i = 0; i < MAX_VERTEX_ATTRIB_POINTERS; i++) {
+        if (VertexAttribs[i].Index != -1) {
+            GL(glDisableVertexAttribArray(VertexAttribs[i].Index));
+        }
+    }
+
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+}
+
+ovrScene* scenePtr = nullptr;
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -1022,6 +1046,6 @@ Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *env, jclass 
                                                             jlong instance,
                                                             jfloat data) {
     //ALOGV("data = %f",data);
-    ovrScene* p = (ovrScene*)instance;
+    auto p = (ovrScene*)instance;
     p->hasAttysData(data);
 }

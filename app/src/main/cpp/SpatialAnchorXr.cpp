@@ -1023,6 +1023,8 @@ void PlaceAnchor(ovrApp& app, SimpleXrInput* input, const XrFrameState& frameSta
     ALOGV("Place Spatial Anchor initiated.");
 }
 
+ovrApp app;
+
 /**
  * This is the main entry point of a native application that is using
  * android_native_app_glue.  It runs in its own thread, with its own
@@ -1034,7 +1036,6 @@ void android_main(struct android_app* androidApp) {
     ALOGV("android_app_entry()");
     ALOGV("    android_main()");
 
-    ovrApp app;
     app.Clear();
 
     (*androidApp->activity->vm).AttachCurrentThread(&app.Env, nullptr);
