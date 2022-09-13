@@ -856,7 +856,6 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     GL(glUseProgram(0));
 
     // ECG Plot
-    Scene.ECGPlot.update();
     GL(glUseProgram(Scene.ECGPlotProgram.Program));
     GL(glBindBufferBase(
             GL_UNIFORM_BUFFER,
@@ -875,6 +874,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
                 GL_TRUE,
                 &scale.M[0][0]));
     }
+    Scene.ECGPlot.updateBuffers();
     GL(glBindVertexArray(Scene.ECGPlot.VertexArrayObject));
     GL(glDrawElements(GL_LINES, Scene.ECGPlot.IndexCount, GL_UNSIGNED_SHORT, nullptr));
     GL(glBindVertexArray(0));
@@ -991,29 +991,29 @@ void OvrECGPlot::Create() {
 
     GL(glGenBuffers(1, &VertexBuffer));
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_DYNAMIC_DRAW));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STREAM_DRAW));
     GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
     GL(glGenBuffers(1, &IndexBuffer));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
-    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_DYNAMIC_DRAW));
+    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STREAM_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
     CreateVAO();
 }
 
-void OvrECGPlot::update() {
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_DYNAMIC_DRAW));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+void OvrECGPlot::updateBuffers() {
+    GL(glBufferSubData(VertexBuffer, 0, sizeof(axesVertices), &axesVertices));
 }
 
 void OvrECGPlot::addData(float d) {
     ALOGV("OvrECGPlot::addData = %f",d);
     for(int i = nPoints-1; i > 0; i--) {
-        axesVertices.positions[i][1] = axesVertices.positions[i-1][1];
+        axesVertices.positions[i][1] = d; //axesVertices.positions[i-1][1];
     }
-    axesVertices.positions[0][1] = d;
+    for(int i = 0;i < nPoints; i++) {
+        axesVertices.positions[i][1] = d;
+    }
 }
 
 extern "C"
