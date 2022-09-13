@@ -449,7 +449,6 @@ struct ovrApp {
 
     bool ShouldQueryAnchors;
 
-
     XrSwapchain ColorSwapChain;
     uint32_t SwapChainLength;
     Vector3f StageBounds;
@@ -457,6 +456,11 @@ struct ovrApp {
     ovrAppRenderer AppRenderer;
 
     std::map<XrAsyncRequestIdFB, XrSpace> DestroySpaceEventMap;
+
+    jmethodID startAttysComm;
+    jmethodID stopAttysComm;
+    jclass nativeApplicationHandle;
+    JNIEnv* Env;
 };
 
 void ovrApp::Clear() {
@@ -864,12 +868,14 @@ static void app_handle_cmd(struct android_app* androidApp, int32_t cmd) {
         case APP_CMD_RESUME: {
             ALOGV("onResume()");
             ALOGV("    APP_CMD_RESUME");
+            app.Env->CallStaticVoidMethod(app.nativeApplicationHandle, app.startAttysComm, &app.Scene);
             app.Resumed = true;
             break;
         }
         case APP_CMD_PAUSE: {
             ALOGV("onPause()");
             ALOGV("    APP_CMD_PAUSE");
+            app.Env->CallStaticVoidMethod(app.nativeApplicationHandle, app.stopAttysComm);
             app.Resumed = false;
             break;
         }
@@ -1028,27 +1034,17 @@ void android_main(struct android_app* androidApp) {
     ALOGV("android_app_entry()");
     ALOGV("    android_main()");
 
-    JNIEnv* Env;
-    (*androidApp->activity->vm).AttachCurrentThread(&Env, nullptr);
+    ovrApp app;
+    app.Clear();
+
+    (*androidApp->activity->vm).AttachCurrentThread(&app.Env, nullptr);
 
     // Note that AttachCurrentThread will reset the thread name.
     prctl(PR_SET_NAME, (long)"OVR::Main", 0, 0, 0);
 
-    ovrApp app;
-    app.Clear();
-
-    jclass handlerClass = Env->GetObjectClass(androidApp->activity->clazz);
-    if (handlerClass == NULL) {
-        ALOGE("Handler to ANativeActivity is NULL");
-    } else {
-        jmethodID mid = Env->GetStaticMethodID(handlerClass, "startAttysComm", "(J)V");
-        if (mid == NULL) {
-            ALOGE("No handler to startAttysComm");
-        } else {
-            ALOGV("startAttysComm found");
-            Env->CallStaticVoidMethod(handlerClass,mid,&app.Scene.ECGPlot);
-        }
-    }
+    app.nativeApplicationHandle = app.Env->GetObjectClass(androidApp->activity->clazz);
+    app.startAttysComm = app.Env->GetStaticMethodID(app.nativeApplicationHandle, "startAttysComm", "(J)V");
+    app.stopAttysComm = app.Env->GetStaticMethodID(app.nativeApplicationHandle, "stopAttysComm", "()V");
 
     PFN_xrInitializeLoaderKHR xrInitializeLoaderKHR;
     xrGetInstanceProcAddr(
@@ -1830,6 +1826,8 @@ void android_main(struct android_app* androidApp) {
     input->EndSession();
 
     delete input;
+
+    app.Env->CallStaticVoidMethod(app.nativeApplicationHandle, app.stopAttysComm);
 
     app.AppRenderer.Destroy();
 

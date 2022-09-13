@@ -195,8 +195,6 @@ OvrGeometry
 ================================================================================
 */
 
-OvrECGPlot* ovrEcgPlotPtr = nullptr;
-
 enum VertexAttributeLocation {
     VERTEX_ATTRIBUTE_LOCATION_POSITION,
     VERTEX_ATTRIBUTE_LOCATION_COLOR,
@@ -717,11 +715,11 @@ void ovrScene::Create() {
     GL(glGenBuffers(1, &SceneMatrices));
     GL(glBindBuffer(GL_UNIFORM_BUFFER, SceneMatrices));
     GL(glBufferData(
-        GL_UNIFORM_BUFFER,
-        2 * sizeof(Matrix4f) /* 2 view matrices */ +
+            GL_UNIFORM_BUFFER,
+            2 * sizeof(Matrix4f) /* 2 view matrices */ +
             2 * sizeof(Matrix4f) /* 2 projection matrices */,
-        nullptr,
-        GL_STATIC_DRAW));
+            nullptr,
+            GL_STATIC_DRAW));
     GL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
     GL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
@@ -757,6 +755,11 @@ void ovrScene::Destroy() {
     AxesProgram.Destroy();
     Axes.Destroy();
     CreatedScene = false;
+}
+
+void ovrScene::hasAttysData(float f) {
+    //ALOGV("ovrScene has Data = %f",f);
+    ECGPlot.addData(f);
 }
 
 /*
@@ -953,7 +956,6 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
 
 void OvrECGPlot::Create() {
     ALOGV("OvrECGPlot::Create()");
-    ovrEcgPlotPtr = this;
     VertexCount = nPoints;
     IndexCount = (nPoints*2)+1;
 
@@ -1007,7 +1009,8 @@ void OvrECGPlot::updateData() {
 }
 
 void OvrECGPlot::addData(float d) {
-    for(int i = nPoints-1; i > 0; i++) {
+    ALOGV("OvrECGPlot::addData = %f",d);
+    for(int i = nPoints-1; i > 0; i--) {
         axesVertices.positions[i][1] = axesVertices.positions[i-1][1];
     }
     axesVertices.positions[0][1] = d;
@@ -1018,9 +1021,7 @@ JNIEXPORT void JNICALL
 Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *env, jclass clazz,
                                                             jlong instance,
                                                             jfloat data) {
-    ALOGV("data = %f",data);
-    ovrEcgPlotPtr = (OvrECGPlot*)instance;
-    if (nullptr != ovrEcgPlotPtr) {
-        //ovrEcgPlotPtr->addData(data);
-    }
+    //ALOGV("data = %f",data);
+    ovrScene* p = (ovrScene*)instance;
+    p->hasAttysData(data);
 }

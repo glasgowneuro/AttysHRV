@@ -136,8 +136,8 @@ struct ovrScene {
     ovrProgram ECGPlotProgram;
     OvrECGPlot ECGPlot;
     float ClearColor[4];
-
     std::vector<XrSpace> SpaceList;
+    void hasAttysData(float f);
 };
 
 struct ovrAppRenderer {

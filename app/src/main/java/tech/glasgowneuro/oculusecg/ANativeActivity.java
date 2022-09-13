@@ -37,7 +37,7 @@ public class ANativeActivity extends android.app.NativeActivity {
     attysComm.start();
   }
 
-  void stopAttysComm() {
+  static void stopAttysComm() {
     attysComm.stop();
   }
 }
