@@ -1023,7 +1023,7 @@ void PlaceAnchor(ovrApp& app, SimpleXrInput* input, const XrFrameState& frameSta
     ALOGV("Place Spatial Anchor initiated.");
 }
 
-ovrApp app;
+static ovrApp app;
 
 /**
  * This is the main entry point of a native application that is using
@@ -1031,8 +1031,6 @@ ovrApp app;
  * event loop for receiving input events and doing other things.
  */
 void android_main(struct android_app* androidApp) {
-
-    scenePtr = &app.Scene;
 
     ALOGV("----------------------------------------------------------------");
     ALOGV("android_app_entry()");

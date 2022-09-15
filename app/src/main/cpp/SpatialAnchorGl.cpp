@@ -211,6 +211,7 @@ static OvrVertexAttribute ProgramVertexAttributes[] = {
     {VERTEX_ATTRIBUTE_LOCATION_COLOR, "vertexColor"},
     {VERTEX_ATTRIBUTE_LOCATION_UV, "vertexUv"}};
 
+static std::vector<double> dataBuffer;
 
 void OvrAxes::Create() {
     struct ovrAxesVertices {
@@ -757,11 +758,6 @@ void ovrScene::Destroy() {
     CreatedScene = false;
 }
 
-void ovrScene::hasAttysData(float f) {
-    //ALOGV("ovrScene has Data = %f",f);
-    ECGPlot.addData(f);
-}
-
 /*
 ================================================================================
 
@@ -995,22 +991,39 @@ void OvrECGPlot::Create() {
 }
 
 void OvrECGPlot::addData(float d) {
-    ALOGV("OvrECGPlot::addData = %f",d);
-
-    for(int i = nPoints-1; i > 0; i--) {
-        axesVertices.positions[i][1] = axesVertices.positions[i-1][1];
+    //ALOGV("OvrECGPlot::addData = %f",d);
+    //dataBuffer.push_back(d);
+    for (int i = nPoints - 1; i > 0; i--) {
+        axesVertices.positions[i][1] = axesVertices.positions[i - 1][1];
     }
+    ALOGV("OvrECGPlot::draw = %f",d);
     axesVertices.positions[0][1] = d;
-
-    for(int i = 0; i < nPoints; i++) {
-        axesVertices.positions[i][0] = -1 + (float) i / (float) nPoints * 2.0f;
-        axesVertices.positions[i][1] = (float) sin(i / 10.0 + offset) * 0.1;
-        offset += 0.1;
-    }
-
+    ALOGV("OvrECGPlot::addData, buffersz=%u",(unsigned int)dataBuffer.size());
 }
 
 void OvrECGPlot::draw() {
+
+    for(auto &v:dataBuffer) {
+        for (int i = nPoints - 1; i > 0; i--) {
+            axesVertices.positions[i][1] = axesVertices.positions[i - 1][1];
+        }
+        ALOGV("OvrECGPlot::draw = %f", v);
+        axesVertices.positions[0][1] = v;
+        ALOGV("OvrECGPlot::draw, buffersz=%u", (unsigned int) dataBuffer.size());
+    }
+    dataBuffer.clear();
+
+#ifdef FAKE_DATA
+    for(int i = 0; i < nPoints; i++) {
+        axesVertices.positions[i][0] = -1 + (float) i / (float) nPoints * 2.0f;
+        axesVertices.positions[i][1] = (float) sin(i / 10.0 + offset) * 0.1;
+    }
+    offset += 0.1;
+#endif
+
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferSubData(VertexBuffer, 0, sizeof(axesVertices), &axesVertices));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
     GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STREAM_DRAW));
 
@@ -1038,16 +1051,10 @@ void OvrECGPlot::draw() {
     GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 
-ovrScene* scenePtr = nullptr;
-
 extern "C"
 JNIEXPORT void JNICALL
 Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *env, jclass clazz,
                                                             jlong instance,
                                                             jfloat data) {
-    //ALOGV("data = %f",data);
-    //auto p = (ovrScene*)instance;
-    if (nullptr != scenePtr) {
-        scenePtr->hasAttysData(data);
-    }
+    dataBuffer.push_back(data);
 }
