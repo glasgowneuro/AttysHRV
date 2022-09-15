@@ -272,7 +272,10 @@ void OvrAxes::Create() {
 
 void OvrStage::Create() {
     static const float stageVertices[12] = {
-        -1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f};
+        -1.0f, -1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,
+        -1.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f};
 
     static const unsigned short stageIndices[6] = {0, 1, 2, 2, 1, 3};
 
@@ -743,6 +746,12 @@ void ovrScene::Create() {
     ALOGE("Creating ECGPlot");
     ECGPlot.Create();
 
+    // HRPlot
+    if (!HRProgram.Create(STAGE_VERTEX_SHADER, STAGE_FRAGMENT_SHADER)) {
+        ALOGE("Failed to compile HRPlot program");
+    }
+    HrPlot.Create();
+
     CreatedScene = true;
 
     float c[] = {0.0, 0.0, 0.0, 0.0};
@@ -873,9 +882,28 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     Scene.ECGPlot.draw();
     GL(glUseProgram(0));
 
-
-
-
+    // HRStage
+    GL(glUseProgram(Scene.HRProgram.Program));
+    GL(glBindBufferBase(
+            GL_UNIFORM_BUFFER,
+            Scene.HRProgram.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
+            Scene.SceneMatrices));
+    if (Scene.HRProgram.UniformLocation[ovrUniform::Index::VIEW_ID] >=
+        0) // NOTE: will not be present when multiview path is enabled.
+    {
+        GL(glUniform1i(Scene.HRProgram.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
+    }
+    if (Scene.HRProgram.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
+        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
+        GL(glUniformMatrix4fv(
+                Scene.StageProgram.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
+                1,
+                GL_TRUE,
+                &scale.M[0][0]));
+    }
+    Scene.HrPlot.draw();
+    GL(glUseProgram(0));
+//    Framebuffer.Resolve();
 
     if (frameIn.HasStage) {
         // stage axes
@@ -905,7 +933,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
         GL(glUseProgram(0));
     }
 
-    if (frameIn.HasStage) {
+    if (0) {
         // Stage
         GL(glUseProgram(Scene.StageProgram.Program));
         GL(glBindBufferBase(
@@ -1045,4 +1073,94 @@ Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *env, jclass 
                                                             jlong instance,
                                                             jfloat data) {
     dataBuffer.push_back(data);
+}
+
+void OvrHRPlot::Create() {
+    VertexCount = nPoints*3;
+    IndexCount = 6;
+
+    ALOGE("Creating HR plot with %d vertices.",VertexCount);
+    for(int i = 0; i < (nPoints-1); i++) {
+        float y = (float)sin(i/10.0) * 0.1;
+        float z = -1 + (float)i / (float)nPoints * 2.0f;
+        int j = i*3;
+        vertices.positions[j][2] = z;
+        vertices.positions[j][1] = y;
+        vertices.positions[j][0] = 0;
+
+        vertices.positions[j+1][2] = z;
+        vertices.positions[j+1][1] = y;
+        vertices.positions[j+1][0] = -0.5;
+
+        vertices.positions[j+2][2] = z;
+        vertices.positions[j+2][1] = y;
+        vertices.positions[j+2][0] = 0.5;
+
+        indices[j] = j;
+        indices[j+1] = j+1;
+        indices[j+2] = j+3;
+
+        indices[j+3] = j;
+        indices[j+4] = j+2;
+        indices[j+5] = j+3;
+    }
+
+    VertexAttribs[0].Index = VERTEX_ATTRIBUTE_LOCATION_POSITION;
+    VertexAttribs[0].Size = 3;
+    VertexAttribs[0].Type = GL_FLOAT;
+    VertexAttribs[0].Normalized = false;
+    VertexAttribs[0].Stride = 3 * sizeof(float);
+    VertexAttribs[0].Pointer = (const GLvoid*)0;
+
+    GL(glGenBuffers(1, &VertexBuffer));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STREAM_DRAW));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+    GL(glGenBuffers(1, &IndexBuffer));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
+    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STREAM_DRAW));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+}
+
+void OvrHRPlot::draw() {
+    GL(glDepthMask(GL_FALSE));
+    GL(glEnable(GL_DEPTH_TEST));
+    GL(glDepthFunc(GL_LEQUAL));
+    GL(glDisable(GL_CULL_FACE));
+    GL(glEnable(GL_BLEND));
+    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferSubData(VertexBuffer, 0, sizeof(vertices), &vertices));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STREAM_DRAW));
+
+    for (int i = 0; i < MAX_VERTEX_ATTRIB_POINTERS; i++) {
+        if (VertexAttribs[i].Index != -1) {
+            GL(glEnableVertexAttribArray(VertexAttribs[i].Index));
+            GL(glVertexAttribPointer(
+                    VertexAttribs[i].Index,
+                    VertexAttribs[i].Size,
+                    VertexAttribs[i].Type,
+                    VertexAttribs[i].Normalized,
+                    VertexAttribs[i].Stride,
+                    VertexAttribs[i].Pointer));
+        }
+    }
+
+    GL(glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_SHORT, indices));
+
+    for (int i = 0; i < MAX_VERTEX_ATTRIB_POINTERS; i++) {
+        if (VertexAttribs[i].Index != -1) {
+            GL(glDisableVertexAttribArray(VertexAttribs[i].Index));
+        }
+    }
+
+    GL(glDepthMask(GL_TRUE));
+    GL(glDisable(GL_BLEND));
+
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GL(glUseProgram(0));
 }

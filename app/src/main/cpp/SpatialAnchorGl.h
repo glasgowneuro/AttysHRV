@@ -68,6 +68,22 @@ struct OvrECGPlot : OvrGeometry {
     void draw();
 };
 
+struct OvrHRPlot : OvrGeometry {
+    static constexpr int nPoints = 200;
+    float offset = 0;
+
+    struct Vertices {
+        float positions[nPoints*3][3];
+    };
+
+    Vertices vertices = {};
+
+    unsigned short indices[nPoints*6] = {};
+
+    void Create();
+    void draw();
+};
+
 struct ovrProgram {
     static constexpr int MAX_PROGRAM_UNIFORMS = 8;
     static constexpr int MAX_PROGRAM_TEXTURES = 8;
@@ -123,6 +139,8 @@ struct ovrScene {
     OvrAxes Axes;
     ovrProgram ECGPlotProgram;
     OvrECGPlot ECGPlot;
+    ovrProgram HRProgram;
+    OvrHRPlot HrPlot;
     float ClearColor[4];
     std::vector<XrSpace> SpaceList;
 };
