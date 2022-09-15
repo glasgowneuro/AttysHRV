@@ -521,6 +521,30 @@ static const char STAGE_FRAGMENT_SHADER[] =
     "	outColor = vec4( 0.5, 0.5, 1.0, 0.5 );\n"
     "}\n";
 
+static const char HRPLOT_VERTEX_SHADER[] =
+        "#define NUM_VIEWS 2\n"
+        "#define VIEW_ID gl_ViewID_OVR\n"
+        "#extension GL_OVR_multiview2 : require\n"
+        "layout(num_views=NUM_VIEWS) in;\n"
+        "in vec3 vertexPosition;\n"
+        "uniform mat4 ModelMatrix;\n"
+        "uniform SceneMatrices\n"
+        "{\n"
+        "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
+        "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
+        "} sm;\n"
+        "void main()\n"
+        "{\n"
+        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
+        "}\n";
+
+static const char HRPLOT_FRAGMENT_SHADER[] =
+        "out lowp vec4 outColor;\n"
+        "void main()\n"
+        "{\n"
+        "	outColor = vec4( 0.0, 0.9, 0.0, 0.9 );\n"
+        "}\n";
+
 static const char AXES_VERTEX_SHADER[] =
     "#define NUM_VIEWS 2\n"
     "#define VIEW_ID gl_ViewID_OVR\n"
@@ -747,7 +771,7 @@ void ovrScene::Create() {
     ECGPlot.Create();
 
     // HRPlot
-    if (!HRProgram.Create(STAGE_VERTEX_SHADER, STAGE_FRAGMENT_SHADER)) {
+    if (!HRProgram.Create(HRPLOT_VERTEX_SHADER, HRPLOT_FRAGMENT_SHADER)) {
         ALOGE("Failed to compile HRPlot program");
     }
     HrPlot.Create();
@@ -1077,7 +1101,7 @@ Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *env, jclass 
 
 void OvrHRPlot::Create() {
     VertexCount = nPoints*3;
-    IndexCount = 6;
+    IndexCount = nPoints*6;
 
     ALOGE("Creating HR plot with %d vertices.",VertexCount);
     for(int i = 0; i < (nPoints-1); i++) {
