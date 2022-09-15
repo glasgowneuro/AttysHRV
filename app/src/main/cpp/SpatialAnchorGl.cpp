@@ -990,26 +990,14 @@ void OvrECGPlot::Create() {
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
 
-void OvrECGPlot::addData(float d) {
-    //ALOGV("OvrECGPlot::addData = %f",d);
-    //dataBuffer.push_back(d);
-    for (int i = nPoints - 1; i > 0; i--) {
-        axesVertices.positions[i][1] = axesVertices.positions[i - 1][1];
-    }
-    ALOGV("OvrECGPlot::draw = %f",d);
-    axesVertices.positions[0][1] = d;
-    ALOGV("OvrECGPlot::addData, buffersz=%u",(unsigned int)dataBuffer.size());
-}
-
 void OvrECGPlot::draw() {
 
     for(auto &v:dataBuffer) {
         for (int i = nPoints - 1; i > 0; i--) {
             axesVertices.positions[i][1] = axesVertices.positions[i - 1][1];
         }
-        ALOGV("OvrECGPlot::draw = %f", v);
         axesVertices.positions[0][1] = v;
-        ALOGV("OvrECGPlot::draw, buffersz=%u", (unsigned int) dataBuffer.size());
+        ALOGV("OvrECGPlot::draw, buffersz=%u, %f", (unsigned int) dataBuffer.size(),v);
     }
     dataBuffer.clear();
 
