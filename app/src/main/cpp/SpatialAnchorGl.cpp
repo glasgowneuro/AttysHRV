@@ -528,6 +528,7 @@ static const char HRPLOT_VERTEX_SHADER[] =
         "layout(num_views=NUM_VIEWS) in;\n"
         "in vec3 vertexPosition;\n"
         "uniform mat4 ModelMatrix;\n"
+        "uniform float time;\n"
         "uniform SceneMatrices\n"
         "{\n"
         "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
@@ -925,6 +926,11 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
                 GL_TRUE,
                 &scale.M[0][0]));
     }
+    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+    auto duration = now.time_since_epoch();
+    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    float time = millis / 1000.0;
+    glUniform1f(glGetUniformLocation(Scene.HRProgram.Program,"time"), time);
     Scene.HrPlot.draw();
     GL(glUseProgram(0));
 //    Framebuffer.Resolve();
