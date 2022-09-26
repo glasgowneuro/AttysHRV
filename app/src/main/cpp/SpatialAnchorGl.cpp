@@ -1109,17 +1109,12 @@ void OvrHRPlot::Create() {
     VertexCount = NR_VERTICES;
     IndexCount = NR_INDICES;
 
-    const float scale = 50.0f;
-    const float delta = 2.0f/QUAD_GRID_SIZE;
-
     for (int y=0; y<=QUAD_GRID_SIZE; y++) {
         for (int x=0; x<=QUAD_GRID_SIZE; x++) {
             int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
-            vertices[vertexPosition][0] = ( x*delta - 1.0 ) * scale;
+            vertices[vertexPosition][0] = ( (float)x*delta - 1.0f ) * scale;
             vertices[vertexPosition][1]= 0;
-            vertices[vertexPosition][2] = ( y*delta - 1.0 ) * scale ;
-            texcoords[vertexPosition][0] = x*delta;
-            texcoords[vertexPosition][1] = y*delta;
+            vertices[vertexPosition][2] = ( (float)y*delta - 1.0f ) * scale ;
         }
     }
 
@@ -1157,6 +1152,16 @@ void OvrHRPlot::Create() {
 }
 
 void OvrHRPlot::draw() {
+    for (int x=0; x<=QUAD_GRID_SIZE; x++) {
+        float t = offset;
+        for (int y=0; y<=QUAD_GRID_SIZE; y++) {
+            int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
+            vertices[vertexPosition][1]= sin(t)*10;
+            t = t + 0.1f;
+        }
+    }
+    offset += 0.1;
+
     GL(glDepthMask(GL_FALSE));
     GL(glEnable(GL_DEPTH_TEST));
     GL(glDepthFunc(GL_LEQUAL));
@@ -1170,24 +1175,24 @@ void OvrHRPlot::draw() {
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
     GL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STREAM_DRAW));
 
-    for (int i = 0; i < MAX_VERTEX_ATTRIB_POINTERS; i++) {
-        if (VertexAttribs[i].Index != -1) {
-            GL(glEnableVertexAttribArray(VertexAttribs[i].Index));
+    for (auto & VertexAttrib : VertexAttribs) {
+        if (VertexAttrib.Index != -1) {
+            GL(glEnableVertexAttribArray(VertexAttrib.Index));
             GL(glVertexAttribPointer(
-                    VertexAttribs[i].Index,
-                    VertexAttribs[i].Size,
-                    VertexAttribs[i].Type,
-                    VertexAttribs[i].Normalized,
-                    VertexAttribs[i].Stride,
-                    VertexAttribs[i].Pointer));
+                    VertexAttrib.Index,
+                    VertexAttrib.Size,
+                    VertexAttrib.Type,
+                    VertexAttrib.Normalized,
+                    VertexAttrib.Stride,
+                    VertexAttrib.Pointer));
         }
     }
 
     GL(glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_SHORT, indices));
 
-    for (int i = 0; i < MAX_VERTEX_ATTRIB_POINTERS; i++) {
-        if (VertexAttribs[i].Index != -1) {
-            GL(glDisableVertexAttribArray(VertexAttribs[i].Index));
+    for (auto & VertexAttrib : VertexAttribs) {
+        if (VertexAttrib.Index != -1) {
+            GL(glDisableVertexAttribArray(VertexAttrib.Index));
         }
     }
 
