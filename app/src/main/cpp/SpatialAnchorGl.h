@@ -69,16 +69,16 @@ struct OvrECGPlot : OvrGeometry {
 };
 
 struct OvrHRPlot : OvrGeometry {
-    static constexpr int nPoints = 200;
+    static const int QUAD_GRID_SIZE = 40;
+    static const int NR_VERTICES = (QUAD_GRID_SIZE+1)*(QUAD_GRID_SIZE+1);
+    static const int NR_TRIANGLES = 2*QUAD_GRID_SIZE*QUAD_GRID_SIZE;
+    static const int NR_INDICES = 3*NR_TRIANGLES;
+
     float offset = 0;
 
-    struct Vertices {
-        float positions[nPoints*3][3];
-    };
-
-    Vertices vertices = {};
-
-    unsigned short indices[nPoints*6] = {};
+    float vertices[NR_VERTICES][3] = {};
+    float texcoords[NR_VERTICES][2] = {};
+    unsigned short indices[NR_INDICES] = {};
 
     void Create();
     void draw();

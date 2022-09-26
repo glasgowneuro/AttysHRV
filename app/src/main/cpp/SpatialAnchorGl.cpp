@@ -1100,33 +1100,36 @@ Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *env, jclass 
 }
 
 void OvrHRPlot::Create() {
-    VertexCount = nPoints*3;
-    IndexCount = nPoints*6;
+    VertexCount = NR_VERTICES;
+    IndexCount = NR_INDICES;
 
-    ALOGE("Creating HR plot with %d vertices.",VertexCount);
-    for(int i = 0; i < (nPoints-1); i++) {
-        float y = (float)sin(i/10.0) * 0.1;
-        float z = -1 + (float)i / (float)nPoints * 2.0f;
-        int j = i*3;
-        vertices.positions[j][2] = z;
-        vertices.positions[j][1] = y;
-        vertices.positions[j][0] = 0;
+    const float scale = 50.0f;
+    const float delta = 2.0f/QUAD_GRID_SIZE;
 
-        vertices.positions[j+1][2] = z;
-        vertices.positions[j+1][1] = y;
-        vertices.positions[j+1][0] = -0.5;
+    for (int y=0; y<=QUAD_GRID_SIZE; y++) {
+        for (int x=0; x<=QUAD_GRID_SIZE; x++) {
+            int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
+            vertices[vertexPosition][0] = ( x*delta - 1.0 ) * scale;
+            vertices[vertexPosition][1]= 0;
+            vertices[vertexPosition][2] = ( y*delta - 1.0 ) * scale ;
+            texcoords[vertexPosition][0] = x*delta;
+            texcoords[vertexPosition][1] = y*delta;
+        }
+    }
 
-        vertices.positions[j+2][2] = z;
-        vertices.positions[j+2][1] = y;
-        vertices.positions[j+2][0] = 0.5;
-
-        indices[j] = j;
-        indices[j+1] = j+1;
-        indices[j+2] = j+3;
-
-        indices[j+3] = j;
-        indices[j+4] = j+2;
-        indices[j+5] = j+3;
+    // Generate indices into vertex list
+    for (int y=0; y<QUAD_GRID_SIZE; y++) {
+        for (int x=0; x<QUAD_GRID_SIZE; x++) {
+            int indexPosition = y*QUAD_GRID_SIZE + x;
+            // tri 0
+            indices[6*indexPosition  ] = y    *(QUAD_GRID_SIZE+1) + x;    //bl
+            indices[6*indexPosition+1] = (y+1)*(QUAD_GRID_SIZE+1) + x + 1;//tr
+            indices[6*indexPosition+2] = y    *(QUAD_GRID_SIZE+1) + x + 1;//br
+            // tri 1
+            indices[6*indexPosition+3] = y    *(QUAD_GRID_SIZE+1) + x;    //bl
+            indices[6*indexPosition+4] = (y+1)*(QUAD_GRID_SIZE+1) + x;    //tl
+            indices[6*indexPosition+5] = (y+1)*(QUAD_GRID_SIZE+1) + x + 1;//tr
+        }
     }
 
     VertexAttribs[0].Index = VERTEX_ATTRIBUTE_LOCATION_POSITION;
