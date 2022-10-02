@@ -18,20 +18,40 @@
 
 class OvrGeometry {
 public:
+    static constexpr int MAX_PROGRAM_UNIFORMS = 8;
+    static constexpr int MAX_PROGRAM_TEXTURES = 8;
+    static constexpr int MAX_VERTEX_ATTRIB_POINTERS = 3;
+
     OvrGeometry() {
         Clear();
     }
-    virtual void Create() = 0;
+
     void Clear();
+
+    bool Create(const char *vertexSource, const char *fragmentSource);
+
     void Destroy();
-    static constexpr int MAX_VERTEX_ATTRIB_POINTERS = 3;
+
+    virtual void CreateGeometry() = 0;
+
+    GLuint Program;
+    GLuint VertexShader;
+    GLuint FragmentShader;
+    // These will be -1 if not used by the program.
+    GLint UniformLocation[MAX_PROGRAM_UNIFORMS]; // ProgramUniforms[].name
+    GLint UniformBinding[MAX_PROGRAM_UNIFORMS]; // ProgramUniforms[].name
+    GLint Textures[MAX_PROGRAM_TEXTURES]; // Texture%i
+
+    void CreateVAO();
+    void DestroyVAO();
+
     struct VertexAttribPointer {
         GLint Index;
         GLint Size;
         GLenum Type;
         GLboolean Normalized;
         GLsizei Stride;
-        const GLvoid* Pointer;
+        const GLvoid *Pointer;
     };
     GLuint VertexBuffer;
     GLuint IndexBuffer;
@@ -39,16 +59,16 @@ public:
     int VertexCount;
     int IndexCount;
     VertexAttribPointer VertexAttribs[MAX_VERTEX_ATTRIB_POINTERS];
-    void CreateVAO();
-    void DestroyVAO();
+    bool hasVAO = false;
 };
 
+
 struct OvrAxes : OvrGeometry {
-    void Create();
+    void CreateGeometry();
 };
 
 struct OvrStage : OvrGeometry {
-    void Create();
+    void CreateGeometry();
 };
 
 struct OvrECGPlot : OvrGeometry {
@@ -64,7 +84,7 @@ struct OvrECGPlot : OvrGeometry {
 
     unsigned short axesIndices[(nPoints*2)+1] = {};
 
-    void Create();
+    void CreateGeometry();
     void draw();
 };
 
@@ -81,24 +101,8 @@ struct OvrHRPlot : OvrGeometry {
     float vertices[NR_VERTICES][3] = {};
     unsigned short indices[NR_INDICES] = {};
 
-    void Create();
+    void CreateGeometry();
     void draw();
-};
-
-struct ovrProgram {
-    static constexpr int MAX_PROGRAM_UNIFORMS = 8;
-    static constexpr int MAX_PROGRAM_TEXTURES = 8;
-
-    void Clear();
-    bool Create(const char* vertexSource, const char* fragmentSource);
-    void Destroy();
-    GLuint Program;
-    GLuint VertexShader;
-    GLuint FragmentShader;
-    // These will be -1 if not used by the program.
-    GLint UniformLocation[MAX_PROGRAM_UNIFORMS]; // ProgramUniforms[].name
-    GLint UniformBinding[MAX_PROGRAM_UNIFORMS]; // ProgramUniforms[].name
-    GLint Textures[MAX_PROGRAM_TEXTURES]; // Texture%i
 };
 
 struct ovrFramebuffer {
@@ -134,13 +138,9 @@ struct ovrScene {
     void SetClearColor(const float* c);
     bool CreatedScene;
     GLuint SceneMatrices;
-    ovrProgram StageProgram;
     OvrStage Stage;
-    ovrProgram AxesProgram;
     OvrAxes Axes;
-    ovrProgram ECGPlotProgram;
     OvrECGPlot ECGPlot;
-    ovrProgram HRProgram;
     OvrHRPlot HrPlot;
     float ClearColor[4];
     std::vector<XrSpace> SpaceList;
