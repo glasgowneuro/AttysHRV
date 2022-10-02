@@ -46,6 +46,7 @@ public:
     void DestroyVAO();
 
     struct VertexAttribPointer {
+        std::string Name;
         GLint Index;
         GLint Size;
         GLenum Type;
@@ -53,6 +54,7 @@ public:
         GLsizei Stride;
         const GLvoid *Pointer;
     };
+
     GLuint VertexBuffer;
     GLuint IndexBuffer;
     GLuint VertexArrayObject;

@@ -195,22 +195,6 @@ OvrGeometry
 ================================================================================
 */
 
-enum VertexAttributeLocation {
-    VERTEX_ATTRIBUTE_LOCATION_POSITION,
-    VERTEX_ATTRIBUTE_LOCATION_COLOR,
-    VERTEX_ATTRIBUTE_LOCATION_UV
-};
-
-struct OvrVertexAttribute {
-    enum VertexAttributeLocation location;
-    const char* name;
-};
-
-static OvrVertexAttribute ProgramVertexAttributes[] = {
-    {VERTEX_ATTRIBUTE_LOCATION_POSITION, "vertexPosition"},
-    {VERTEX_ATTRIBUTE_LOCATION_COLOR, "vertexColor"},
-    {VERTEX_ATTRIBUTE_LOCATION_UV, "vertexUv"}};
-
 static std::vector<double> dataBuffer;
 
 void OvrAxes::CreateGeometry() {
@@ -243,14 +227,16 @@ void OvrAxes::CreateGeometry() {
     VertexCount = 6;
     IndexCount = 6;
 
-    VertexAttribs[0].Index = VERTEX_ATTRIBUTE_LOCATION_POSITION;
+    VertexAttribs[0].Index = 0;
+    VertexAttribs[1].Name = "vertexPosition";
     VertexAttribs[0].Size = 3;
     VertexAttribs[0].Type = GL_FLOAT;
     VertexAttribs[0].Normalized = false;
     VertexAttribs[0].Stride = sizeof(axesVertices.positions[0]);
     VertexAttribs[0].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, positions);
 
-    VertexAttribs[1].Index = VERTEX_ATTRIBUTE_LOCATION_COLOR;
+    VertexAttribs[1].Index = 1;
+    VertexAttribs[1].Name = "vertexColor";
     VertexAttribs[1].Size = 4;
     VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
     VertexAttribs[1].Normalized = true;
@@ -282,7 +268,8 @@ void OvrStage::CreateGeometry() {
     VertexCount = 4;
     IndexCount = 6;
 
-    VertexAttribs[0].Index = VERTEX_ATTRIBUTE_LOCATION_POSITION;
+    VertexAttribs[0].Index = 0;
+    VertexAttribs[0].Name = "vertexPosition";
     VertexAttribs[0].Size = 3;
     VertexAttribs[0].Type = GL_FLOAT;
     VertexAttribs[0].Normalized = false;
@@ -445,13 +432,6 @@ bool OvrGeometry::Create(const char* vertexSource, const char* fragmentSource) {
 
     GL(glUseProgram(Program));
 
-    // Bind the vertex attribute locations.
-    for (size_t i = 0; i < sizeof(ProgramVertexAttributes) / sizeof(ProgramVertexAttributes[0]);
-         i++) {
-        GL(glBindAttribLocation(
-                Program, ProgramVertexAttributes[i].location, ProgramVertexAttributes[i].name));
-    }
-
     // Get the texture locations.
     for (int i = 0; i < MAX_PROGRAM_TEXTURES; i++) {
         char name[32];
@@ -462,9 +442,14 @@ bool OvrGeometry::Create(const char* vertexSource, const char* fragmentSource) {
         }
     }
 
-    GL(glUseProgram(0));
-
     CreateGeometry();
+
+    // Bind the vertex attribute locations.
+    for (auto &a:VertexAttribs) {
+        GL(glBindAttribLocation(Program, a.Index, a.Name.c_str()));
+    }
+
+    GL(glUseProgram(0));
 
     return true;
 }
@@ -1015,14 +1000,16 @@ void OvrECGPlot::CreateGeometry() {
         axesVertices.positions[i][2] = 0;
     }
 
-    VertexAttribs[0].Index = VERTEX_ATTRIBUTE_LOCATION_POSITION;
+    VertexAttribs[0].Index = 0;
+    VertexAttribs[0].Name = "vertexPosition";
     VertexAttribs[0].Size = 3;
     VertexAttribs[0].Type = GL_FLOAT;
     VertexAttribs[0].Normalized = false;
     VertexAttribs[0].Stride = sizeof(axesVertices.positions[0]);
     VertexAttribs[0].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, positions);
 
-    VertexAttribs[1].Index = VERTEX_ATTRIBUTE_LOCATION_COLOR;
+    VertexAttribs[1].Index = 1;
+    VertexAttribs[1].Name = "vertexColor";
     VertexAttribs[1].Size = 4;
     VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
     VertexAttribs[1].Normalized = true;
@@ -1122,7 +1109,8 @@ void OvrHRPlot::CreateGeometry() {
         }
     }
 
-    VertexAttribs[0].Index = VERTEX_ATTRIBUTE_LOCATION_POSITION;
+    VertexAttribs[0].Index = 0;
+    VertexAttribs[0].Name = "vertexPosition";
     VertexAttribs[0].Size = 3;
     VertexAttribs[0].Type = GL_FLOAT;
     VertexAttribs[0].Normalized = false;
