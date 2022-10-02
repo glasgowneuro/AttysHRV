@@ -289,6 +289,204 @@ void OvrStage::CreateGeometry() {
     CreateVAO();
 }
 
+
+void OvrECGPlot::CreateGeometry() {
+    ALOGV("OvrECGPlot::Create()");
+    VertexCount = nPoints;
+    IndexCount = (nPoints*2)+1;
+
+    ALOGE("Creating ECG plot with %d vertices.",VertexCount);
+    for(int i = 0; i < nPoints; i++) {
+        axesIndices[i*2] = i;
+        axesIndices[i*2+1 ] = i+1;
+
+        axesVertices.colors[i][0] = 0;
+        axesVertices.colors[i][1] = 255;
+        axesVertices.colors[i][2] = 255;
+        axesVertices.colors[i][3] = 255;
+
+        axesVertices.positions[i][0] = -1 + (float)i / (float)nPoints * 2.0f;
+        axesVertices.positions[i][1] = (float)sin(i/10.0) * 0.1;
+        ALOGV("pos = %f,%f", axesVertices.positions[i][0],axesVertices.positions[i][1]);
+        axesVertices.positions[i][2] = 0;
+    }
+
+    VertexAttribs[0].Index = 0;
+    VertexAttribs[0].Name = "vertexPosition";
+    VertexAttribs[0].Size = 3;
+    VertexAttribs[0].Type = GL_FLOAT;
+    VertexAttribs[0].Normalized = false;
+    VertexAttribs[0].Stride = sizeof(axesVertices.positions[0]);
+    VertexAttribs[0].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, positions);
+
+    VertexAttribs[1].Index = 1;
+    VertexAttribs[1].Name = "vertexColor";
+    VertexAttribs[1].Size = 4;
+    VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
+    VertexAttribs[1].Normalized = true;
+    VertexAttribs[1].Stride = sizeof(axesVertices.colors[0]);
+    VertexAttribs[1].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, colors);
+
+    GL(glGenBuffers(1, &VertexBuffer));
+
+    GL(glGenBuffers(1, &IndexBuffer));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
+    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STREAM_DRAW));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+}
+
+void OvrECGPlot::draw() {
+
+    for(auto &v:dataBuffer) {
+        for (int i = nPoints - 1; i > 0; i--) {
+            axesVertices.positions[i][1] = axesVertices.positions[i - 1][1];
+        }
+        axesVertices.positions[0][1] = v;
+        ALOGV("OvrECGPlot::draw, buffersz=%u, %f", (unsigned int) dataBuffer.size(),v);
+    }
+    dataBuffer.clear();
+
+#ifdef FAKE_DATA
+    for(int i = 0; i < nPoints; i++) {
+        axesVertices.positions[i][0] = -1 + (float) i / (float) nPoints * 2.0f;
+        axesVertices.positions[i][1] = (float) sin(i / 10.0 + offset) * 0.1;
+    }
+    offset += 0.1;
+#endif
+
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferSubData(VertexBuffer, 0, sizeof(axesVertices), &axesVertices));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STREAM_DRAW));
+
+    for (int i = 0; i < MAX_VERTEX_ATTRIB_POINTERS; i++) {
+        if (VertexAttribs[i].Index != -1) {
+            GL(glEnableVertexAttribArray(VertexAttribs[i].Index));
+            GL(glVertexAttribPointer(
+                    VertexAttribs[i].Index,
+                    VertexAttribs[i].Size,
+                    VertexAttribs[i].Type,
+                    VertexAttribs[i].Normalized,
+                    VertexAttribs[i].Stride,
+                    VertexAttribs[i].Pointer));
+        }
+    }
+
+    GL(glDrawElements(GL_LINES, IndexCount, GL_UNSIGNED_SHORT, axesIndices));
+
+    for (int i = 0; i < MAX_VERTEX_ATTRIB_POINTERS; i++) {
+        if (VertexAttribs[i].Index != -1) {
+            GL(glDisableVertexAttribArray(VertexAttribs[i].Index));
+        }
+    }
+
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+}
+
+void OvrHRPlot::CreateGeometry() {
+    VertexCount = NR_VERTICES;
+    IndexCount = NR_INDICES;
+
+    for (int y=0; y<=QUAD_GRID_SIZE; y++) {
+        for (int x=0; x<=QUAD_GRID_SIZE; x++) {
+            int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
+            vertices[vertexPosition][0] = ( (float)x*delta - 1.0f ) * scale;
+            vertices[vertexPosition][1]= 0;
+            vertices[vertexPosition][2] = ( (float)y*delta - 1.0f ) * scale ;
+        }
+    }
+
+    // Generate indices into vertex list
+    for (int y=0; y<QUAD_GRID_SIZE; y++) {
+        for (int x=0; x<QUAD_GRID_SIZE; x++) {
+            int indexPosition = y*QUAD_GRID_SIZE + x;
+            // tri 0
+            indices[6*indexPosition  ] = y    *(QUAD_GRID_SIZE+1) + x;    //bl
+            indices[6*indexPosition+1] = (y+1)*(QUAD_GRID_SIZE+1) + x + 1;//tr
+            indices[6*indexPosition+2] = y    *(QUAD_GRID_SIZE+1) + x + 1;//br
+            // tri 1
+            indices[6*indexPosition+3] = y    *(QUAD_GRID_SIZE+1) + x;    //bl
+            indices[6*indexPosition+4] = (y+1)*(QUAD_GRID_SIZE+1) + x;    //tl
+            indices[6*indexPosition+5] = (y+1)*(QUAD_GRID_SIZE+1) + x + 1;//tr
+        }
+    }
+
+    VertexAttribs[0].Index = 0;
+    VertexAttribs[0].Name = "vertexPosition";
+    VertexAttribs[0].Size = 3;
+    VertexAttribs[0].Type = GL_FLOAT;
+    VertexAttribs[0].Normalized = false;
+    VertexAttribs[0].Stride = 3 * sizeof(float);
+    VertexAttribs[0].Pointer = (const GLvoid*)0;
+
+    GL(glGenBuffers(1, &VertexBuffer));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STREAM_DRAW));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+    GL(glGenBuffers(1, &IndexBuffer));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
+    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STREAM_DRAW));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+}
+
+void OvrHRPlot::draw() {
+    for (int x=0; x<=QUAD_GRID_SIZE; x++) {
+        float t = offset;
+        for (int y=0; y<=QUAD_GRID_SIZE; y++) {
+            int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
+            vertices[vertexPosition][1]= sin(t)*10;
+            t = t + 0.1f;
+        }
+    }
+    offset += 0.1;
+
+    GL(glDepthMask(GL_FALSE));
+    GL(glEnable(GL_DEPTH_TEST));
+    GL(glDepthFunc(GL_LEQUAL));
+    GL(glDisable(GL_CULL_FACE));
+    GL(glEnable(GL_BLEND));
+    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferSubData(VertexBuffer, 0, sizeof(vertices), &vertices));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STREAM_DRAW));
+
+    for (auto & VertexAttrib : VertexAttribs) {
+        if (VertexAttrib.Index != -1) {
+            GL(glEnableVertexAttribArray(VertexAttrib.Index));
+            GL(glVertexAttribPointer(
+                    VertexAttrib.Index,
+                    VertexAttrib.Size,
+                    VertexAttrib.Type,
+                    VertexAttrib.Normalized,
+                    VertexAttrib.Stride,
+                    VertexAttrib.Pointer));
+        }
+    }
+
+    GL(glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_SHORT, indices));
+
+    for (auto & VertexAttrib : VertexAttribs) {
+        if (VertexAttrib.Index != -1) {
+            GL(glDisableVertexAttribArray(VertexAttrib.Index));
+        }
+    }
+
+    GL(glDepthMask(GL_TRUE));
+    GL(glDisable(GL_BLEND));
+
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GL(glUseProgram(0));
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
 void OvrGeometry::Clear() {
     VertexBuffer = 0;
     IndexBuffer = 0;
@@ -937,140 +1135,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
         GL(glUseProgram(0));
     }
 
-    if (0) {
-        // Stage
-        GL(glUseProgram(Scene.Stage.Program));
-        GL(glBindBufferBase(
-            GL_UNIFORM_BUFFER,
-            Scene.Stage.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
-            Scene.SceneMatrices));
-        if (Scene.Stage.UniformLocation[ovrUniform::Index::VIEW_ID] >=
-            0) // NOTE: will not be present when multiview path is enabled.
-        {
-            GL(glUniform1i(Scene.Stage.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
-        }
-        if (Scene.Stage.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-            const Matrix4f rotateVtoH = Matrix4f::RotationX(-M_PI / 2.0f);
-            const Matrix4f stageScaleMat = Matrix4f::Scaling(frameIn.StageScale);
-            const Matrix4f stagePoseMat = Matrix4f(frameIn.StagePose);
-            const Matrix4f m2 = stagePoseMat * stageScaleMat * rotateVtoH;
-            GL(glUniformMatrix4fv(
-                Scene.Stage.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
-                1,
-                GL_TRUE,
-                &m2.M[0][0]));
-        }
-        GL(glDepthMask(GL_FALSE));
-        GL(glEnable(GL_DEPTH_TEST));
-        GL(glDepthFunc(GL_LEQUAL));
-        GL(glDisable(GL_CULL_FACE));
-        GL(glEnable(GL_BLEND));
-        GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-        GL(glBindVertexArray(Scene.Stage.VertexArrayObject));
-        GL(glDrawElements(GL_TRIANGLES, Scene.Stage.IndexCount, GL_UNSIGNED_SHORT, nullptr));
-        GL(glDepthMask(GL_TRUE));
-        GL(glDisable(GL_BLEND));
-        GL(glBindVertexArray(0));
-        GL(glUseProgram(0));
-
-        Framebuffer.Resolve();
-    }
-
     Framebuffer.Unbind();
-}
-
-void OvrECGPlot::CreateGeometry() {
-    ALOGV("OvrECGPlot::Create()");
-    VertexCount = nPoints;
-    IndexCount = (nPoints*2)+1;
-
-    ALOGE("Creating ECG plot with %d vertices.",VertexCount);
-    for(int i = 0; i < nPoints; i++) {
-        axesIndices[i*2] = i;
-        axesIndices[i*2+1 ] = i+1;
-
-        axesVertices.colors[i][0] = 0;
-        axesVertices.colors[i][1] = 255;
-        axesVertices.colors[i][2] = 255;
-        axesVertices.colors[i][3] = 255;
-
-        axesVertices.positions[i][0] = -1 + (float)i / (float)nPoints * 2.0f;
-        axesVertices.positions[i][1] = (float)sin(i/10.0) * 0.1;
-        ALOGV("pos = %f,%f", axesVertices.positions[i][0],axesVertices.positions[i][1]);
-        axesVertices.positions[i][2] = 0;
-    }
-
-    VertexAttribs[0].Index = 0;
-    VertexAttribs[0].Name = "vertexPosition";
-    VertexAttribs[0].Size = 3;
-    VertexAttribs[0].Type = GL_FLOAT;
-    VertexAttribs[0].Normalized = false;
-    VertexAttribs[0].Stride = sizeof(axesVertices.positions[0]);
-    VertexAttribs[0].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, positions);
-
-    VertexAttribs[1].Index = 1;
-    VertexAttribs[1].Name = "vertexColor";
-    VertexAttribs[1].Size = 4;
-    VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
-    VertexAttribs[1].Normalized = true;
-    VertexAttribs[1].Stride = sizeof(axesVertices.colors[0]);
-    VertexAttribs[1].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, colors);
-
-    GL(glGenBuffers(1, &VertexBuffer));
-
-    GL(glGenBuffers(1, &IndexBuffer));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
-    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STREAM_DRAW));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-}
-
-void OvrECGPlot::draw() {
-
-    for(auto &v:dataBuffer) {
-        for (int i = nPoints - 1; i > 0; i--) {
-            axesVertices.positions[i][1] = axesVertices.positions[i - 1][1];
-        }
-        axesVertices.positions[0][1] = v;
-        ALOGV("OvrECGPlot::draw, buffersz=%u, %f", (unsigned int) dataBuffer.size(),v);
-    }
-    dataBuffer.clear();
-
-#ifdef FAKE_DATA
-    for(int i = 0; i < nPoints; i++) {
-        axesVertices.positions[i][0] = -1 + (float) i / (float) nPoints * 2.0f;
-        axesVertices.positions[i][1] = (float) sin(i / 10.0 + offset) * 0.1;
-    }
-    offset += 0.1;
-#endif
-
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferSubData(VertexBuffer, 0, sizeof(axesVertices), &axesVertices));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STREAM_DRAW));
-
-    for (int i = 0; i < MAX_VERTEX_ATTRIB_POINTERS; i++) {
-        if (VertexAttribs[i].Index != -1) {
-            GL(glEnableVertexAttribArray(VertexAttribs[i].Index));
-            GL(glVertexAttribPointer(
-                    VertexAttribs[i].Index,
-                    VertexAttribs[i].Size,
-                    VertexAttribs[i].Type,
-                    VertexAttribs[i].Normalized,
-                    VertexAttribs[i].Stride,
-                    VertexAttribs[i].Pointer));
-        }
-    }
-
-    GL(glDrawElements(GL_LINES, IndexCount, GL_UNSIGNED_SHORT, axesIndices));
-
-    for (int i = 0; i < MAX_VERTEX_ATTRIB_POINTERS; i++) {
-        if (VertexAttribs[i].Index != -1) {
-            GL(glDisableVertexAttribArray(VertexAttribs[i].Index));
-        }
-    }
-
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 
 extern "C"
@@ -1081,101 +1146,3 @@ Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *env, jclass 
     dataBuffer.push_back(data);
 }
 
-void OvrHRPlot::CreateGeometry() {
-    VertexCount = NR_VERTICES;
-    IndexCount = NR_INDICES;
-
-    for (int y=0; y<=QUAD_GRID_SIZE; y++) {
-        for (int x=0; x<=QUAD_GRID_SIZE; x++) {
-            int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
-            vertices[vertexPosition][0] = ( (float)x*delta - 1.0f ) * scale;
-            vertices[vertexPosition][1]= 0;
-            vertices[vertexPosition][2] = ( (float)y*delta - 1.0f ) * scale ;
-        }
-    }
-
-    // Generate indices into vertex list
-    for (int y=0; y<QUAD_GRID_SIZE; y++) {
-        for (int x=0; x<QUAD_GRID_SIZE; x++) {
-            int indexPosition = y*QUAD_GRID_SIZE + x;
-            // tri 0
-            indices[6*indexPosition  ] = y    *(QUAD_GRID_SIZE+1) + x;    //bl
-            indices[6*indexPosition+1] = (y+1)*(QUAD_GRID_SIZE+1) + x + 1;//tr
-            indices[6*indexPosition+2] = y    *(QUAD_GRID_SIZE+1) + x + 1;//br
-            // tri 1
-            indices[6*indexPosition+3] = y    *(QUAD_GRID_SIZE+1) + x;    //bl
-            indices[6*indexPosition+4] = (y+1)*(QUAD_GRID_SIZE+1) + x;    //tl
-            indices[6*indexPosition+5] = (y+1)*(QUAD_GRID_SIZE+1) + x + 1;//tr
-        }
-    }
-
-    VertexAttribs[0].Index = 0;
-    VertexAttribs[0].Name = "vertexPosition";
-    VertexAttribs[0].Size = 3;
-    VertexAttribs[0].Type = GL_FLOAT;
-    VertexAttribs[0].Normalized = false;
-    VertexAttribs[0].Stride = 3 * sizeof(float);
-    VertexAttribs[0].Pointer = (const GLvoid*)0;
-
-    GL(glGenBuffers(1, &VertexBuffer));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STREAM_DRAW));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-
-    GL(glGenBuffers(1, &IndexBuffer));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
-    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STREAM_DRAW));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-}
-
-void OvrHRPlot::draw() {
-    for (int x=0; x<=QUAD_GRID_SIZE; x++) {
-        float t = offset;
-        for (int y=0; y<=QUAD_GRID_SIZE; y++) {
-            int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
-            vertices[vertexPosition][1]= sin(t)*10;
-            t = t + 0.1f;
-        }
-    }
-    offset += 0.1;
-
-    GL(glDepthMask(GL_FALSE));
-    GL(glEnable(GL_DEPTH_TEST));
-    GL(glDepthFunc(GL_LEQUAL));
-    GL(glDisable(GL_CULL_FACE));
-    GL(glEnable(GL_BLEND));
-    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferSubData(VertexBuffer, 0, sizeof(vertices), &vertices));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STREAM_DRAW));
-
-    for (auto & VertexAttrib : VertexAttribs) {
-        if (VertexAttrib.Index != -1) {
-            GL(glEnableVertexAttribArray(VertexAttrib.Index));
-            GL(glVertexAttribPointer(
-                    VertexAttrib.Index,
-                    VertexAttrib.Size,
-                    VertexAttrib.Type,
-                    VertexAttrib.Normalized,
-                    VertexAttrib.Stride,
-                    VertexAttrib.Pointer));
-        }
-    }
-
-    GL(glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_SHORT, indices));
-
-    for (auto & VertexAttrib : VertexAttribs) {
-        if (VertexAttrib.Index != -1) {
-            GL(glDisableVertexAttribArray(VertexAttrib.Index));
-        }
-    }
-
-    GL(glDepthMask(GL_TRUE));
-    GL(glDisable(GL_BLEND));
-
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    GL(glUseProgram(0));
-}
