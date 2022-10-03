@@ -391,9 +391,9 @@ void OvrHRPlot::CreateGeometry() {
     for (int y=0; y<=QUAD_GRID_SIZE; y++) {
         for (int x=0; x<=QUAD_GRID_SIZE; x++) {
             int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
-            vertices[vertexPosition][0] = ( (float)x*delta - 1.0f ) * scale;
-            vertices[vertexPosition][1]= 0;
-            vertices[vertexPosition][2] = ( (float)y*delta - 1.0f ) * scale ;
+            hrVertices.vertices[vertexPosition][0] = ( (float)x*delta - 1.0f ) * scale;
+            hrVertices.vertices[vertexPosition][1]= 0;
+            hrVertices.vertices[vertexPosition][2] = ( (float)y*delta - 1.0f ) * scale ;
         }
     }
 
@@ -418,12 +418,17 @@ void OvrHRPlot::CreateGeometry() {
     VertexAttribs[0].Type = GL_FLOAT;
     VertexAttribs[0].Normalized = false;
     VertexAttribs[0].Stride = 3 * sizeof(float);
-    VertexAttribs[0].Pointer = (const GLvoid*)0;
+    VertexAttribs[0].Pointer = (const GLvoid*) offsetof(HRVertices,vertices);
+
+    VertexAttribs[1].Index = 1;
+    VertexAttribs[1].Name = "vertexNormal";
+    VertexAttribs[1].Size = 3;
+    VertexAttribs[1].Type = GL_FLOAT;
+    VertexAttribs[1].Normalized = false;
+    VertexAttribs[1].Stride = 3 * sizeof(float);
+    VertexAttribs[1].Pointer = (const GLvoid*) offsetof(HRVertices,normals);
 
     GL(glGenBuffers(1, &VertexBuffer));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STREAM_DRAW));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
     GL(glGenBuffers(1, &IndexBuffer));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
@@ -436,7 +441,7 @@ void OvrHRPlot::draw() {
         float t = offset;
         for (int y=0; y<=QUAD_GRID_SIZE; y++) {
             int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
-            vertices[vertexPosition][1]= sin(t)*10;
+            hrVertices.vertices[vertexPosition][1]= sin(t)*10;
             t = t + 0.1f;
         }
     }
@@ -450,10 +455,10 @@ void OvrHRPlot::draw() {
     GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferSubData(VertexBuffer, 0, sizeof(vertices), &vertices));
+    GL(glBufferSubData(VertexBuffer, 0, sizeof(HRVertices), &hrVertices));
     GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STREAM_DRAW));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(HRVertices), &hrVertices, GL_STREAM_DRAW));
 
     for (auto & VertexAttrib : VertexAttribs) {
         if (VertexAttrib.Index != -1) {
@@ -698,31 +703,6 @@ static const char STAGE_FRAGMENT_SHADER[] =
     "	outColor = vec4( 0.5, 0.5, 1.0, 0.5 );\n"
     "}\n";
 
-static const char HRPLOT_VERTEX_SHADER[] =
-        "#define NUM_VIEWS 2\n"
-        "#define VIEW_ID gl_ViewID_OVR\n"
-        "#extension GL_OVR_multiview2 : require\n"
-        "layout(num_views=NUM_VIEWS) in;\n"
-        "in vec3 vertexPosition;\n"
-        "uniform mat4 ModelMatrix;\n"
-        "uniform float time;\n"
-        "uniform SceneMatrices\n"
-        "{\n"
-        "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
-        "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
-        "} sm;\n"
-        "void main()\n"
-        "{\n"
-        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
-        "}\n";
-
-static const char HRPLOT_FRAGMENT_SHADER[] =
-        "out lowp vec4 outColor;\n"
-        "void main()\n"
-        "{\n"
-        "	outColor = vec4( 0.0, 0.9, 0.0, 0.9 );\n"
-        "}\n";
-
 static const char AXES_VERTEX_SHADER[] =
     "#define NUM_VIEWS 2\n"
     "#define VIEW_ID gl_ViewID_OVR\n"
@@ -941,6 +921,32 @@ void ovrScene::Create() {
     if (!ECGPlot.Create(AXES_VERTEX_SHADER, AXES_FRAGMENT_SHADER)) {
         ALOGE("Failed to compile plot program");
     }
+
+    const char HRPLOT_VERTEX_SHADER[] =
+            "#define NUM_VIEWS 2\n"
+            "#define VIEW_ID gl_ViewID_OVR\n"
+            "#extension GL_OVR_multiview2 : require\n"
+            "layout(num_views=NUM_VIEWS) in;\n"
+            "in vec3 vertexPosition;\n"
+            "in vec3 vertexNormal;\n"
+            "uniform mat4 ModelMatrix;\n"
+            "uniform float time;\n"
+            "uniform SceneMatrices\n"
+            "{\n"
+            "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
+            "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
+            "} sm;\n"
+            "void main()\n"
+            "{\n"
+            "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
+            "}\n";
+
+    const char HRPLOT_FRAGMENT_SHADER[] =
+            "out lowp vec4 outColor;\n"
+            "void main()\n"
+            "{\n"
+            "	outColor = vec4( 0.0, 0.9, 0.0, 0.9 );\n"
+            "}\n";
 
     // HRPlot
     if (!HrPlot.Create(HRPLOT_VERTEX_SHADER, HRPLOT_FRAGMENT_SHADER)) {

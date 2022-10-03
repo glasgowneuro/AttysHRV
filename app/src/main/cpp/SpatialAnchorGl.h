@@ -100,7 +100,13 @@ struct OvrHRPlot : OvrGeometry {
 
     float offset = 0;
 
-    float vertices[NR_VERTICES][3] = {};
+    struct HRVertices {
+        float vertices[NR_VERTICES][3] = {};
+        float normals[NR_VERTICES][3] = {};
+    };
+
+    HRVertices hrVertices = {};
+
     unsigned short indices[NR_INDICES] = {};
 
     void CreateGeometry();
