@@ -944,7 +944,8 @@ void ovrScene::Create() {
             "layout(num_views=NUM_VIEWS) in;\n"
             "in vec3 vertexPosition;\n"
             "in vec3 vertexNormal;\n"
-            "out float diffuse;\n"
+            "out vec3 normal;\n"
+            "out vec3 fragPos;\n"
             "uniform mat4 ModelMatrix;\n"
             "uniform float time;\n"
             "uniform SceneMatrices\n"
@@ -955,18 +956,20 @@ void ovrScene::Create() {
             "void main()\n"
             "{\n"
             "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
-            "   vec3 normal = normalize(vertexNormal);\n"
-            "   vec3 lightLocation = vec3(1,0,0);\n"
-            "   vec3 light = normalize(lightLocation);\n"
-            "   diffuse = max(0.0, dot(normal, light));\n"
+            "   normal = normalize(vertexNormal);\n"
+            "   fragPos = vec3( ModelMatrix * vec4( vertexPosition, 1.0 ) );\n"
             "}\n";
 
     const char HRPLOT_FRAGMENT_SHADER[] =
-            "in float diffuse;\n"
+            "in vec3 normal;\n"
+            "in vec3 fragPos;\n"
             "out lowp vec4 outColor;\n"
             "void main()\n"
             "{\n"
-            "	outColor = vec4( 0.0, 0.9, 0.9, 0.9 ) * diffuse;\n"
+            "   vec3 lightPos = vec3(0, 10.0, 0);\n"
+            "   vec3 lightDir = normalize(lightPos - fragPos);\n"
+            "   float diffuse = max(dot(normal, lightDir), 0.0);\n"
+            "	outColor = vec4( 0.0, 0.9, 0.9, 1.0 ) * diffuse;\n"
             "}\n";
 
     // HRPlot
