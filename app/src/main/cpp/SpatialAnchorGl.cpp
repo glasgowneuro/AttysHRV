@@ -34,6 +34,8 @@ Copyright	:	Copyright (c) Facebook Technologies, LLC and its affiliates. All rig
 
 #include "SpatialAnchorGl.h"
 
+#include "util.h"
+
 using namespace OVR;
 
 // EXT_texture_border_clamp
@@ -394,6 +396,9 @@ void OvrHRPlot::CreateGeometry() {
             hrVertices.vertices[vertexPosition][0] = ( (float)x*delta - 1.0f ) * scale;
             hrVertices.vertices[vertexPosition][1]= 0;
             hrVertices.vertices[vertexPosition][2] = ( (float)y*delta - 1.0f ) * scale ;
+            hrVertices.normals[vertexPosition][0] = 0;
+            hrVertices.normals[vertexPosition][1]= 1;
+            hrVertices.normals[vertexPosition][2] = 0;
         }
     }
 
@@ -446,6 +451,16 @@ void OvrHRPlot::draw() {
         }
     }
     offset += 0.1;
+
+    for (int x=0; x<=QUAD_GRID_SIZE; x++) {
+        for (int y=0; y<QUAD_GRID_SIZE; y++) {
+            int vertexPosition1 = y*(QUAD_GRID_SIZE+1) + x;
+            int vertexPosition2 = (y+1)*(QUAD_GRID_SIZE+1) + x;
+            crossProduct(hrVertices.vertices[vertexPosition1],
+                         hrVertices.vertices[vertexPosition2],
+                         hrVertices.normals[vertexPosition1]);
+        }
+    }
 
     GL(glDepthMask(GL_FALSE));
     GL(glEnable(GL_DEPTH_TEST));
@@ -929,6 +944,7 @@ void ovrScene::Create() {
             "layout(num_views=NUM_VIEWS) in;\n"
             "in vec3 vertexPosition;\n"
             "in vec3 vertexNormal;\n"
+            "out float diffuse;\n"
             "uniform mat4 ModelMatrix;\n"
             "uniform float time;\n"
             "uniform SceneMatrices\n"
@@ -939,13 +955,18 @@ void ovrScene::Create() {
             "void main()\n"
             "{\n"
             "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
+            "   vec3 normal = normalize(vertexNormal);\n"
+            "   vec3 lightLocation = vec3(1,0,0);\n"
+            "   vec3 light = normalize(lightLocation);\n"
+            "   diffuse = max(0.0, dot(normal, light));\n"
             "}\n";
 
     const char HRPLOT_FRAGMENT_SHADER[] =
+            "in float diffuse;\n"
             "out lowp vec4 outColor;\n"
             "void main()\n"
             "{\n"
-            "	outColor = vec4( 0.0, 0.9, 0.0, 0.9 );\n"
+            "	outColor = vec4( 0.0, 0.9, 0.9, 0.9 ) * diffuse;\n"
             "}\n";
 
     // HRPlot
