@@ -397,7 +397,7 @@ void OvrHRPlot::CreateGeometry() {
             hrVertices.vertices[vertexPosition][1]= 0;
             hrVertices.vertices[vertexPosition][2] = ( (float)y*delta - 1.0f ) * scale ;
             hrVertices.normals[vertexPosition][0] = 0;
-            hrVertices.normals[vertexPosition][1]= 1;
+            hrVertices.normals[vertexPosition][1] = 1;
             hrVertices.normals[vertexPosition][2] = 0;
         }
     }
@@ -452,13 +452,27 @@ void OvrHRPlot::draw() {
     }
     offset += 0.1;
 
-    for (int x=0; x<=QUAD_GRID_SIZE; x++) {
+    for (int x=0; x<QUAD_GRID_SIZE; x++) {
         for (int y=0; y<QUAD_GRID_SIZE; y++) {
             int vertexPosition1 = y*(QUAD_GRID_SIZE+1) + x;
             int vertexPosition2 = (y+1)*(QUAD_GRID_SIZE+1) + x;
-            crossProduct(hrVertices.vertices[vertexPosition1],
-                         hrVertices.vertices[vertexPosition2],
+            int vertexPosition3 = y*(QUAD_GRID_SIZE+1) + x + 1;
+            float a[3];
+            float b[3];
+            diff(hrVertices.vertices[vertexPosition1],hrVertices.vertices[vertexPosition2],a);
+            diff(hrVertices.vertices[vertexPosition1],hrVertices.vertices[vertexPosition3],b);
+            crossProduct(a,
+                         b,
                          hrVertices.normals[vertexPosition1]);
+/*
+            if (x == 0) {
+                ALOGV("cross prod = %d,%f,%f,%f",
+                      y,
+                      hrVertices.normals[vertexPosition1][0],
+                      hrVertices.normals[vertexPosition1][1],
+                      hrVertices.normals[vertexPosition1][2]);
+            }
+*/
         }
     }
 
@@ -957,7 +971,7 @@ void ovrScene::Create() {
             "{\n"
             "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
             "   normal = normalize(vertexNormal);\n"
-            "   fragPos = vec3( ModelMatrix * vec4( vertexPosition, 1.0 ) );\n"
+            "   fragPos = vertexPosition;\n" //vec3( ModelMatrix * vec4( vertexPosition, 1.0 ) );\n"
             "}\n";
 
     const char HRPLOT_FRAGMENT_SHADER[] =
@@ -966,10 +980,10 @@ void ovrScene::Create() {
             "out lowp vec4 outColor;\n"
             "void main()\n"
             "{\n"
-            "   vec3 lightPos = vec3(0, 10.0, 0);\n"
+            "   vec3 lightPos = vec3(0, 20.0, 10.0);\n"
             "   vec3 lightDir = normalize(lightPos - fragPos);\n"
             "   float diffuse = max(dot(normal, lightDir), 0.0);\n"
-            "	outColor = vec4( 0.0, 0.9, 0.9, 1.0 ) * diffuse;\n"
+            "	outColor = vec4( 0.0, 0.9, 0.9, 0.9 ) * diffuse;\n"
             "}\n";
 
     // HRPlot
