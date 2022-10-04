@@ -44,7 +44,7 @@ using namespace OVR;
 #endif
 
 #define DEBUG 1
-#define OVR_LOG_TAG "SpatialAnchorXr"
+#define OVR_LOG_TAG "OculusECGXr"
 
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, OVR_LOG_TAG, __VA_ARGS__)
 #define ALOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, OVR_LOG_TAG, __VA_ARGS__)

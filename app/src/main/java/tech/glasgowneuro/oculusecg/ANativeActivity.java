@@ -1,5 +1,7 @@
 package tech.glasgowneuro.oculusecg;
 
+import android.util.Log;
+
 import tech.glasgowneuro.attyscomm.AttysComm;
 import uk.me.berndporr.iirj.Butterworth;
 
@@ -11,8 +13,8 @@ public class ANativeActivity extends android.app.NativeActivity {
 
   static AttysComm attysComm;
 
-  static private Butterworth dcFilter;
-  static private Butterworth powerlineFilter;
+  final static private Butterworth dcFilter = new Butterworth();
+  final static private Butterworth powerlineFilter = new Butterworth();
 
   static private ECG_rr_det ecg_rr_det_ch;
 
@@ -38,6 +40,7 @@ public class ANativeActivity extends android.app.NativeActivity {
   static native void hrUpdate(long inst, float v);
 
   static void startAttysComm(long inst) {
+    Log.d(TAG,"Starting AttysComm");
     instance = inst;
     attysComm = new AttysComm();
     attysComm.registerDataListener(dataListener);
@@ -48,12 +51,14 @@ public class ANativeActivity extends android.app.NativeActivity {
       @Override
       public void haveRpeak(long samplenumber, float bpm, double amplitude, double confidence) {
         hrUpdate(instance,bpm);
+        Log.d(TAG,"HR = "+bpm);
       }
     });
     attysComm.start();
   }
 
   static void stopAttysComm() {
+    Log.d(TAG,"Stopping AttysComm");
     attysComm.stop();
   }
 }

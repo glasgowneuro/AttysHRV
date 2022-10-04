@@ -346,7 +346,7 @@ void OvrECGPlot::draw() {
             axesVertices.positions[i][1] = axesVertices.positions[i - 1][1];
         }
         axesVertices.positions[0][1] = v;
-        ALOGV("OvrECGPlot::draw, buffersz=%u, %f", (unsigned int) dataBuffer.size(),v);
+        // ALOGV("OvrECGPlot::draw, buffersz=%u, %f", (unsigned int) dataBuffer.size(),v);
     }
     dataBuffer.clear();
 
@@ -444,6 +444,20 @@ void OvrHRPlot::CreateGeometry() {
 }
 
 void OvrHRPlot::draw() {
+    for(auto &v:hrBuffer) {
+        for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
+            for (int y = 0; y < QUAD_GRID_SIZE; y++) {
+                int vertexPosition1 = y * (QUAD_GRID_SIZE + 1) + x;
+                int vertexPosition2 = (y + 1) * (QUAD_GRID_SIZE + 1) + x;
+                hrVertices.vertices[vertexPosition1][1] = hrVertices.vertices[vertexPosition2][1];
+            }
+            int vertexPosition3 = QUAD_GRID_SIZE * (QUAD_GRID_SIZE + 1) + x;
+            hrVertices.vertices[vertexPosition3][1] = (float)(v / 10.0);
+        }
+    }
+    hrBuffer.clear();
+
+#ifdef FAKE_DATA
     for (int x=0; x<=QUAD_GRID_SIZE; x++) {
         float t = offset;
         for (int y=0; y<=QUAD_GRID_SIZE; y++) {
@@ -453,6 +467,7 @@ void OvrHRPlot::draw() {
         }
     }
     offset += 0.1;
+#endif
 
     for (int x=0; x<QUAD_GRID_SIZE; x++) {
         for (int y=0; y<QUAD_GRID_SIZE; y++) {
