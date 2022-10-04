@@ -199,6 +199,7 @@ OvrGeometry
 */
 
 static std::vector<double> dataBuffer;
+static std::vector<float> hrBuffer;
 
 void OvrAxes::CreateGeometry() {
     struct ovrAxesVertices {
@@ -1210,3 +1211,11 @@ Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *env, jclass 
     dataBuffer.push_back(data);
 }
 
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_tech_glasgowneuro_oculusecg_ANativeActivity_hrUpdate(JNIEnv *env, jclass clazz,
+                                                          jlong inst,
+                                                          jfloat v) {
+    hrBuffer.push_back(v);
+}
