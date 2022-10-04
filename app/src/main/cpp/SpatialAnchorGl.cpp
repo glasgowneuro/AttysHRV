@@ -401,7 +401,7 @@ void OvrHRPlot::CreateGeometry() {
             int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
             hrVertices.vertices[vertexPosition][0] = ( (float)x*delta - 1.0f ) * scale ;
             hrVertices.vertices[vertexPosition][1]= 0;
-            hrVertices.vertices[vertexPosition][2] = ( (float)y*delta - 1.0f ) * scale - scale;
+            hrVertices.vertices[vertexPosition][2] = ( (float)y*delta - 1.0f ) * scale;
             hrVertices.normals[vertexPosition][0] = 0;
             hrVertices.normals[vertexPosition][1] = 1;
             hrVertices.normals[vertexPosition][2] = 0;
@@ -472,15 +472,19 @@ void OvrHRPlot::draw() {
             if (v > max) max = v;
         }
         float n = max - min;
-        ALOGV("before: min = %f, max = %f, norm = %f", min, max, n);
+        //ALOGV("before: min = %f, max = %f, norm = %f", min, max, n);
         if (n < 1) {
             n = 1;
         }
-        ALOGV("after: min = %f, max = %f, norm = %f", min, max, n);
+        //ALOGV("after: min = %f, max = %f, norm = %f", min, max, n);
         for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
             for (int y = 0; y <= QUAD_GRID_SIZE; y++) {
                 int vertexPosition = y * (QUAD_GRID_SIZE + 1) + x;
-                hrVertices.vertices[vertexPosition][1] = (hrShiftBuffer[y] - min) / n * 10;
+                int xc = x - (QUAD_GRID_SIZE / 2);
+                int yc = y - (QUAD_GRID_SIZE / 2);
+                int r = QUAD_GRID_SIZE - (int)sqrt(yc*yc + xc*xc);
+                if (r < 0) r = 0;
+                hrVertices.vertices[vertexPosition][1] = (hrShiftBuffer[r] - min) / n * 10;
             }
         }
     }
