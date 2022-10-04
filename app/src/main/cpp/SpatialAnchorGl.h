@@ -110,6 +110,8 @@ struct OvrHRPlot : OvrGeometry {
 
     unsigned short indices[NR_INDICES] = {};
 
+    float hrShiftBuffer[QUAD_GRID_SIZE+1] = {};
+
     void CreateGeometry();
     void draw();
 };

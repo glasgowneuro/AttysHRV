@@ -392,6 +392,10 @@ void OvrHRPlot::CreateGeometry() {
     VertexCount = NR_VERTICES;
     IndexCount = NR_INDICES;
 
+    for (auto &v: hrShiftBuffer) {
+        v = 0;
+    }
+
     for (int y=0; y<=QUAD_GRID_SIZE; y++) {
         for (int x=0; x<=QUAD_GRID_SIZE; x++) {
             int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
@@ -444,18 +448,42 @@ void OvrHRPlot::CreateGeometry() {
 }
 
 void OvrHRPlot::draw() {
-    for(auto &v:hrBuffer) {
-        for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
-            for (int y = 0; y < QUAD_GRID_SIZE; y++) {
-                int vertexPosition1 = y * (QUAD_GRID_SIZE + 1) + x;
-                int vertexPosition2 = (y + 1) * (QUAD_GRID_SIZE + 1) + x;
-                hrVertices.vertices[vertexPosition1][1] = hrVertices.vertices[vertexPosition2][1];
+    if (!(hrBuffer.empty())) {
+
+        if (hrShiftBuffer[0] == 0) {
+            for (auto &v: hrShiftBuffer) {
+                v = hrBuffer[0];
             }
-            int vertexPosition3 = QUAD_GRID_SIZE * (QUAD_GRID_SIZE + 1) + x;
-            hrVertices.vertices[vertexPosition3][1] = (float)(v / 10.0);
+        }
+
+        for (auto &v: hrBuffer) {
+            for (int i = 0; i < QUAD_GRID_SIZE; i++) {
+                hrShiftBuffer[i] = hrShiftBuffer[i + 1];
+            }
+            hrShiftBuffer[QUAD_GRID_SIZE] = v;
+        }
+
+        hrBuffer.clear();
+
+        float min = 1000;
+        float max = 0;
+        for (auto &v: hrShiftBuffer) {
+            if (v < min) min = v;
+            if (v > max) max = v;
+        }
+        float n = max - min;
+        ALOGV("before: min = %f, max = %f, norm = %f", min, max, n);
+        if (n < 1) {
+            n = 1;
+        }
+        ALOGV("after: min = %f, max = %f, norm = %f", min, max, n);
+        for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
+            for (int y = 0; y <= QUAD_GRID_SIZE; y++) {
+                int vertexPosition = y * (QUAD_GRID_SIZE + 1) + x;
+                hrVertices.vertices[vertexPosition][1] = (hrShiftBuffer[y] - min) / n * 10;
+            }
         }
     }
-    hrBuffer.clear();
 
 #ifdef FAKE_DATA
     for (int x=0; x<=QUAD_GRID_SIZE; x++) {
