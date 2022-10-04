@@ -15,6 +15,7 @@ Copyright	:	Copyright (c) Facebook Technologies, LLC and its affiliates. All rig
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <ctime>
 
 #include <unistd.h>
 #include <pthread.h>
@@ -90,7 +91,7 @@ typedef void(GL_APIENTRY* PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC)(
 
 #define DEBUG 1
 
-#define OVR_LOG_TAG "SpatialAnchorGl"
+#define OVR_LOG_TAG "OculusECG"
 
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, OVR_LOG_TAG, __VA_ARGS__)
 #if DEBUG
@@ -446,7 +447,7 @@ void OvrHRPlot::draw() {
         float t = offset;
         for (int y=0; y<=QUAD_GRID_SIZE; y++) {
             int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
-            hrVertices.vertices[vertexPosition][1]= sin(t)*10;
+            hrVertices.vertices[vertexPosition][1]= sin(t)*1;
             t = t + 0.1f;
         }
     }
@@ -578,12 +579,14 @@ struct ovrUniform {
         SCENE_MATRICES,
         COLOR_SCALE,
         COLOR_BIAS,
+        TIME_S,
     };
     enum Type {
         VECTOR4,
         MATRIX4X4,
         INTEGER,
         BUFFER,
+        FLOAT,
     };
 
     Index index;
@@ -597,6 +600,7 @@ static ovrUniform ProgramUniforms[] = {
     {ovrUniform::Index::SCENE_MATRICES, ovrUniform::Type::BUFFER, "SceneMatrices"},
     {ovrUniform::Index::COLOR_SCALE, ovrUniform::Type::VECTOR4, "ColorScale"},
     {ovrUniform::Index::COLOR_BIAS, ovrUniform::Type::VECTOR4, "ColorBias"},
+    {ovrUniform::Index::TIME_S, ovrUniform::Type::FLOAT, "time"},
 };
 
 static const char* programVersion = "#version 300 es\n";
@@ -961,7 +965,6 @@ void ovrScene::Create() {
             "out vec3 normal;\n"
             "out vec3 fragPos;\n"
             "uniform mat4 ModelMatrix;\n"
-            "uniform float time;\n"
             "uniform SceneMatrices\n"
             "{\n"
             "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
@@ -978,12 +981,26 @@ void ovrScene::Create() {
             "in vec3 normal;\n"
             "in vec3 fragPos;\n"
             "out lowp vec4 outColor;\n"
+            "uniform float time;\n"
+            "const float pi = 3.14159;\n"
+            "float wave(float x, float y, float t, float speed, vec2 direction) {\n"
+            "   float theta = dot(direction, vec2(x, y));\n"
+            "   return sin(theta * pi + time * speed);\n"
+            "}\n"
             "void main()\n"
             "{\n"
-            "   vec3 lightPos = vec3(0, 20.0, 10.0);\n"
+            "   vec3 lightPos = vec3(-10.0, 30.0, -10.0);\n"
             "   vec3 lightDir = normalize(lightPos - fragPos);\n"
             "   float diffuse = max(dot(normal, lightDir), 0.0);\n"
-            "	outColor = vec4( 0.0, 0.9, 0.9, 0.9 ) * diffuse;\n"
+            "   float v1 = wave(fragPos.x, fragPos.z, time, 1.0, vec2(0.5,0.25));\n"
+            "   vec4 texColor1 = vec4( 0.0, 0.0, (v1 + 2.0)/3.0, 1.0);\n"
+            "   float v2 = wave(fragPos.x, fragPos.z, time, 1.0, vec2(0.5,-0.25));\n"
+            "   vec4 texColor2 = vec4( 0.0, 0.0, (v2 + 2.0)/3.0, 1.0);\n"
+            "   float v3 = wave(fragPos.x, fragPos.z, time, 1.0, vec2(0.5,0.0));\n"
+            "   vec4 texColor3 = vec4( 0.0, 0.0, (v3 + 2.0)/3.0, 1.0);\n"
+            "   vec4 texColor = (texColor1 + texColor2 + texColor3)/3.0;\n"
+            "   vec4 diffuseColour = vec4( 0.0, 0.9, 0.9, 1.0 ) * diffuse;\n"
+            "	outColor = mix(texColor,diffuseColour,0.75);\n"
             "}\n";
 
     // HRPlot
@@ -1036,6 +1053,7 @@ void ovrAppRenderer::Create(
         // but with the linear->sRGB conversion disabled on write.
         GL(glDisable(GL_FRAMEBUFFER_SRGB_EXT));
     }
+    start_ts = std::chrono::steady_clock::now();
 }
 
 void ovrAppRenderer::Destroy() {
@@ -1137,16 +1155,16 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
         const Matrix4f stagePoseMat = Matrix4f(frameIn.StagePose);
         const Matrix4f m1 = stagePoseMat * scale;
         GL(glUniformMatrix4fv(
-                Scene.Stage.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
+                Scene.HrPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
                 1,
                 GL_TRUE,
                 &m1.M[0][0]));
     }
-    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-    auto duration = now.time_since_epoch();
-    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-    float time = millis / 1000.0;
-    glUniform1f(glGetUniformLocation(Scene.HrPlot.Program,"time"), time);
+    auto end_ts = std::chrono::steady_clock::now();
+    std::chrono::duration<double> d = end_ts - start_ts;
+    float t = (float)(d.count());
+    //ALOGV("time = %f",t);
+    GL(glUniform1f(Scene.HrPlot.UniformLocation[ovrUniform::Index::TIME_S], t));
     Scene.HrPlot.draw();
     GL(glUseProgram(0));
 //    Framebuffer.Resolve();

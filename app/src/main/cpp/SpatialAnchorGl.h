@@ -11,6 +11,7 @@
 #include <openxr/openxr_oculus.h>
 #include <openxr/openxr_oculus_helpers.h>
 #include <openxr/openxr_platform.h>
+#include <chrono>
 
 #include "OVR_Math.h"
 
@@ -178,6 +179,7 @@ struct ovrAppRenderer {
 
     ovrFramebuffer Framebuffer;
     ovrScene Scene;
+    std::chrono::time_point<std::chrono::steady_clock> start_ts;
 };
 
 extern ovrScene* scenePtr;
