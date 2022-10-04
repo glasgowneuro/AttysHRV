@@ -394,9 +394,9 @@ void OvrHRPlot::CreateGeometry() {
     for (int y=0; y<=QUAD_GRID_SIZE; y++) {
         for (int x=0; x<=QUAD_GRID_SIZE; x++) {
             int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
-            hrVertices.vertices[vertexPosition][0] = ( (float)x*delta - 1.0f ) * scale;
+            hrVertices.vertices[vertexPosition][0] = ( (float)x*delta - 1.0f ) * scale ;
             hrVertices.vertices[vertexPosition][1]= 0;
-            hrVertices.vertices[vertexPosition][2] = ( (float)y*delta - 1.0f ) * scale ;
+            hrVertices.vertices[vertexPosition][2] = ( (float)y*delta - 1.0f ) * scale - scale;
             hrVertices.normals[vertexPosition][0] = 0;
             hrVertices.normals[vertexPosition][1] = 1;
             hrVertices.normals[vertexPosition][2] = 0;
