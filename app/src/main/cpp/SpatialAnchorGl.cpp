@@ -332,11 +332,16 @@ void OvrECGPlot::CreateGeometry() {
     VertexAttribs[1].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, colors);
 
     GL(glGenBuffers(1, &VertexBuffer));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STREAM_DRAW));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
     GL(glGenBuffers(1, &IndexBuffer));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
     GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STREAM_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+    CreateVAO();
 }
 
 void OvrECGPlot::draw() {
@@ -359,33 +364,12 @@ void OvrECGPlot::draw() {
 #endif
 
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferSubData(VertexBuffer, 0, sizeof(axesVertices), &axesVertices));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
     GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STREAM_DRAW));
-
-    for (int i = 0; i < MAX_VERTEX_ATTRIB_POINTERS; i++) {
-        if (VertexAttribs[i].Index != -1) {
-            GL(glEnableVertexAttribArray(VertexAttribs[i].Index));
-            GL(glVertexAttribPointer(
-                    VertexAttribs[i].Index,
-                    VertexAttribs[i].Size,
-                    VertexAttribs[i].Type,
-                    VertexAttribs[i].Normalized,
-                    VertexAttribs[i].Stride,
-                    VertexAttribs[i].Pointer));
-        }
-    }
-
-    GL(glDrawElements(GL_LINES, IndexCount, GL_UNSIGNED_SHORT, axesIndices));
-
-    for (int i = 0; i < MAX_VERTEX_ATTRIB_POINTERS; i++) {
-        if (VertexAttribs[i].Index != -1) {
-            GL(glDisableVertexAttribArray(VertexAttribs[i].Index));
-        }
-    }
-
     GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+    GL(glBindVertexArray(VertexArrayObject));
+    GL(glDrawElements(GL_LINES, IndexCount, GL_UNSIGNED_SHORT, nullptr));
+    GL(glBindVertexArray(0));
 }
 
 void OvrHRPlot::CreateGeometry() {
@@ -473,8 +457,8 @@ void OvrHRPlot::draw() {
         }
         float n = max - min;
         //ALOGV("before: min = %f, max = %f, norm = %f", min, max, n);
-        if (n < 1) {
-            n = 1;
+        if (n < 10) {
+            n = 10;
         }
         //ALOGV("after: min = %f, max = %f, norm = %f", min, max, n);
         for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
@@ -484,7 +468,7 @@ void OvrHRPlot::draw() {
                 int yc = y - (QUAD_GRID_SIZE / 2);
                 int r = QUAD_GRID_SIZE - (int)sqrt(yc*yc + xc*xc);
                 if (r < 0) r = 0;
-                hrVertices.vertices[vertexPosition][1] = (hrShiftBuffer[r] - min) / n * 10;
+                hrVertices.vertices[vertexPosition][1] = (hrShiftBuffer[r] - min) / n * 5;
             }
         }
     }
