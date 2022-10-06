@@ -309,9 +309,9 @@ void OvrECGPlot::CreateGeometry() {
         axesVertices.colors[i][2] = 255;
         axesVertices.colors[i][3] = 255;
 
-        axesVertices.positions[i][0] = -1 + (float)i / (float)nPoints * 2.0f;
-        axesVertices.positions[i][1] = (float)sin(i/10.0) * 0.1;
-        ALOGV("pos = %f,%f", axesVertices.positions[i][0],axesVertices.positions[i][1]);
+        axesVertices.positions[i][0] = -2 + (float)i / (float)nPoints * 4.0f;
+        axesVertices.positions[i][1] = (float)sin(i/10.0) * 0.1f;
+        // ALOGV("pos = %f,%f", axesVertices.positions[i][0],axesVertices.positions[i][1]);
         axesVertices.positions[i][2] = 0;
     }
 
@@ -347,10 +347,10 @@ void OvrECGPlot::CreateGeometry() {
 void OvrECGPlot::draw() {
 
     for(auto &v:dataBuffer) {
-        for (int i = nPoints - 1; i > 0; i--) {
-            axesVertices.positions[i][1] = axesVertices.positions[i - 1][1];
+        for (int i = 0; i < (nPoints-1); i++) {
+            axesVertices.positions[i][1] = axesVertices.positions[i + 1][1];
         }
-        axesVertices.positions[0][1] = v;
+        axesVertices.positions[nPoints-1][1] = (float)v;
         // ALOGV("OvrECGPlot::draw, buffersz=%u, %f", (unsigned int) dataBuffer.size(),v);
     }
     dataBuffer.clear();
@@ -424,11 +424,16 @@ void OvrHRPlot::CreateGeometry() {
     VertexAttribs[1].Pointer = (const GLvoid*) offsetof(HRVertices,normals);
 
     GL(glGenBuffers(1, &VertexBuffer));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(HRVertices), &hrVertices, GL_STREAM_DRAW));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
     GL(glGenBuffers(1, &IndexBuffer));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
     GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STREAM_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+    CreateVAO();
 }
 
 void OvrHRPlot::draw() {
@@ -517,37 +522,15 @@ void OvrHRPlot::draw() {
     GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferSubData(VertexBuffer, 0, sizeof(HRVertices), &hrVertices));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
     GL(glBufferData(GL_ARRAY_BUFFER, sizeof(HRVertices), &hrVertices, GL_STREAM_DRAW));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-    for (auto & VertexAttrib : VertexAttribs) {
-        if (VertexAttrib.Index != -1) {
-            GL(glEnableVertexAttribArray(VertexAttrib.Index));
-            GL(glVertexAttribPointer(
-                    VertexAttrib.Index,
-                    VertexAttrib.Size,
-                    VertexAttrib.Type,
-                    VertexAttrib.Normalized,
-                    VertexAttrib.Stride,
-                    VertexAttrib.Pointer));
-        }
-    }
-
-    GL(glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_SHORT, indices));
-
-    for (auto & VertexAttrib : VertexAttribs) {
-        if (VertexAttrib.Index != -1) {
-            GL(glDisableVertexAttribArray(VertexAttrib.Index));
-        }
-    }
+    GL(glBindVertexArray(VertexArrayObject));
+    GL(glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_SHORT, nullptr));
+    GL(glBindVertexArray(0));
 
     GL(glDepthMask(GL_TRUE));
     GL(glDisable(GL_BLEND));
-
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    GL(glUseProgram(0));
 }
 
 

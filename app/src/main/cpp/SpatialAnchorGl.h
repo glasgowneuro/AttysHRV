@@ -75,7 +75,7 @@ struct OvrStage : OvrGeometry {
 };
 
 struct OvrECGPlot : OvrGeometry {
-    static constexpr int nPoints = 200;
+    static constexpr int nPoints = 500;
     float offset = 0;
 
     struct ovrAxesVertices {
