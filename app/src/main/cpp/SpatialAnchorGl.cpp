@@ -947,6 +947,7 @@ void ovrScene::Create() {
             "in vec3 vertexNormal;\n"
             "out vec3 normal;\n"
             "out vec3 fragPos;\n"
+            "out vec4 modelView;\n"
             "uniform mat4 ModelMatrix;\n"
             "uniform SceneMatrices\n"
             "{\n"
@@ -955,14 +956,16 @@ void ovrScene::Create() {
             "} sm;\n"
             "void main()\n"
             "{\n"
-            "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
+            "	modelView = sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) );\n"
+            "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * modelView;\n"
             "   normal = normalize(vertexNormal);\n"
-            "   fragPos = vertexPosition;\n" //vec3( ModelMatrix * vec4( vertexPosition, 1.0 ) );\n"
+            "   fragPos = vertexPosition;\n"
             "}\n";
 
     const char HRPLOT_FRAGMENT_SHADER[] =
             "in vec3 normal;\n"
             "in vec3 fragPos;\n"
+            "in vec4 modelView;\n"
             "out lowp vec4 outColor;\n"
             "const float pi = 3.14159;\n"
             "uniform float time;\n"
@@ -983,8 +986,9 @@ void ovrScene::Create() {
             "   vec4 texColor3 = vec4( 0.0, v3, v3, 1.0);\n"
             "   float v4 = wave(fragPos.x, fragPos.z, time, 0.51, vec2(0.03,-0.03));\n"
             "   vec4 texColor4 = vec4( 0.0, v4, v3, 1.0);\n"
-            "   vec4 texColor = (texColor1 + texColor2 + texColor3 + texColor4)/4.0;\n"
-            "   vec4 diffuseColour = vec4( 0.0, 1.0, 1.0, 1.0 ) * diffuse;\n"
+            "   vec4 texColor = mix(mix(texColor1,texColor2,0.5),mix(texColor3,texColor4,0.5),0.9);\n"
+            "   float trans = abs( dot( normalize(modelView.xyz), normalize(vec3(1,0,1)) ) );\n"
+            "   vec4 diffuseColour = vec4( 0.0, diffuse, diffuse, trans );\n"
             "	outColor = mix(texColor,diffuseColour,0.5);\n"
             "}\n";
 
@@ -1090,12 +1094,15 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
     if (Scene.Axes.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
         const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
+        const Matrix4f stagePoseMat = Matrix4f::Translation(0,-1,-2);
+        const Matrix4f m1 = stagePoseMat  * scale;
         GL(glUniformMatrix4fv(
             Scene.Axes.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
             1,
             GL_TRUE,
-            &scale.M[0][0]));
+            &m1.M[0][0]));
     }
+    Scene.Axes.draw();
     GL(glUseProgram(0));
 
     // ECG Plot
@@ -1111,11 +1118,13 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
     if (Scene.ECGPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
         const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
+        const Matrix4f stagePoseMat = Matrix4f::Translation(0,-0.9,0);
+        const Matrix4f m1 = stagePoseMat  * scale;
         GL(glUniformMatrix4fv(
                 Scene.ECGPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
                 1,
                 GL_TRUE,
-                &scale.M[0][0]));
+                &m1.M[0][0]));
     }
     Scene.ECGPlot.draw();
     GL(glUseProgram(0));
@@ -1133,8 +1142,8 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
     if (Scene.HrPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
         const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f(frameIn.StagePose);
-        const Matrix4f m1 = stagePoseMat * scale;
+        const Matrix4f stagePoseMat = Matrix4f::Translation(0,-1,0);
+        const Matrix4f m1 = stagePoseMat  * scale;
         GL(glUniformMatrix4fv(
                 Scene.HrPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
                 1,
@@ -1148,35 +1157,6 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     GL(glUniform1f(Scene.HrPlot.UniformLocation[ovrUniform::Index::TIME_S], t));
     Scene.HrPlot.draw();
     GL(glUseProgram(0));
-//    Framebuffer.Resolve();
-
-    if (frameIn.HasStage) {
-        // stage axes
-        GL(glUseProgram(Scene.Axes.Program));
-        GL(glBindBufferBase(
-            GL_UNIFORM_BUFFER,
-            Scene.Axes.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
-            Scene.SceneMatrices));
-        if (Scene.Axes.UniformLocation[ovrUniform::Index::VIEW_ID] >=
-            0) // NOTE: will not be present when multiview path is enabled.
-        {
-            GL(glUniform1i(Scene.Axes.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
-        }
-        if (Scene.Axes.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-            const Matrix4f scale = Matrix4f::Scaling(0.5, 0.5, 0.5);
-            const Matrix4f stagePoseMat = Matrix4f(frameIn.StagePose);
-            const Matrix4f m1 = stagePoseMat * scale;
-            GL(glUniformMatrix4fv(
-                Scene.Axes.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
-                1,
-                GL_TRUE,
-                &m1.M[0][0]));
-        }
-        GL(glBindVertexArray(Scene.Axes.VertexArrayObject));
-        GL(glDrawElements(GL_LINES, Scene.Axes.IndexCount, GL_UNSIGNED_SHORT, nullptr));
-        GL(glBindVertexArray(0));
-        GL(glUseProgram(0));
-    }
 
     Framebuffer.Unbind();
 }
