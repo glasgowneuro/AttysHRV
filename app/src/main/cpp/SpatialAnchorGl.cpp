@@ -260,39 +260,11 @@ void OvrAxes::CreateGeometry() {
     CreateVAO();
 }
 
-void OvrStage::CreateGeometry() {
-    static const float stageVertices[12] = {
-        -1.0f, -1.0f, 0.0f,
-        1.0f, -1.0f, 0.0f,
-        -1.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 0.0f};
-
-    static const unsigned short stageIndices[6] = {0, 1, 2, 2, 1, 3};
-
-    VertexCount = 4;
-    IndexCount = 6;
-
-    VertexAttribs[0].Index = 0;
-    VertexAttribs[0].Name = "vertexPosition";
-    VertexAttribs[0].Size = 3;
-    VertexAttribs[0].Type = GL_FLOAT;
-    VertexAttribs[0].Normalized = false;
-    VertexAttribs[0].Stride = 3 * sizeof(float);
-    VertexAttribs[0].Pointer = (const GLvoid*)0;
-
-    GL(glGenBuffers(1, &VertexBuffer));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(stageVertices), stageVertices, GL_STATIC_DRAW));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-
-    GL(glGenBuffers(1, &IndexBuffer));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
-    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(stageIndices), stageIndices, GL_STATIC_DRAW));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-
-    CreateVAO();
+void OvrAxes::draw() {
+    GL(glBindVertexArray(VertexArrayObject));
+    GL(glDrawElements(GL_LINES, IndexCount, GL_UNSIGNED_SHORT, nullptr));
+    GL(glBindVertexArray(0));
 }
-
 
 void OvrECGPlot::CreateGeometry() {
     ALOGV("OvrECGPlot::Create()");
@@ -934,8 +906,9 @@ void ovrScene::Clear() {
     CreatedScene = false;
     SceneMatrices = 0;
 
-    Stage.Clear();
     Axes.Clear();
+    ECGPlot.Clear();
+    HrPlot.Clear();
 }
 
 bool ovrScene::IsCreated() const {
@@ -954,11 +927,6 @@ void ovrScene::Create() {
             GL_STATIC_DRAW));
     GL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
     GL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
-
-    // Stage
-    if (!Stage.Create(STAGE_VERTEX_SHADER, STAGE_FRAGMENT_SHADER)) {
-        ALOGE("Failed to compile stage program");
-    }
 
     // Axes
     if (!Axes.Create(AXES_VERTEX_SHADER, AXES_FRAGMENT_SHADER)) {
@@ -1033,7 +1001,6 @@ void ovrScene::Create() {
 
 void ovrScene::Destroy() {
     GL(glDeleteBuffers(1, &SceneMatrices));
-    Stage.Destroy();
     Axes.Destroy();
     ECGPlot.Destroy();
     HrPlot.Destroy();
@@ -1129,9 +1096,6 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
             GL_TRUE,
             &scale.M[0][0]));
     }
-    GL(glBindVertexArray(Scene.Axes.VertexArrayObject));
-    GL(glDrawElements(GL_LINES, Scene.Axes.IndexCount, GL_UNSIGNED_SHORT, nullptr));
-    GL(glBindVertexArray(0));
     GL(glUseProgram(0));
 
     // ECG Plot

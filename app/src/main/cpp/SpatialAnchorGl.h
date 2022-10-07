@@ -34,6 +34,7 @@ public:
     void Destroy();
 
     virtual void CreateGeometry() = 0;
+    virtual void draw() = 0;
 
     GLuint Program;
     GLuint VertexShader;
@@ -68,10 +69,7 @@ public:
 
 struct OvrAxes : OvrGeometry {
     void CreateGeometry();
-};
-
-struct OvrStage : OvrGeometry {
-    void CreateGeometry();
+    virtual void draw();
 };
 
 struct OvrECGPlot : OvrGeometry {
@@ -149,7 +147,6 @@ struct ovrScene {
     void SetClearColor(const float* c);
     bool CreatedScene;
     GLuint SceneMatrices;
-    OvrStage Stage;
     OvrAxes Axes;
     OvrECGPlot ECGPlot;
     OvrHRPlot HrPlot;
