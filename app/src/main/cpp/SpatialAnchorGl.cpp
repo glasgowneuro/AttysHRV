@@ -947,7 +947,7 @@ void ovrScene::Create() {
             "in vec3 vertexNormal;\n"
             "out vec3 normal;\n"
             "out vec3 fragPos;\n"
-            "out vec4 modelView;\n"
+            "out vec4 modPos;\n"
             "uniform mat4 ModelMatrix;\n"
             "uniform SceneMatrices\n"
             "{\n"
@@ -956,7 +956,8 @@ void ovrScene::Create() {
             "} sm;\n"
             "void main()\n"
             "{\n"
-            "	modelView = sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) );\n"
+            "   modPos = ModelMatrix * ( vec4( vertexPosition, 1.0 ) );\n"
+            "	vec4 modelView = sm.ViewMatrix[VIEW_ID] * modPos;\n"
             "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * modelView;\n"
             "   normal = normalize(vertexNormal);\n"
             "   fragPos = vertexPosition;\n"
@@ -965,7 +966,7 @@ void ovrScene::Create() {
     const char HRPLOT_FRAGMENT_SHADER[] =
             "in vec3 normal;\n"
             "in vec3 fragPos;\n"
-            "in vec4 modelView;\n"
+            "in vec4 modPos;\n"
             "out lowp vec4 outColor;\n"
             "const float pi = 3.14159;\n"
             "uniform float time;\n"
@@ -987,9 +988,11 @@ void ovrScene::Create() {
             "   float v4 = wave(fragPos.x, fragPos.z, time, 0.51, vec2(0.03,-0.03));\n"
             "   vec4 texColor4 = vec4( 0.0, v4, v3, 1.0);\n"
             "   vec4 texColor = mix(mix(texColor1,texColor2,0.5),mix(texColor3,texColor4,0.5),0.9);\n"
-            "   float trans = abs( dot( normalize(modelView.xyz), normalize(vec3(1,0,1)) ) );\n"
-            "   vec4 diffuseColour = vec4( 0.0, diffuse, diffuse, trans );\n"
+            "   float theta = abs(dot(normalize(modPos.xyz),normal));\n"
+            "   float trans = 1.0 - theta;\n"
+            "   vec4 diffuseColour = vec4( 0.0, diffuse, diffuse, 1.0 );\n"
             "	outColor = mix(texColor,diffuseColour,0.5);\n"
+            "	outColor = vec4(outColor.xyz, trans + 0.5);\n"
             "}\n";
 
     // HRPlot
