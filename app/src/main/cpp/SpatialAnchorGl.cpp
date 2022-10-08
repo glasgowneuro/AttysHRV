@@ -53,40 +53,47 @@ using namespace OVR;
 #endif
 
 #if !defined(GL_EXT_multisampled_render_to_texture)
-typedef void(GL_APIENTRY* PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)(
-    GLenum target,
-    GLsizei samples,
-    GLenum internalformat,
-    GLsizei width,
-    GLsizei height);
-typedef void(GL_APIENTRY* PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)(
-    GLenum target,
-    GLenum attachment,
-    GLenum textarget,
-    GLuint texture,
-    GLint level,
-    GLsizei samples);
+
+typedef void(GL_APIENTRY *PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)(
+        GLenum target,
+        GLsizei samples,
+        GLenum internalformat,
+        GLsizei width,
+        GLsizei height);
+
+typedef void(GL_APIENTRY *PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)(
+        GLenum target,
+        GLenum attachment,
+        GLenum textarget,
+        GLuint texture,
+        GLint level,
+        GLsizei samples);
+
 #endif
 
 #if !defined(GL_OVR_multiview)
-typedef void(GL_APIENTRY* PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC)(
-    GLenum target,
-    GLenum attachment,
-    GLuint texture,
-    GLint level,
-    GLint baseViewIndex,
-    GLsizei numViews);
+
+typedef void(GL_APIENTRY *PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC)(
+        GLenum target,
+        GLenum attachment,
+        GLuint texture,
+        GLint level,
+        GLint baseViewIndex,
+        GLsizei numViews);
+
 #endif
 
 #if !defined(GL_OVR_multiview_multisampled_render_to_texture)
-typedef void(GL_APIENTRY* PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC)(
-    GLenum target,
-    GLenum attachment,
-    GLuint texture,
-    GLint level,
-    GLsizei samples,
-    GLint baseViewIndex,
-    GLsizei numViews);
+
+typedef void(GL_APIENTRY *PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC)(
+        GLenum target,
+        GLenum attachment,
+        GLuint texture,
+        GLint level,
+        GLsizei samples,
+        GLint baseViewIndex,
+        GLsizei numViews);
+
 #endif
 
 #define DEBUG 1
@@ -109,30 +116,31 @@ OpenGL-ES Utility Functions
 */
 
 namespace {
-struct OpenGLExtensions_t {
-    bool multi_view; // GL_OVR_multiview, GL_OVR_multiview2
-    bool EXT_texture_border_clamp; // GL_EXT_texture_border_clamp, GL_OES_texture_border_clamp
-    bool EXT_sRGB_write_control;
-};
+    struct OpenGLExtensions_t {
+        bool multi_view; // GL_OVR_multiview, GL_OVR_multiview2
+        bool EXT_texture_border_clamp; // GL_EXT_texture_border_clamp, GL_OES_texture_border_clamp
+        bool EXT_sRGB_write_control;
+    };
 
-OpenGLExtensions_t glExtensions;
+    OpenGLExtensions_t glExtensions;
 } // namespace
 
 static void EglInitExtensions() {
     glExtensions = {};
-    const char* allExtensions = (const char*)glGetString(GL_EXTENSIONS);
+    const char *allExtensions = (const char *) glGetString(GL_EXTENSIONS);
     if (allExtensions != nullptr) {
         glExtensions.multi_view = strstr(allExtensions, "GL_OVR_multiview2") &&
-            strstr(allExtensions, "GL_OVR_multiview_multisampled_render_to_texture");
+                                  strstr(allExtensions,
+                                         "GL_OVR_multiview_multisampled_render_to_texture");
 
         glExtensions.EXT_texture_border_clamp =
-            strstr(allExtensions, "GL_EXT_texture_border_clamp") ||
-            strstr(allExtensions, "GL_OES_texture_border_clamp");
+                strstr(allExtensions, "GL_EXT_texture_border_clamp") ||
+                strstr(allExtensions, "GL_OES_texture_border_clamp");
         glExtensions.EXT_sRGB_write_control = strstr(allExtensions, "GL_EXT_sRGB_write_control");
     }
 }
 
-static const char* GlFrameBufferStatusString(GLenum status) {
+static const char *GlFrameBufferStatusString(GLenum status) {
     switch (status) {
         case GL_FRAMEBUFFER_UNDEFINED:
             return "GL_FRAMEBUFFER_UNDEFINED";
@@ -208,24 +216,24 @@ void OvrAxes::CreateGeometry() {
     };
 
     static const ovrAxesVertices axesVertices = {
-        // positions
-        {{0, 0, 0}, {1, 0, 0}, {0, 0, 0}, {0, 1, 0}, {0, 0, 0}, {0, 0, 1}},
-        // colors
-        {{255, 0, 0, 255},
-         {255, 0, 0, 255},
-         {0, 255, 0, 255},
-         {0, 255, 0, 255},
-         {0, 0, 255, 255},
-         {0, 0, 255, 255}},
+            // positions
+            {{0,   0, 0}, {1,   0, 0}, {0, 0,   0}, {0, 1,   0}, {0, 0, 0}, {0, 0, 1}},
+            // colors
+            {{255, 0, 0, 255},
+                          {255, 0, 0, 255},
+                                       {0, 255, 0, 255},
+                                                    {0, 255, 0, 255},
+                                                                 {0, 0, 255, 255},
+                                                                            {0, 0, 255, 255}},
     };
 
     static const unsigned short axesIndices[6] = {
-        0,
-        1, // x axis - red
-        2,
-        3, // y axis - green
-        4,
-        5 // z axis - blue
+            0,
+            1, // x axis - red
+            2,
+            3, // y axis - green
+            4,
+            5 // z axis - blue
     };
 
     VertexCount = 6;
@@ -237,7 +245,7 @@ void OvrAxes::CreateGeometry() {
     VertexAttribs[0].Type = GL_FLOAT;
     VertexAttribs[0].Normalized = false;
     VertexAttribs[0].Stride = sizeof(axesVertices.positions[0]);
-    VertexAttribs[0].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, positions);
+    VertexAttribs[0].Pointer = (const GLvoid *) offsetof(ovrAxesVertices, positions);
 
     VertexAttribs[1].Index = 1;
     VertexAttribs[1].Name = "vertexColor";
@@ -245,7 +253,7 @@ void OvrAxes::CreateGeometry() {
     VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
     VertexAttribs[1].Normalized = true;
     VertexAttribs[1].Stride = sizeof(axesVertices.colors[0]);
-    VertexAttribs[1].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, colors);
+    VertexAttribs[1].Pointer = (const GLvoid *) offsetof(ovrAxesVertices, colors);
 
     GL(glGenBuffers(1, &VertexBuffer));
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
@@ -269,20 +277,20 @@ void OvrAxes::draw() {
 void OvrECGPlot::CreateGeometry() {
     ALOGV("OvrECGPlot::Create()");
     VertexCount = nPoints;
-    IndexCount = (nPoints*2)+1;
+    IndexCount = (nPoints * 2) + 1;
 
-    ALOGE("Creating ECG plot with %d vertices.",VertexCount);
-    for(int i = 0; i < nPoints; i++) {
-        axesIndices[i*2] = i;
-        axesIndices[i*2+1 ] = i+1;
+    ALOGE("Creating ECG plot with %d vertices.", VertexCount);
+    for (int i = 0; i < nPoints; i++) {
+        axesIndices[i * 2] = i;
+        axesIndices[i * 2 + 1] = i + 1;
 
         axesVertices.colors[i][0] = 0;
         axesVertices.colors[i][1] = 255;
         axesVertices.colors[i][2] = 255;
         axesVertices.colors[i][3] = 255;
 
-        axesVertices.positions[i][0] = -2 + (float)i / (float)nPoints * 4.0f;
-        axesVertices.positions[i][1] = (float)sin(i/10.0) * 0.1f;
+        axesVertices.positions[i][0] = -2 + (float) i / (float) nPoints * 4.0f;
+        axesVertices.positions[i][1] = (float) sin(i / 10.0) * 0.1f;
         // ALOGV("pos = %f,%f", axesVertices.positions[i][0],axesVertices.positions[i][1]);
         axesVertices.positions[i][2] = 0;
     }
@@ -293,7 +301,7 @@ void OvrECGPlot::CreateGeometry() {
     VertexAttribs[0].Type = GL_FLOAT;
     VertexAttribs[0].Normalized = false;
     VertexAttribs[0].Stride = sizeof(axesVertices.positions[0]);
-    VertexAttribs[0].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, positions);
+    VertexAttribs[0].Pointer = (const GLvoid *) offsetof(ovrAxesVertices, positions);
 
     VertexAttribs[1].Index = 1;
     VertexAttribs[1].Name = "vertexColor";
@@ -301,7 +309,7 @@ void OvrECGPlot::CreateGeometry() {
     VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
     VertexAttribs[1].Normalized = true;
     VertexAttribs[1].Stride = sizeof(axesVertices.colors[0]);
-    VertexAttribs[1].Pointer = (const GLvoid*)offsetof(ovrAxesVertices, colors);
+    VertexAttribs[1].Pointer = (const GLvoid *) offsetof(ovrAxesVertices, colors);
 
     GL(glGenBuffers(1, &VertexBuffer));
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
@@ -318,11 +326,11 @@ void OvrECGPlot::CreateGeometry() {
 
 void OvrECGPlot::draw() {
 
-    for(auto &v:dataBuffer) {
-        for (int i = 0; i < (nPoints-1); i++) {
+    for (auto &v: dataBuffer) {
+        for (int i = 0; i < (nPoints - 1); i++) {
             axesVertices.positions[i][1] = axesVertices.positions[i + 1][1];
         }
-        axesVertices.positions[nPoints-1][1] = (float)v;
+        axesVertices.positions[nPoints - 1][1] = (float) v;
         // ALOGV("OvrECGPlot::draw, buffersz=%u, %f", (unsigned int) dataBuffer.size(),v);
     }
     dataBuffer.clear();
@@ -352,12 +360,12 @@ void OvrHRPlot::CreateGeometry() {
         v = 0;
     }
 
-    for (int y=0; y<=QUAD_GRID_SIZE; y++) {
-        for (int x=0; x<=QUAD_GRID_SIZE; x++) {
-            int vertexPosition = y*(QUAD_GRID_SIZE+1) + x;
-            hrVertices.vertices[vertexPosition][0] = ( (float)x*delta - 1.0f ) * scale ;
-            hrVertices.vertices[vertexPosition][1]= 0;
-            hrVertices.vertices[vertexPosition][2] = ( (float)y*delta - 1.0f ) * scale;
+    for (int y = 0; y <= QUAD_GRID_SIZE; y++) {
+        for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
+            int vertexPosition = y * (QUAD_GRID_SIZE + 1) + x;
+            hrVertices.vertices[vertexPosition][0] = ((float) x * delta - 1.0f) * scale;
+            hrVertices.vertices[vertexPosition][1] = 0;
+            hrVertices.vertices[vertexPosition][2] = ((float) y * delta - 1.0f) * scale;
             hrVertices.normals[vertexPosition][0] = 0;
             hrVertices.normals[vertexPosition][1] = 1;
             hrVertices.normals[vertexPosition][2] = 0;
@@ -365,17 +373,17 @@ void OvrHRPlot::CreateGeometry() {
     }
 
     // Generate indices into vertex list
-    for (int y=0; y<QUAD_GRID_SIZE; y++) {
-        for (int x=0; x<QUAD_GRID_SIZE; x++) {
-            int indexPosition = y*QUAD_GRID_SIZE + x;
+    for (int y = 0; y < QUAD_GRID_SIZE; y++) {
+        for (int x = 0; x < QUAD_GRID_SIZE; x++) {
+            int indexPosition = y * QUAD_GRID_SIZE + x;
             // tri 0
-            indices[6*indexPosition  ] = y    *(QUAD_GRID_SIZE+1) + x;    //bl
-            indices[6*indexPosition+1] = (y+1)*(QUAD_GRID_SIZE+1) + x + 1;//tr
-            indices[6*indexPosition+2] = y    *(QUAD_GRID_SIZE+1) + x + 1;//br
+            indices[6 * indexPosition] = y * (QUAD_GRID_SIZE + 1) + x;    //bl
+            indices[6 * indexPosition + 1] = (y + 1) * (QUAD_GRID_SIZE + 1) + x + 1;//tr
+            indices[6 * indexPosition + 2] = y * (QUAD_GRID_SIZE + 1) + x + 1;//br
             // tri 1
-            indices[6*indexPosition+3] = y    *(QUAD_GRID_SIZE+1) + x;    //bl
-            indices[6*indexPosition+4] = (y+1)*(QUAD_GRID_SIZE+1) + x;    //tl
-            indices[6*indexPosition+5] = (y+1)*(QUAD_GRID_SIZE+1) + x + 1;//tr
+            indices[6 * indexPosition + 3] = y * (QUAD_GRID_SIZE + 1) + x;    //bl
+            indices[6 * indexPosition + 4] = (y + 1) * (QUAD_GRID_SIZE + 1) + x;    //tl
+            indices[6 * indexPosition + 5] = (y + 1) * (QUAD_GRID_SIZE + 1) + x + 1;//tr
         }
     }
 
@@ -385,7 +393,7 @@ void OvrHRPlot::CreateGeometry() {
     VertexAttribs[0].Type = GL_FLOAT;
     VertexAttribs[0].Normalized = false;
     VertexAttribs[0].Stride = 3 * sizeof(float);
-    VertexAttribs[0].Pointer = (const GLvoid*) offsetof(HRVertices,vertices);
+    VertexAttribs[0].Pointer = (const GLvoid *) offsetof(HRVertices, vertices);
 
     VertexAttribs[1].Index = 1;
     VertexAttribs[1].Name = "vertexNormal";
@@ -393,7 +401,7 @@ void OvrHRPlot::CreateGeometry() {
     VertexAttribs[1].Type = GL_FLOAT;
     VertexAttribs[1].Normalized = false;
     VertexAttribs[1].Stride = 3 * sizeof(float);
-    VertexAttribs[1].Pointer = (const GLvoid*) offsetof(HRVertices,normals);
+    VertexAttribs[1].Pointer = (const GLvoid *) offsetof(HRVertices, normals);
 
     GL(glGenBuffers(1, &VertexBuffer));
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
@@ -417,11 +425,12 @@ void OvrHRPlot::draw() {
             }
         }
 
-        for (auto &v: hrBuffer) {
+        for (auto &v2: hrBuffer) {
+            float v0 = hrShiftBuffer[QUAD_GRID_SIZE];
             for (int i = 0; i < QUAD_GRID_SIZE; i++) {
                 hrShiftBuffer[i] = hrShiftBuffer[i + 1];
             }
-            hrShiftBuffer[QUAD_GRID_SIZE] = v;
+            hrShiftBuffer[QUAD_GRID_SIZE] = v2;
         }
 
         hrBuffer.clear();
@@ -443,7 +452,7 @@ void OvrHRPlot::draw() {
                 int vertexPosition = y * (QUAD_GRID_SIZE + 1) + x;
                 int xc = x - (QUAD_GRID_SIZE / 2);
                 int yc = y - (QUAD_GRID_SIZE / 2);
-                int r = QUAD_GRID_SIZE - (int)sqrt(yc*yc + xc*xc);
+                int r = QUAD_GRID_SIZE - (int) sqrt(yc * yc + xc * xc);
                 if (r < 0) r = 0;
                 hrVertices.vertices[vertexPosition][1] = (hrShiftBuffer[r] - min) / n * 5;
             }
@@ -462,15 +471,15 @@ void OvrHRPlot::draw() {
     offset += 0.1;
 #endif
 
-    for (int x=0; x<QUAD_GRID_SIZE; x++) {
-        for (int y=0; y<QUAD_GRID_SIZE; y++) {
-            int vertexPosition1 = y*(QUAD_GRID_SIZE+1) + x;
-            int vertexPosition2 = (y+1)*(QUAD_GRID_SIZE+1) + x;
-            int vertexPosition3 = y*(QUAD_GRID_SIZE+1) + x + 1;
+    for (int x = 0; x < QUAD_GRID_SIZE; x++) {
+        for (int y = 0; y < QUAD_GRID_SIZE; y++) {
+            int vertexPosition1 = y * (QUAD_GRID_SIZE + 1) + x;
+            int vertexPosition2 = (y + 1) * (QUAD_GRID_SIZE + 1) + x;
+            int vertexPosition3 = y * (QUAD_GRID_SIZE + 1) + x + 1;
             float a[3];
             float b[3];
-            diff(hrVertices.vertices[vertexPosition1],hrVertices.vertices[vertexPosition2],a);
-            diff(hrVertices.vertices[vertexPosition1],hrVertices.vertices[vertexPosition3],b);
+            diff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition2], a);
+            diff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition3], b);
             crossProduct(a,
                          b,
                          hrVertices.normals[vertexPosition1]);
@@ -534,16 +543,16 @@ void OvrGeometry::CreateVAO() {
 
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
 
-    for (auto & VertexAttrib : VertexAttribs) {
+    for (auto &VertexAttrib: VertexAttribs) {
         if (VertexAttrib.Index != -1) {
             GL(glEnableVertexAttribArray(VertexAttrib.Index));
             GL(glVertexAttribPointer(
-                VertexAttrib.Index,
-                VertexAttrib.Size,
-                VertexAttrib.Type,
-                VertexAttrib.Normalized,
-                VertexAttrib.Stride,
-                VertexAttrib.Pointer));
+                    VertexAttrib.Index,
+                    VertexAttrib.Size,
+                    VertexAttrib.Type,
+                    VertexAttrib.Normalized,
+                    VertexAttrib.Stride,
+                    VertexAttrib.Pointer));
         }
     }
 
@@ -578,26 +587,26 @@ struct ovrUniform {
 
     Index index;
     Type type;
-    const char* name;
+    const char *name;
 };
 
 static ovrUniform ProgramUniforms[] = {
-    {ovrUniform::Index::MODEL_MATRIX, ovrUniform::Type::MATRIX4X4, "ModelMatrix"},
-    {ovrUniform::Index::VIEW_ID, ovrUniform::Type::INTEGER, "ViewID"},
-    {ovrUniform::Index::SCENE_MATRICES, ovrUniform::Type::BUFFER, "SceneMatrices"},
-    {ovrUniform::Index::COLOR_SCALE, ovrUniform::Type::VECTOR4, "ColorScale"},
-    {ovrUniform::Index::COLOR_BIAS, ovrUniform::Type::VECTOR4, "ColorBias"},
-    {ovrUniform::Index::TIME_S, ovrUniform::Type::FLOAT, "time"},
+        {ovrUniform::Index::MODEL_MATRIX,   ovrUniform::Type::MATRIX4X4, "ModelMatrix"},
+        {ovrUniform::Index::VIEW_ID,        ovrUniform::Type::INTEGER,   "ViewID"},
+        {ovrUniform::Index::SCENE_MATRICES, ovrUniform::Type::BUFFER,    "SceneMatrices"},
+        {ovrUniform::Index::COLOR_SCALE,    ovrUniform::Type::VECTOR4,   "ColorScale"},
+        {ovrUniform::Index::COLOR_BIAS,     ovrUniform::Type::VECTOR4,   "ColorBias"},
+        {ovrUniform::Index::TIME_S,         ovrUniform::Type::FLOAT,     "time"},
 };
 
-static const char* programVersion = "#version 300 es\n";
+static const char *programVersion = "#version 300 es\n";
 
-bool OvrGeometry::Create(const char* vertexSource, const char* fragmentSource) {
+bool OvrGeometry::Create(const char *vertexSource, const char *fragmentSource) {
     GLint r;
 
     GL(VertexShader = glCreateShader(GL_VERTEX_SHADER));
 
-    const char* vertexSources[3] = {programVersion, "", vertexSource};
+    const char *vertexSources[3] = {programVersion, "", vertexSource};
     GL(glShaderSource(VertexShader, 3, vertexSources, 0));
     GL(glCompileShader(VertexShader));
     GL(glGetShaderiv(VertexShader, GL_COMPILE_STATUS, &r));
@@ -609,7 +618,7 @@ bool OvrGeometry::Create(const char* vertexSource, const char* fragmentSource) {
         return false;
     }
 
-    const char* fragmentSources[2] = {programVersion, fragmentSource};
+    const char *fragmentSources[2] = {programVersion, fragmentSource};
     GL(FragmentShader = glCreateShader(GL_FRAGMENT_SHADER));
     GL(glShaderSource(FragmentShader, 2, fragmentSources, 0));
     GL(glCompileShader(FragmentShader));
@@ -642,13 +651,13 @@ bool OvrGeometry::Create(const char* vertexSource, const char* fragmentSource) {
         const int uniformIndex = ProgramUniforms[i].index;
         if (ProgramUniforms[i].type == ovrUniform::Type::BUFFER) {
             GL(UniformLocation[uniformIndex] =
-                   glGetUniformBlockIndex(Program, ProgramUniforms[i].name));
+                       glGetUniformBlockIndex(Program, ProgramUniforms[i].name));
             UniformBinding[uniformIndex] = numBufferBindings++;
             GL(glUniformBlockBinding(
-                Program, UniformLocation[uniformIndex], UniformBinding[uniformIndex]));
+                    Program, UniformLocation[uniformIndex], UniformBinding[uniformIndex]));
         } else {
             GL(UniformLocation[uniformIndex] =
-                   glGetUniformLocation(Program, ProgramUniforms[i].name));
+                       glGetUniformLocation(Program, ProgramUniforms[i].name));
             UniformBinding[uniformIndex] = UniformLocation[uniformIndex];
         }
     }
@@ -668,7 +677,7 @@ bool OvrGeometry::Create(const char* vertexSource, const char* fragmentSource) {
     CreateGeometry();
 
     // Bind the vertex attribute locations.
-    for (auto &a:VertexAttribs) {
+    for (auto &a: VertexAttribs) {
         GL(glBindAttribLocation(Program, a.Index, a.Name.c_str()));
     }
 
@@ -700,56 +709,56 @@ void OvrGeometry::Destroy() {
 }
 
 static const char STAGE_VERTEX_SHADER[] =
-    "#define NUM_VIEWS 2\n"
-    "#define VIEW_ID gl_ViewID_OVR\n"
-    "#extension GL_OVR_multiview2 : require\n"
-    "layout(num_views=NUM_VIEWS) in;\n"
-    "in vec3 vertexPosition;\n"
-    "uniform mat4 ModelMatrix;\n"
-    "uniform SceneMatrices\n"
-    "{\n"
-    "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
-    "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
-    "} sm;\n"
-    "void main()\n"
-    "{\n"
-    "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
-    "}\n";
+        "#define NUM_VIEWS 2\n"
+        "#define VIEW_ID gl_ViewID_OVR\n"
+        "#extension GL_OVR_multiview2 : require\n"
+        "layout(num_views=NUM_VIEWS) in;\n"
+        "in vec3 vertexPosition;\n"
+        "uniform mat4 ModelMatrix;\n"
+        "uniform SceneMatrices\n"
+        "{\n"
+        "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
+        "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
+        "} sm;\n"
+        "void main()\n"
+        "{\n"
+        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
+        "}\n";
 
 static const char STAGE_FRAGMENT_SHADER[] =
-    "out lowp vec4 outColor;\n"
-    "void main()\n"
-    "{\n"
-    "	outColor = vec4( 0.5, 0.5, 1.0, 0.5 );\n"
-    "}\n";
+        "out lowp vec4 outColor;\n"
+        "void main()\n"
+        "{\n"
+        "	outColor = vec4( 0.5, 0.5, 1.0, 0.5 );\n"
+        "}\n";
 
 static const char AXES_VERTEX_SHADER[] =
-    "#define NUM_VIEWS 2\n"
-    "#define VIEW_ID gl_ViewID_OVR\n"
-    "#extension GL_OVR_multiview2 : require\n"
-    "layout(num_views=NUM_VIEWS) in;\n"
-    "in vec3 vertexPosition;\n"
-    "in vec4 vertexColor;\n"
-    "uniform mat4 ModelMatrix;\n"
-    "uniform SceneMatrices\n"
-    "{\n"
-    "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
-    "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
-    "} sm;\n"
-    "out vec4 fragmentColor;\n"
-    "void main()\n"
-    "{\n"
-    "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
-    "	fragmentColor = vertexColor;\n"
-    "}\n";
+        "#define NUM_VIEWS 2\n"
+        "#define VIEW_ID gl_ViewID_OVR\n"
+        "#extension GL_OVR_multiview2 : require\n"
+        "layout(num_views=NUM_VIEWS) in;\n"
+        "in vec3 vertexPosition;\n"
+        "in vec4 vertexColor;\n"
+        "uniform mat4 ModelMatrix;\n"
+        "uniform SceneMatrices\n"
+        "{\n"
+        "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
+        "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
+        "} sm;\n"
+        "out vec4 fragmentColor;\n"
+        "void main()\n"
+        "{\n"
+        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
+        "	fragmentColor = vertexColor;\n"
+        "}\n";
 
 static const char AXES_FRAGMENT_SHADER[] =
-    "in lowp vec4 fragmentColor;\n"
-    "out lowp vec4 outColor;\n"
-    "void main()\n"
-    "{\n"
-    "	outColor = fragmentColor;\n"
-    "}\n";
+        "in lowp vec4 fragmentColor;\n"
+        "out lowp vec4 outColor;\n"
+        "void main()\n"
+        "{\n"
+        "	outColor = fragmentColor;\n"
+        "}\n";
 
 
 /*
@@ -768,23 +777,23 @@ void ovrFramebuffer::Clear() {
     Elements = nullptr;
 }
 
-static void* GlGetExtensionProc(const char* functionName) {
-    return (void*)eglGetProcAddress(functionName);
+static void *GlGetExtensionProc(const char *functionName) {
+    return (void *) eglGetProcAddress(functionName);
 }
 
 bool ovrFramebuffer::Create(
-    const GLenum colorFormat,
-    const int width,
-    const int height,
-    const int multisamples,
-    const int swapChainLength,
-    const GLuint* colorTextures) {
+        const GLenum colorFormat,
+        const int width,
+        const int height,
+        const int multisamples,
+        const int swapChainLength,
+        const GLuint *colorTextures) {
     auto glFramebufferTextureMultiviewOVR =
-        (PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC)GlGetExtensionProc(
-            "glFramebufferTextureMultiviewOVR");
+            (PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC) GlGetExtensionProc(
+                    "glFramebufferTextureMultiviewOVR");
     auto glFramebufferTextureMultisampleMultiviewOVR =
-        (PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC)GlGetExtensionProc(
-            "glFramebufferTextureMultisampleMultiviewOVR");
+            (PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC) GlGetExtensionProc(
+                    "glFramebufferTextureMultisampleMultiviewOVR");
 
     Width = width;
     Height = height;
@@ -794,7 +803,7 @@ bool ovrFramebuffer::Create(
     Elements = new Element[SwapChainLength];
 
     for (int i = 0; i < SwapChainLength; i++) {
-        Element& el = Elements[i];
+        Element &el = Elements[i];
         // Create the color buffer texture.
         el.ColorTexture = colorTextures[i];
         GLenum colorTextureTarget = GL_TEXTURE_2D_ARRAY;
@@ -818,44 +827,44 @@ bool ovrFramebuffer::Create(
         GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, el.FrameBufferObject));
         if (multisamples > 1 && (glFramebufferTextureMultisampleMultiviewOVR != nullptr)) {
             GL(glFramebufferTextureMultisampleMultiviewOVR(
-                GL_DRAW_FRAMEBUFFER,
-                GL_DEPTH_ATTACHMENT,
-                el.DepthTexture,
-                0 /* level */,
-                multisamples /* samples */,
-                0 /* baseViewIndex */,
-                2 /* numViews */));
+                    GL_DRAW_FRAMEBUFFER,
+                    GL_DEPTH_ATTACHMENT,
+                    el.DepthTexture,
+                    0 /* level */,
+                    multisamples /* samples */,
+                    0 /* baseViewIndex */,
+                    2 /* numViews */));
             GL(glFramebufferTextureMultisampleMultiviewOVR(
-                GL_DRAW_FRAMEBUFFER,
-                GL_COLOR_ATTACHMENT0,
-                el.ColorTexture,
-                0 /* level */,
-                multisamples /* samples */,
-                0 /* baseViewIndex */,
-                2 /* numViews */));
+                    GL_DRAW_FRAMEBUFFER,
+                    GL_COLOR_ATTACHMENT0,
+                    el.ColorTexture,
+                    0 /* level */,
+                    multisamples /* samples */,
+                    0 /* baseViewIndex */,
+                    2 /* numViews */));
         } else if (glFramebufferTextureMultiviewOVR) {
             GL(glFramebufferTextureMultiviewOVR(
-                GL_DRAW_FRAMEBUFFER,
-                GL_DEPTH_ATTACHMENT,
-                el.DepthTexture,
-                0 /* level */,
-                0 /* baseViewIndex */,
-                2 /* numViews */));
+                    GL_DRAW_FRAMEBUFFER,
+                    GL_DEPTH_ATTACHMENT,
+                    el.DepthTexture,
+                    0 /* level */,
+                    0 /* baseViewIndex */,
+                    2 /* numViews */));
             GL(glFramebufferTextureMultiviewOVR(
-                GL_DRAW_FRAMEBUFFER,
-                GL_COLOR_ATTACHMENT0,
-                el.ColorTexture,
-                0 /* level */,
-                0 /* baseViewIndex */,
-                2 /* numViews */));
+                    GL_DRAW_FRAMEBUFFER,
+                    GL_COLOR_ATTACHMENT0,
+                    el.ColorTexture,
+                    0 /* level */,
+                    0 /* baseViewIndex */,
+                    2 /* numViews */));
         }
 
         GL(GLenum renderFramebufferStatus = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
         GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
         if (renderFramebufferStatus != GL_FRAMEBUFFER_COMPLETE) {
             ALOGE(
-                "Incomplete frame buffer object: %s",
-                GlFrameBufferStatusString(renderFramebufferStatus));
+                    "Incomplete frame buffer object: %s",
+                    GlFrameBufferStatusString(renderFramebufferStatus));
             return false;
         }
     }
@@ -865,7 +874,7 @@ bool ovrFramebuffer::Create(
 
 void ovrFramebuffer::Destroy() {
     for (int i = 0; i < SwapChainLength; i++) {
-        Element& el = Elements[i];
+        Element &el = Elements[i];
         GL(glDeleteFramebuffers(1, &el.FrameBufferObject));
         GL(glDeleteTextures(1, &el.DepthTexture));
     }
@@ -896,7 +905,7 @@ ovrScene
 ================================================================================
 */
 
-void ovrScene::SetClearColor(const float* c) {
+void ovrScene::SetClearColor(const float *c) {
     for (int i = 0; i < 4; i++) {
         ClearColor[i] = c[i];
     }
@@ -948,6 +957,7 @@ void ovrScene::Create() {
             "out vec3 normal;\n"
             "out vec3 fragPos;\n"
             "out vec4 modPos;\n"
+            "out vec3 modNorm;\n"
             "uniform mat4 ModelMatrix;\n"
             "uniform SceneMatrices\n"
             "{\n"
@@ -957,6 +967,7 @@ void ovrScene::Create() {
             "void main()\n"
             "{\n"
             "   modPos = ModelMatrix * ( vec4( vertexPosition, 1.0 ) );\n"
+            "   modNorm = normalize((ModelMatrix * ( vec4( vertexNormal, 1.0 ) )).xyz);\n"
             "	vec4 modelView = sm.ViewMatrix[VIEW_ID] * modPos;\n"
             "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * modelView;\n"
             "   normal = normalize(vertexNormal);\n"
@@ -967,6 +978,7 @@ void ovrScene::Create() {
             "in vec3 normal;\n"
             "in vec3 fragPos;\n"
             "in vec4 modPos;\n"
+            "in vec3 modNorm;\n"
             "out lowp vec4 outColor;\n"
             "const float pi = 3.14159;\n"
             "uniform float time;\n"
@@ -1028,12 +1040,12 @@ void ovrAppRenderer::Clear() {
 }
 
 void ovrAppRenderer::Create(
-    GLenum format,
-    int width,
-    int height,
-    int numMultiSamples,
-    int swapChainLength,
-    GLuint* colorTextures) {
+        GLenum format,
+        int width,
+        int height,
+        int numMultiSamples,
+        int swapChainLength,
+        GLuint *colorTextures) {
     EglInitExtensions();
     Framebuffer.Create(format, width, height, numMultiSamples, swapChainLength, colorTextures);
     if (glExtensions.EXT_sRGB_write_control) {
@@ -1054,14 +1066,14 @@ void ovrAppRenderer::Destroy() {
 void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     // Update the scene matrices.
     GL(glBindBuffer(GL_UNIFORM_BUFFER, Scene.SceneMatrices));
-    GL(Matrix4f* sceneMatrices = (Matrix4f*)glMapBufferRange(
-           GL_UNIFORM_BUFFER,
-           0,
-           4 * sizeof(Matrix4f) /* 2 view + 2 proj matrices */,
-           GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT));
+    GL(Matrix4f *sceneMatrices = (Matrix4f *) glMapBufferRange(
+            GL_UNIFORM_BUFFER,
+            0,
+            4 * sizeof(Matrix4f) /* 2 view + 2 proj matrices */,
+               GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT));
 
     if (sceneMatrices != nullptr) {
-        memcpy((char*)sceneMatrices, &frameIn.View, 4 * sizeof(Matrix4f));
+        memcpy((char *) sceneMatrices, &frameIn.View, 4 * sizeof(Matrix4f));
     }
 
     GL(glUnmapBuffer(GL_UNIFORM_BUFFER));
@@ -1080,16 +1092,16 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     GL(glViewport(0, 0, Framebuffer.Width, Framebuffer.Height));
     GL(glScissor(0, 0, Framebuffer.Width, Framebuffer.Height));
     GL(glClearColor(
-        Scene.ClearColor[0], Scene.ClearColor[1], Scene.ClearColor[2], Scene.ClearColor[3]));
+            Scene.ClearColor[0], Scene.ClearColor[1], Scene.ClearColor[2], Scene.ClearColor[3]));
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
     GL(glLineWidth(3.0));
     // "tracking space" axes (could be LOCAL or LOCAL_FLOOR)
     GL(glUseProgram(Scene.Axes.Program));
     GL(glBindBufferBase(
-        GL_UNIFORM_BUFFER,
-        Scene.Axes.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
-        Scene.SceneMatrices));
+            GL_UNIFORM_BUFFER,
+            Scene.Axes.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
+            Scene.SceneMatrices));
     if (Scene.Axes.UniformLocation[ovrUniform::Index::VIEW_ID] >=
         0) // NOTE: will not be present when multiview path is enabled.
     {
@@ -1097,13 +1109,13 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
     if (Scene.Axes.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
         const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(0,-1,-2);
-        const Matrix4f m1 = stagePoseMat  * scale;
+        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -1, -2);
+        const Matrix4f m1 = stagePoseMat * scale;
         GL(glUniformMatrix4fv(
-            Scene.Axes.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
-            1,
-            GL_TRUE,
-            &m1.M[0][0]));
+                Scene.Axes.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
+                1,
+                GL_TRUE,
+                &m1.M[0][0]));
     }
     Scene.Axes.draw();
     GL(glUseProgram(0));
@@ -1121,8 +1133,8 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
     if (Scene.ECGPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
         const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(0,-0.9,0);
-        const Matrix4f m1 = stagePoseMat  * scale;
+        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -1.1, -1);
+        const Matrix4f m1 = stagePoseMat * scale;
         GL(glUniformMatrix4fv(
                 Scene.ECGPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
                 1,
@@ -1145,8 +1157,8 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
     if (Scene.HrPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
         const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(0,-1,0);
-        const Matrix4f m1 = stagePoseMat  * scale;
+        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -1, 0);
+        const Matrix4f m1 = stagePoseMat * scale;
         GL(glUniformMatrix4fv(
                 Scene.HrPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
                 1,
@@ -1155,7 +1167,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
     auto end_ts = std::chrono::steady_clock::now();
     std::chrono::duration<double> d = end_ts - start_ts;
-    float t = (float)(d.count());
+    t = (float) (d.count());
     //ALOGV("time = %f",t);
     GL(glUniform1f(Scene.HrPlot.UniformLocation[ovrUniform::Index::TIME_S], t));
     Scene.HrPlot.draw();
