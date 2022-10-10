@@ -114,6 +114,9 @@ struct OvrHRPlot : OvrGeometry {
 
     void CreateGeometry();
     void draw();
+    int frameCtr = 0;
+    int fps = 0;
+    std::chrono::time_point<std::chrono::steady_clock> start_ts;
 };
 
 struct ovrFramebuffer {

@@ -512,6 +512,17 @@ void OvrHRPlot::draw() {
 
     GL(glDepthMask(GL_TRUE));
     GL(glDisable(GL_BLEND));
+
+    if (fps == 0) {
+        // calculating the samplingrate
+        frameCtr++;
+        auto end_ts = std::chrono::steady_clock::now();
+        std::chrono::duration<double> d = end_ts - start_ts;
+        if (d.count() > 0) {
+            fps = frameCtr;
+            ALOGV("fps = %f", fps);
+        }
+    }
 }
 
 
