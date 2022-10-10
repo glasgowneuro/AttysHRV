@@ -14,6 +14,8 @@ set(OCULUS_OPENXR_MOBILE_SDK /home/bp1/sandbox/ovr_openxr_mobile_sdk)
 
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
+add_subdirectory(iir1)
+
 add_library(openxr_loader SHARED IMPORTED)
 set_property(
         TARGET
@@ -28,6 +30,7 @@ include_directories(
         ${OCULUS_OPENXR_MOBILE_SDK}/1stParty/OVR/Include/
         ${OCULUS_OPENXR_MOBILE_SDK}/OpenXR/Include
         ${ANDROID_NDK}/sources/android/native_app_glue/
+        iir1
 )
 set(CODEGEN_FOLDER ../app/.cxx/openxr)
 add_subdirectory(${OCULUS_OPENXR_MOBILE_SDK}/3rdParty/khronos/openxr/OpenXR-SDK/include ${CODEGEN_FOLDER})
@@ -73,6 +76,7 @@ target_link_libraries( # Specifies the target library.
         native_app_glue
         GLESv3
         EGL
+        iir::iir_static
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})

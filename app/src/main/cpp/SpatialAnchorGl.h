@@ -15,6 +15,8 @@
 
 #include "OVR_Math.h"
 
+#include "Iir.h"
+
 #define NUM_EYES 2
 
 class OvrGeometry {
@@ -104,11 +106,11 @@ struct OvrHRPlot : OvrGeometry {
 
     HRVertices hrVertices = {};
 
+    Iir::RBJ::LowPass lp;
+
     unsigned short indices[NR_INDICES] = {};
 
     float hrShiftBuffer[QUAD_GRID_SIZE+1] = {};
-
-    float prevBPM = 0;
 
     void CreateGeometry();
     void draw();
