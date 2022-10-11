@@ -36,6 +36,7 @@ Copyright	:	Copyright (c) Facebook Technologies, LLC and its affiliates. All rig
 #include "SpatialAnchorGl.h"
 
 #include "util.h"
+#include "spline.hpp"
 
 using namespace OVR;
 
@@ -207,7 +208,11 @@ OvrGeometry
 */
 
 static std::vector<double> dataBuffer;
-static std::vector<float> hrBuffer;
+static std::vector<double> hrBuffer;
+static std::vector<double> hrTs;
+static cubic_spline hrSpline;
+static const std::chrono::time_point<std::chrono::steady_clock> start_ts = std::chrono::steady_clock::now();
+static std::chrono::time_point<std::chrono::steady_clock> current_hr_ts = std::chrono::steady_clock::now();
 
 void OvrAxes::CreateGeometry() {
     struct ovrAxesVertices {
@@ -417,24 +422,19 @@ void OvrHRPlot::CreateGeometry() {
 }
 
 void OvrHRPlot::draw() {
-    if (!(hrBuffer.empty())) {
+    if (hrBuffer.size() > 2) {
 
-        if (hrShiftBuffer[0] == 0) {
-            for (auto &v: hrShiftBuffer) {
-                v = hrBuffer[0];
+        const std::chrono::time_point<std::chrono::steady_clock> current_ts = std::chrono::steady_clock::now();
+        const std::chrono::duration<double> d = current_ts - start_ts;
+        const double t = d.count();
+        for (int i = 0; i < QUAD_GRID_SIZE+1; i++) {
+            double dt = t - (double)i/(double)fps;
+            float hrInterpol = 0;
+            if (dt > hrTs[0]) {
+                hrInterpol = (float) hrSpline(dt);
             }
+            hrShiftBuffer[i] = hrInterpol;
         }
-
-        for (auto &v2: hrBuffer) {
-            float v0 = hrShiftBuffer[QUAD_GRID_SIZE];
-            for (int i = 0; i < QUAD_GRID_SIZE; i++) {
-                hrShiftBuffer[i] = hrShiftBuffer[i + 1];
-            }
-            hrShiftBuffer[QUAD_GRID_SIZE] = v2;
-        }
-
-        hrBuffer.clear();
-
         float min = 1000;
         float max = 0;
         for (auto &v: hrShiftBuffer) {
@@ -452,8 +452,8 @@ void OvrHRPlot::draw() {
                 int vertexPosition = y * (QUAD_GRID_SIZE + 1) + x;
                 int xc = x - (QUAD_GRID_SIZE / 2);
                 int yc = y - (QUAD_GRID_SIZE / 2);
-                int r = QUAD_GRID_SIZE - (int) sqrt(yc * yc + xc * xc);
-                if (r < 0) r = 0;
+                int r = (int) sqrt(yc * yc + xc * xc);
+                if (r > QUAD_GRID_SIZE) r = QUAD_GRID_SIZE;
                 hrVertices.vertices[vertexPosition][1] = (hrShiftBuffer[r] - min) / n * 5;
             }
         }
@@ -513,15 +513,15 @@ void OvrHRPlot::draw() {
     GL(glDepthMask(GL_TRUE));
     GL(glDisable(GL_BLEND));
 
-    if (fps == 0) {
-        // calculating the samplingrate
-        frameCtr++;
-        auto end_ts = std::chrono::steady_clock::now();
-        std::chrono::duration<double> d = end_ts - start_ts;
-        if (d.count() > 0) {
-            fps = frameCtr;
-            ALOGV("fps = %f", fps);
-        }
+    // calculating the samplingrate
+    frameCtr++;
+    auto current_fps_ts = std::chrono::steady_clock::now();
+    std::chrono::duration<double> d = current_fps_ts - start_fps_ts;
+    if (floor(d.count()) > 0) {
+        fps = frameCtr;
+        start_fps_ts = current_fps_ts;
+        frameCtr = 0;
+        ALOGV("fps = %d", fps);
     }
 }
 
@@ -1067,7 +1067,6 @@ void ovrAppRenderer::Create(
         // but with the linear->sRGB conversion disabled on write.
         GL(glDisable(GL_FRAMEBUFFER_SRGB_EXT));
     }
-    start_ts = std::chrono::steady_clock::now();
 }
 
 void ovrAppRenderer::Destroy() {
@@ -1176,8 +1175,8 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
                 GL_TRUE,
                 &m1.M[0][0]));
     }
-    auto end_ts = std::chrono::steady_clock::now();
-    std::chrono::duration<double> d = end_ts - start_ts;
+    auto current_ts = std::chrono::steady_clock::now();
+    std::chrono::duration<double> d = current_ts - start_ts;
     t = (float) (d.count());
     //ALOGV("time = %f",t);
     GL(glUniform1f(Scene.HrPlot.UniformLocation[ovrUniform::Index::TIME_S], t));
@@ -1201,5 +1200,18 @@ JNIEXPORT void JNICALL
 Java_tech_glasgowneuro_oculusecg_ANativeActivity_hrUpdate(JNIEnv *env, jclass clazz,
                                                           jlong inst,
                                                           jfloat v) {
+    auto current_ts = std::chrono::steady_clock::now();
+    std::chrono::duration<double> d = current_ts - start_ts;
+    double t = d.count();
+    ALOGV("hrUpdate: t=%f, hr=%f",t,v);
+    hrTs.push_back(t);
     hrBuffer.push_back(v);
+    if (hrBuffer.size() > 60) {
+        hrBuffer.erase(hrBuffer.begin());
+        hrTs.erase(hrTs.begin());
+    }
+    if (hrTs.size() > 2) {
+        hrSpline.calc(hrTs, hrBuffer);
+        ALOGV("Prediction: hr(%f)=%f",t+1,hrSpline(t+1));
+    }
 }

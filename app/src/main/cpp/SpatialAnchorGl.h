@@ -16,6 +16,7 @@
 #include "OVR_Math.h"
 
 #include "Iir.h"
+#include "spline.hpp"
 
 #define NUM_EYES 2
 
@@ -92,7 +93,7 @@ struct OvrECGPlot : OvrGeometry {
 };
 
 struct OvrHRPlot : OvrGeometry {
-    static const int QUAD_GRID_SIZE = 50;
+    static const int QUAD_GRID_SIZE = 300;
     static const int NR_VERTICES = (QUAD_GRID_SIZE+1)*(QUAD_GRID_SIZE+1);
     static const int NR_TRIANGLES = 2*QUAD_GRID_SIZE*QUAD_GRID_SIZE;
     static const int NR_INDICES = 3*NR_TRIANGLES;
@@ -116,7 +117,7 @@ struct OvrHRPlot : OvrGeometry {
     void draw();
     int frameCtr = 0;
     int fps = 0;
-    std::chrono::time_point<std::chrono::steady_clock> start_ts;
+    std::chrono::time_point<std::chrono::steady_clock> start_fps_ts;
 };
 
 struct ovrFramebuffer {
@@ -183,7 +184,6 @@ struct ovrAppRenderer {
 
     ovrFramebuffer Framebuffer;
     ovrScene Scene;
-    std::chrono::time_point<std::chrono::steady_clock> start_ts;
     float t;
 };
 
