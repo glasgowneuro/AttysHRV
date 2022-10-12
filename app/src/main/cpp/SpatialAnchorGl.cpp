@@ -368,9 +368,9 @@ void OvrHRPlot::CreateGeometry() {
     for (int y = 0; y <= QUAD_GRID_SIZE; y++) {
         for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
             int vertexPosition = y * (QUAD_GRID_SIZE + 1) + x;
-            hrVertices.vertices[vertexPosition][0] = ((float) x * delta - 1.0f) * scale;
+            hrVertices.vertices[vertexPosition][0] = (float)(((double) x * delta - 1.0) * scale);
             hrVertices.vertices[vertexPosition][1] = 0;
-            hrVertices.vertices[vertexPosition][2] = ((float) y * delta - 1.0f) * scale;
+            hrVertices.vertices[vertexPosition][2] = (float)(((double) y * delta - 1.0) * scale);
             hrVertices.normals[vertexPosition][0] = 0;
             hrVertices.normals[vertexPosition][1] = 1;
             hrVertices.normals[vertexPosition][2] = 0;
@@ -423,38 +423,42 @@ void OvrHRPlot::CreateGeometry() {
 
 void OvrHRPlot::draw() {
     if (hrBuffer.size() > 2) {
-
+        const double spline_pred_sec = 1;
+        const double maxtime = 30.0; // sec
         const std::chrono::time_point<std::chrono::steady_clock> current_ts = std::chrono::steady_clock::now();
         const std::chrono::duration<double> d = current_ts - start_ts;
         const double t = d.count();
         for (int i = 0; i < QUAD_GRID_SIZE+1; i++) {
-            double dt = t - (double)i/(double)fps;
-            float hrInterpol = 0;
-            if (dt > hrTs[0]) {
-                hrInterpol = (float) hrSpline(dt);
+            double dt = t - (double)i/(double)(QUAD_GRID_SIZE+1)*maxtime;
+            double hrInterpol = 0;
+            if ( (dt > (hrSpline.getLowerBound()-spline_pred_sec)) && (dt < (hrSpline.getUpperBound()+spline_pred_sec) ) ) {
+                hrInterpol = hrSpline(dt);
+            } else {
+                hrInterpol = hrSpline(hrSpline.getUpperBound()+spline_pred_sec);
             }
             hrShiftBuffer[i] = hrInterpol;
         }
-        float min = 1000;
-        float max = 0;
+        double min = 1000;
+        double max = 0;
         for (auto &v: hrShiftBuffer) {
             if (v < min) min = v;
             if (v > max) max = v;
         }
-        float n = max - min;
+        double n = max - min;
         //ALOGV("before: min = %f, max = %f, norm = %f", min, max, n);
-        if (n < 10) {
-            n = 10;
+        const double minHRdiff = 1;
+        if (n < minHRdiff) {
+            n = minHRdiff;
         }
         //ALOGV("after: min = %f, max = %f, norm = %f", min, max, n);
         for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
             for (int y = 0; y <= QUAD_GRID_SIZE; y++) {
                 int vertexPosition = y * (QUAD_GRID_SIZE + 1) + x;
-                int xc = x - (QUAD_GRID_SIZE / 2);
-                int yc = y - (QUAD_GRID_SIZE / 2);
-                int r = (int) sqrt(yc * yc + xc * xc);
+                double xc = (double)x - (QUAD_GRID_SIZE / 2.0);
+                double yc = (double)y - (QUAD_GRID_SIZE / 2.0);
+                int r = (int) round(sqrt(yc * yc + xc * xc));
                 if (r > QUAD_GRID_SIZE) r = QUAD_GRID_SIZE;
-                hrVertices.vertices[vertexPosition][1] = (hrShiftBuffer[r] - min) / n * 5;
+                hrVertices.vertices[vertexPosition][1] = (float)((hrShiftBuffer[r] - min) / n * 5.0);
             }
         }
     }
@@ -474,16 +478,32 @@ void OvrHRPlot::draw() {
     for (int x = 0; x < QUAD_GRID_SIZE; x++) {
         for (int y = 0; y < QUAD_GRID_SIZE; y++) {
             int vertexPosition1 = y * (QUAD_GRID_SIZE + 1) + x;
-            int vertexPosition2 = (y + 1) * (QUAD_GRID_SIZE + 1) + x;
+            int vertexPosition2 = (y + 1) * (QUAD_GRID_SIZE + 1) + x + 1;
             int vertexPosition3 = y * (QUAD_GRID_SIZE + 1) + x + 1;
             float a[3];
             float b[3];
+            float c1[3];
             diff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition2], a);
             diff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition3], b);
             crossProduct(a,
                          b,
-                         hrVertices.normals[vertexPosition1]);
-/*
+                         c1);
+
+            float c2[3];
+            vertexPosition1 = y * (QUAD_GRID_SIZE + 1) + x;
+            vertexPosition2 = (y + 1) * (QUAD_GRID_SIZE + 1) + x;
+            vertexPosition3 = y * (QUAD_GRID_SIZE + 1) + x + 1;
+            diff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition2], a);
+            diff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition3], b);
+            crossProduct(a,
+                         b,
+                         c2);
+
+            hrVertices.normals[vertexPosition1][0] = (c1[0]+c2[0])/2;
+            hrVertices.normals[vertexPosition1][1] = (c1[1]+c2[1])/2;
+            hrVertices.normals[vertexPosition1][2] = (c1[2]+c2[2])/2;
+
+            /*
             if (x == 0) {
                 ALOGV("cross prod = %d,%f,%f,%f",
                       y,
@@ -1143,7 +1163,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
     if (Scene.ECGPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
         const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -1.1, -1);
+        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -0.5, -1);
         const Matrix4f m1 = stagePoseMat * scale;
         GL(glUniformMatrix4fv(
                 Scene.ECGPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX],

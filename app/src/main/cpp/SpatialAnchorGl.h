@@ -93,12 +93,12 @@ struct OvrECGPlot : OvrGeometry {
 };
 
 struct OvrHRPlot : OvrGeometry {
-    static const int QUAD_GRID_SIZE = 300;
+    static const int QUAD_GRID_SIZE = 200;
     static const int NR_VERTICES = (QUAD_GRID_SIZE+1)*(QUAD_GRID_SIZE+1);
     static const int NR_TRIANGLES = 2*QUAD_GRID_SIZE*QUAD_GRID_SIZE;
     static const int NR_INDICES = 3*NR_TRIANGLES;
-    constexpr static const float scale = 50.0f;
-    constexpr static const float delta = 2.0f/QUAD_GRID_SIZE;
+    constexpr static const double scale = 50.0f;
+    constexpr static const double delta = 2.0/(double)QUAD_GRID_SIZE;
 
     struct HRVertices {
         float vertices[NR_VERTICES][3] = {};
@@ -111,7 +111,7 @@ struct OvrHRPlot : OvrGeometry {
 
     unsigned short indices[NR_INDICES] = {};
 
-    float hrShiftBuffer[QUAD_GRID_SIZE+1] = {};
+    double hrShiftBuffer[QUAD_GRID_SIZE+1] = {};
 
     void CreateGeometry();
     void draw();
