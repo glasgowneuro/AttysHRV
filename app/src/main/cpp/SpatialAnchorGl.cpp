@@ -361,10 +361,6 @@ void OvrHRPlot::CreateGeometry() {
     VertexCount = NR_VERTICES;
     IndexCount = NR_INDICES;
 
-    for (auto &v: hrShiftBuffer) {
-        v = 0;
-    }
-
     for (int y = 0; y <= QUAD_GRID_SIZE; y++) {
         for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
             int vertexPosition = y * (QUAD_GRID_SIZE + 1) + x;
@@ -428,8 +424,10 @@ void OvrHRPlot::draw() {
         const std::chrono::time_point<std::chrono::steady_clock> current_ts = std::chrono::steady_clock::now();
         const std::chrono::duration<double> d = current_ts - start_ts;
         const double t = d.count();
-        for (int i = 0; i < QUAD_GRID_SIZE+1; i++) {
-            double dt = t - (double)i/(double)(QUAD_GRID_SIZE+1)*maxtime;
+        const int shiftbuffersize = QUAD_GRID_SIZE*10;
+        double hrShiftBuffer[shiftbuffersize] = {};
+        for (int i = 0; i < shiftbuffersize; i++) {
+            double dt = t - (double)i/(double)shiftbuffersize*maxtime;
             double hrInterpol = 0;
             if ( (dt > (hrSpline.getLowerBound()-spline_pred_sec)) && (dt < (hrSpline.getUpperBound()+spline_pred_sec) ) ) {
                 hrInterpol = hrSpline(dt);
@@ -456,9 +454,11 @@ void OvrHRPlot::draw() {
                 int vertexPosition = y * (QUAD_GRID_SIZE + 1) + x;
                 double xc = (double)x - (QUAD_GRID_SIZE / 2.0);
                 double yc = (double)y - (QUAD_GRID_SIZE / 2.0);
-                int r = (int) round(sqrt(yc * yc + xc * xc));
-                if (r > QUAD_GRID_SIZE) r = QUAD_GRID_SIZE;
-                hrVertices.vertices[vertexPosition][1] = (float)((hrShiftBuffer[r] - min) / n * 5.0);
+                const double maxr = sqrt( (QUAD_GRID_SIZE) * (QUAD_GRID_SIZE) );
+                int r = (int) (round( sqrt(yc * yc + xc * xc) / maxr * (double)shiftbuffersize ));
+                if (r < shiftbuffersize) {
+                    hrVertices.vertices[vertexPosition][1] = (float) ((hrShiftBuffer[r] - min) / n * 5.0);
+                }
             }
         }
     }
