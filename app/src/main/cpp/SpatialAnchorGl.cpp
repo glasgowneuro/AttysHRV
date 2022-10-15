@@ -1042,6 +1042,9 @@ void ovrScene::Create() {
             "   vec3 lightPos = vec3(-10.0, 30.0, -10.0);\n"
             "   vec3 lightDir = normalize(lightPos - fragPos);\n"
             "   float diffuse = max(dot(normal, lightDir), 0.0);\n"
+            "   vec3 lightReflect = normalize(reflect(lightPos, Normal));\n"
+            "   float specularFactor = max(dot(lightDir, lightReflect), 0.0);\n"
+            "   SpecularFactor = pow(SpecularFactor,2);\n"
             "   float v1 = wave(fragPos.x, fragPos.z, time, 5.0, vec2(0.5,0.25));\n"
             "   vec4 texColor1 = vec4( 0.0, v1, v1, 1.0);\n"
             "   float v2 = wave(fragPos.x, fragPos.z, time, -4.0, vec2(0.5,-0.25));\n"
@@ -1055,6 +1058,7 @@ void ovrScene::Create() {
             "   float trans = 1.0 - theta;\n"
             "   vec4 diffuseColour = vec4( 0.0, diffuse, diffuse, 1.0 );\n"
             "	outColor = mix(texColor,diffuseColour,0.5);\n"
+            "   outColor = outColor + vec4(specularFactor, specularFactor, specularFactor, 1.0f);\n"
             "	outColor = vec4(outColor.xyz, trans + 0.5);\n"
             "}\n";
 
