@@ -452,15 +452,15 @@ void OvrHRPlot::draw() {
     }
 
     DropAnim dropAnim[2];
-    dropAnim[0].centerY = 0;
-    dropAnim[0].centerX = 0;
+    dropAnim[0].centerY = QUAD_GRID_SIZE;
+    dropAnim[0].centerX = QUAD_GRID_SIZE*0.12;
     dropAnim[0].spatialFreq = 500;
     dropAnim[0].temporalFreq = 7;
 
-    dropAnim[1].centerY = (int)(QUAD_GRID_SIZE/10);
-    dropAnim[1].centerX = QUAD_GRID_SIZE;
+    dropAnim[1].centerY = QUAD_GRID_SIZE*0.9;
+    dropAnim[1].centerX = QUAD_GRID_SIZE*0.9;
     dropAnim[1].spatialFreq = 500;
-    dropAnim[1].temporalFreq = 5;
+    dropAnim[1].temporalFreq = 4;
 
     //ALOGV("after: min = %f, max = %f, norm = %f", min, max, hrnorm);
     for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
