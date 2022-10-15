@@ -95,6 +95,8 @@ struct OvrECGPlot : OvrGeometry {
 struct OvrHRPlot : OvrGeometry {
     static constexpr int QUAD_GRID_SIZE = 200;
     static constexpr double minHRdiff = 10;
+    const double spline_pred_sec = 1;
+    const double maxtime = 30.0; // sec
     static constexpr int NR_VERTICES = (QUAD_GRID_SIZE+1)*(QUAD_GRID_SIZE+1);
     static constexpr int NR_TRIANGLES = 2*QUAD_GRID_SIZE*QUAD_GRID_SIZE;
     static constexpr int NR_INDICES = 3*NR_TRIANGLES;

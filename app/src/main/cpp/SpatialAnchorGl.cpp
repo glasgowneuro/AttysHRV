@@ -418,8 +418,6 @@ void OvrHRPlot::CreateGeometry() {
 }
 
 void OvrHRPlot::draw() {
-    const double spline_pred_sec = 1;
-    const double maxtime = 30.0; // sec
     const int shiftbuffersize = QUAD_GRID_SIZE * 10;
     double hrnorm = -1;
     double min = 1000;
@@ -1039,12 +1037,13 @@ void ovrScene::Create() {
             "}\n"
             "void main()\n"
             "{\n"
-            "   vec3 lightPos = vec3(-10.0, 30.0, -10.0);\n"
+            "   vec3 lightPos = vec3(-5.0, 30.0, -5.0);\n"
+            "   vec3 specLightPos = vec3(-1.0,1.5,-1.0);\n"
             "   vec3 lightDir = normalize(lightPos - fragPos);\n"
             "   float diffuse = max(dot(normal, lightDir), 0.0);\n"
-            "   vec3 lightReflect = normalize(reflect(lightPos, Normal));\n"
-            "   float specularFactor = max(dot(lightDir, lightReflect), 0.0);\n"
-            "   SpecularFactor = pow(SpecularFactor,2);\n"
+            "   vec3 lightReflect = normalize(reflect(specLightPos, normal));\n"
+            "   float specularFactor = max(dot(specLightPos, lightReflect), 0.0);\n"
+            "   specularFactor = pow(specularFactor, 8.0) * 0.001;\n"
             "   float v1 = wave(fragPos.x, fragPos.z, time, 5.0, vec2(0.5,0.25));\n"
             "   vec4 texColor1 = vec4( 0.0, v1, v1, 1.0);\n"
             "   float v2 = wave(fragPos.x, fragPos.z, time, -4.0, vec2(0.5,-0.25));\n"
@@ -1058,7 +1057,7 @@ void ovrScene::Create() {
             "   float trans = 1.0 - theta;\n"
             "   vec4 diffuseColour = vec4( 0.0, diffuse, diffuse, 1.0 );\n"
             "	outColor = mix(texColor,diffuseColour,0.5);\n"
-            "   outColor = outColor + vec4(specularFactor, specularFactor, specularFactor, 1.0f);\n"
+            "   outColor = outColor + vec4(specularFactor, specularFactor, specularFactor * 0.5, 1.0);\n"
             "	outColor = vec4(outColor.xyz, trans + 0.5);\n"
             "}\n";
 
