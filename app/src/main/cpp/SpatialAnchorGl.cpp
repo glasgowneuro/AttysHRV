@@ -11,10 +11,10 @@ Copyright	:	Copyright (c) Facebook Technologies, LLC and its affiliates. All rig
 
 *************************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
 #include <ctime>
 
 #include <unistd.h>
@@ -418,48 +418,68 @@ void OvrHRPlot::CreateGeometry() {
 }
 
 void OvrHRPlot::draw() {
+    const double spline_pred_sec = 1;
+    const double maxtime = 30.0; // sec
+    const int shiftbuffersize = QUAD_GRID_SIZE * 10;
+    double hrnorm = -1;
+    double min = 1000;
+    double max = 0;
+    double hrShiftBuffer[shiftbuffersize] = {};
+
+    const std::chrono::time_point<std::chrono::steady_clock> current_ts = std::chrono::steady_clock::now();
+    const std::chrono::duration<double> d = current_ts - start_ts;
+    const double t = d.count();
+
     if (hrBuffer.size() > 2) {
-        const double spline_pred_sec = 1;
-        const double maxtime = 30.0; // sec
-        const std::chrono::time_point<std::chrono::steady_clock> current_ts = std::chrono::steady_clock::now();
-        const std::chrono::duration<double> d = current_ts - start_ts;
-        const double t = d.count();
-        const int shiftbuffersize = QUAD_GRID_SIZE*10;
-        double hrShiftBuffer[shiftbuffersize] = {};
         for (int i = 0; i < shiftbuffersize; i++) {
-            double dt = t - (double)i/(double)shiftbuffersize*maxtime;
+            double dt = t - (double) i / (double) shiftbuffersize * maxtime;
             double hrInterpol = 0;
-            if ( (dt > (hrSpline.getLowerBound()-spline_pred_sec)) && (dt < (hrSpline.getUpperBound()+spline_pred_sec) ) ) {
+            if ((dt > (hrSpline.getLowerBound() - spline_pred_sec)) &&
+                (dt < (hrSpline.getUpperBound() + spline_pred_sec))) {
                 hrInterpol = hrSpline(dt);
+                if (hrInterpol < min) min = hrInterpol;
+                if (hrInterpol > max) max = hrInterpol;
             } else {
-                hrInterpol = hrSpline(hrSpline.getUpperBound()+spline_pred_sec);
+                hrInterpol = 0;
             }
             hrShiftBuffer[i] = hrInterpol;
         }
-        double min = 1000;
-        double max = 0;
-        for (auto &v: hrShiftBuffer) {
-            if (v < min) min = v;
-            if (v > max) max = v;
+        hrnorm = max - min;
+        //ALOGV("before: min = %f, max = %f, norm = %f", min, max, hrnorm);
+        if (hrnorm < minHRdiff) {
+            hrnorm = minHRdiff;
         }
-        double n = max - min;
-        //ALOGV("before: min = %f, max = %f, norm = %f", min, max, n);
-        const double minHRdiff = 1;
-        if (n < minHRdiff) {
-            n = minHRdiff;
-        }
-        //ALOGV("after: min = %f, max = %f, norm = %f", min, max, n);
-        for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
-            for (int y = 0; y <= QUAD_GRID_SIZE; y++) {
-                int vertexPosition = y * (QUAD_GRID_SIZE + 1) + x;
-                double xc = (double)x - (QUAD_GRID_SIZE / 2.0);
-                double yc = (double)y - (QUAD_GRID_SIZE / 2.0);
-                const double maxr = sqrt( (QUAD_GRID_SIZE) * (QUAD_GRID_SIZE) );
-                int r = (int) (round( sqrt(yc * yc + xc * xc) / maxr * (double)shiftbuffersize ));
-                if (r < shiftbuffersize) {
-                    hrVertices.vertices[vertexPosition][1] = (float) ((hrShiftBuffer[r] - min) / n * 5.0);
+    }
+
+    DropAnim dropAnim[2];
+    dropAnim[0].centerY = 0;
+    dropAnim[0].centerX = 0;
+    dropAnim[0].spatialFreq = 500;
+    dropAnim[0].temporalFreq = 7;
+
+    dropAnim[1].centerY = (int)(QUAD_GRID_SIZE/10);
+    dropAnim[1].centerX = QUAD_GRID_SIZE;
+    dropAnim[1].spatialFreq = 500;
+    dropAnim[1].temporalFreq = 5;
+
+    //ALOGV("after: min = %f, max = %f, norm = %f", min, max, hrnorm);
+    for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
+        for (int y = 0; y <= QUAD_GRID_SIZE; y++) {
+            int vertexPosition = y * (QUAD_GRID_SIZE + 1) + x;
+            const double xc = (double) x - (QUAD_GRID_SIZE / 2.0);
+            const double yc = (double) y - (QUAD_GRID_SIZE / 2.0);
+            const double maxr = sqrt((QUAD_GRID_SIZE) * (QUAD_GRID_SIZE));
+            int r = (int) (round(sqrt(yc * yc + xc * xc) / maxr * (double) shiftbuffersize));
+            float h = 0;
+            if ( (r < shiftbuffersize) && (hrnorm > 0) ) {
+                if (hrShiftBuffer[r] > 0) {
+                    h += (float) ((hrShiftBuffer[r] - min) / hrnorm * 5.0);
                 }
             }
+            for(auto &da:dropAnim) {
+                h += da.calcHeight(x, y, t) * 0.05f;
+            }
+            hrVertices.vertices[vertexPosition][1] = h;
         }
     }
 
@@ -499,9 +519,9 @@ void OvrHRPlot::draw() {
                          b,
                          c2);
 
-            hrVertices.normals[vertexPosition1][0] = (c1[0]+c2[0])/2;
-            hrVertices.normals[vertexPosition1][1] = (c1[1]+c2[1])/2;
-            hrVertices.normals[vertexPosition1][2] = (c1[2]+c2[2])/2;
+            hrVertices.normals[vertexPosition1][0] = (c1[0] + c2[0]) / 2;
+            hrVertices.normals[vertexPosition1][1] = (c1[1] + c2[1]) / 2;
+            hrVertices.normals[vertexPosition1][2] = (c1[2] + c2[2]) / 2;
 
             /*
             if (x == 0) {
@@ -536,8 +556,8 @@ void OvrHRPlot::draw() {
     // calculating the samplingrate
     frameCtr++;
     auto current_fps_ts = std::chrono::steady_clock::now();
-    std::chrono::duration<double> d = current_fps_ts - start_fps_ts;
-    if (floor(d.count()) > 0) {
+    std::chrono::duration<double> d2 = current_fps_ts - start_fps_ts;
+    if (floor(d2.count()) > 0) {
         fps = frameCtr;
         start_fps_ts = current_fps_ts;
         frameCtr = 0;

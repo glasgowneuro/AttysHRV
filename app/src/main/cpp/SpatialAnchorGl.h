@@ -93,16 +93,31 @@ struct OvrECGPlot : OvrGeometry {
 };
 
 struct OvrHRPlot : OvrGeometry {
-    static const int QUAD_GRID_SIZE = 200;
-    static const int NR_VERTICES = (QUAD_GRID_SIZE+1)*(QUAD_GRID_SIZE+1);
-    static const int NR_TRIANGLES = 2*QUAD_GRID_SIZE*QUAD_GRID_SIZE;
-    static const int NR_INDICES = 3*NR_TRIANGLES;
-    constexpr static const double scale = 50.0f;
-    constexpr static const double delta = 2.0/(double)QUAD_GRID_SIZE;
+    static constexpr int QUAD_GRID_SIZE = 200;
+    static constexpr double minHRdiff = 10;
+    static constexpr int NR_VERTICES = (QUAD_GRID_SIZE+1)*(QUAD_GRID_SIZE+1);
+    static constexpr int NR_TRIANGLES = 2*QUAD_GRID_SIZE*QUAD_GRID_SIZE;
+    static constexpr int NR_INDICES = 3*NR_TRIANGLES;
+    static constexpr double scale = 50.0f;
+    static constexpr const double delta = 2.0/(double)QUAD_GRID_SIZE;
 
     struct HRVertices {
         float vertices[NR_VERTICES][3] = {};
         float normals[NR_VERTICES][3] = {};
+    };
+
+    struct DropAnim {
+        double centerX = (QUAD_GRID_SIZE+1)/2;
+        double centerY = (QUAD_GRID_SIZE+1)/2;
+        double spatialFreq = 100;
+        double temporalFreq = 1;
+        float calcHeight(int x, int y, double t) {
+            const double xc = (double) x - centerX;
+            const double yc = (double) y - centerY;
+            const double maxr = sqrt((QUAD_GRID_SIZE) * (QUAD_GRID_SIZE));
+            const double r = sqrt(yc * yc + xc * xc) / maxr;
+            return sin(r * spatialFreq + t * temporalFreq);
+        }
     };
 
     HRVertices hrVertices = {};
