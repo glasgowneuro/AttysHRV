@@ -6,16 +6,17 @@
 #include <android/log.h>
 
 void AmbientAudio::start() {
+    myCallback.ambientAudio = this;
     oboe::AudioStreamBuilder builder;
     builder.setDirection(oboe::Direction::Output);
     builder.setPerformanceMode(oboe::PerformanceMode::LowLatency);
     builder.setSharingMode(oboe::SharingMode::Exclusive);
-    builder.setFormat(oboe::AudioFormat::Float);
-    builder.setChannelCount(oboe::ChannelCount::Mono);
+    builder.setFormat(oboe::AudioFormat::I16);
+    builder.setChannelCount(oboe::ChannelCount::Stereo);
     builder.setPerformanceMode(oboe::PerformanceMode::LowLatency)
             ->setSharingMode(oboe::SharingMode::Exclusive)
             ->setDataCallback(&myCallback)
-            ->setFormat(oboe::AudioFormat::Float);
+            ->setFormat(oboe::AudioFormat::I16);
     oboe::Result result = builder.openStream(mStream);
     if (result != oboe::Result::OK) {
         ALOGE("Failed to create stream. Error: %s", oboe::convertToText(result));
@@ -38,24 +39,37 @@ void AmbientAudio::init(AAssetManager *aAssetManager) {
     wave1 = loadWAV(aAssetManager,"wave1.pcm");
 }
 
-std::vector<float> AmbientAudio::loadWAV(AAssetManager *aAssetManager, const char *name) {
-    std::vector<uint16_t> raw;
-    std::vector<float> audio;
+std::vector<int16_t> AmbientAudio::loadWAV(AAssetManager *aAssetManager, const char *name) {
+    std::vector<int16_t> raw;
+    const int bytesinsample = sizeof(int16_t);
+    ALOGV("Loading asset %s.",name);
     AAsset* asset = AAssetManager_open(aAssetManager,name,AASSET_MODE_BUFFER);
     if (!asset) {
         ALOGE("Asset %s does not exist.",name);
-        return audio;
+        return raw;
     }
-    size_t nSamples = AAsset_getLength(asset) / 2;
+    size_t nSamples = AAsset_getLength(asset) / bytesinsample;
     raw.resize(nSamples);
-    unsigned n = AAsset_read(asset,raw.data(),nSamples * 2);
-    if (n != (nSamples*2) ) {
-        ALOGE("Only %d bytes loaded from %s.",n,name);
-        return audio;
+    const int actualNumberOfBytes = AAsset_read(asset, raw.data(), nSamples * 2);
+    AAsset_close(asset);
+    const int actualNumberOfSamples = actualNumberOfBytes / bytesinsample;
+    raw.resize(actualNumberOfSamples);
+    ALOGV("Loaded %d samples from %s.",actualNumberOfSamples, name);
+    return raw;
+}
+
+oboe::DataCallbackResult
+AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream, void *audioData,
+                                       int32_t numFrames) {
+    auto *outputData = static_cast<int16_t*>(audioData);
+    int outputDataIndex = 0;
+
+    for (int i = 0; i < numFrames; ++i) {
+        outputData[outputDataIndex++] = ambientAudio->wave1[ambientAudio->frameptr++];
+        outputData[outputDataIndex++] = ambientAudio->wave1[ambientAudio->frameptr++];
+        if (ambientAudio->frameptr >= ambientAudio->wave1.size()) {
+            ambientAudio->frameptr = 0;
+        }
     }
-    audio.resize(n);
-    for(int i = 0; i < nSamples; i++) {
-        audio[i] = (float)(raw[i]) / 32768.0f;
-    }
-    return audio;
+    return DataCallbackResult::Continue;
 }
