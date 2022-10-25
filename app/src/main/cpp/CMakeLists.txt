@@ -16,6 +16,8 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_o
 
 add_subdirectory(iir1)
 
+find_package (oboe REQUIRED CONFIG)
+
 add_library(openxr_loader SHARED IMPORTED)
 set_property(
         TARGET
@@ -46,7 +48,8 @@ add_library( # Sets the name of the library.
 
         SpatialAnchorGl.cpp
         SimpleXrInput.cpp
-        SpatialAnchorXr.cpp)
+        SpatialAnchorXr.cpp
+        AmbientAudio.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -77,6 +80,7 @@ target_link_libraries( # Specifies the target library.
         GLESv3
         EGL
         iir::iir_static
+        oboe::oboe
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})

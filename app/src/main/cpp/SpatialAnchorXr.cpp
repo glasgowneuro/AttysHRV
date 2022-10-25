@@ -36,18 +36,16 @@ Copyright : Copyright (c) Facebook Technologies, LLC and its affiliates. All rig
 #include <openxr/fb_spatial_entity_query.h>
 #include <openxr/fb_spatial_entity_storage.h>
 
+#include "util.h"
+
+#include "AmbientAudio.h"
+
 
 using namespace OVR;
 
 #if !defined(EGL_OPENGL_ES3_BIT_KHR)
 #define EGL_OPENGL_ES3_BIT_KHR 0x0040
 #endif
-
-#define DEBUG 1
-#define OVR_LOG_TAG "OculusECGXr"
-
-#define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, OVR_LOG_TAG, __VA_ARGS__)
-#define ALOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, OVR_LOG_TAG, __VA_ARGS__)
 
 static const int CPU_LEVEL = 2;
 static const int GPU_LEVEL = 3;
@@ -461,6 +459,8 @@ struct ovrApp {
     jmethodID stopAttysComm;
     jclass nativeApplicationHandle;
     JNIEnv* Env;
+
+    AmbientAudio ambientAudio;
 };
 
 void ovrApp::Clear() {
@@ -869,6 +869,7 @@ static void app_handle_cmd(struct android_app* androidApp, int32_t cmd) {
             ALOGV("onResume()");
             ALOGV("    APP_CMD_RESUME");
             app.Env->CallStaticVoidMethod(app.nativeApplicationHandle, app.startAttysComm, &app.Scene);
+            app.ambientAudio.start();
             app.Resumed = true;
             break;
         }
@@ -876,6 +877,7 @@ static void app_handle_cmd(struct android_app* androidApp, int32_t cmd) {
             ALOGV("onPause()");
             ALOGV("    APP_CMD_PAUSE");
             app.Env->CallStaticVoidMethod(app.nativeApplicationHandle, app.stopAttysComm);
+            app.ambientAudio.stop();
             app.Resumed = false;
             break;
         }
@@ -1571,6 +1573,9 @@ void android_main(struct android_app* androidApp) {
     bool bPrevButtonVal = false;
     bool xButtonVal = false;
     bool xPrevButtonVal = false;
+
+    // audio
+    app.ambientAudio.init(androidApp->activity->assetManager);
 
     while (androidApp->destroyRequested == 0)
     {

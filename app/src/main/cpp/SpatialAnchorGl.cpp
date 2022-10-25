@@ -97,17 +97,6 @@ typedef void(GL_APIENTRY *PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC)(
 
 #endif
 
-#define DEBUG 1
-
-#define OVR_LOG_TAG "OculusECG"
-
-#define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, OVR_LOG_TAG, __VA_ARGS__)
-#if DEBUG
-#define ALOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, OVR_LOG_TAG, __VA_ARGS__)
-#else
-#define ALOGV(...)
-#endif
-
 /*
 ================================================================================
 
@@ -198,6 +187,23 @@ static void GLCheckErrors(int line) {
 #define GL(func) func;
 
 #endif // CHECK_GL_ERRORS
+
+/**
+ * Vector utils
+ */
+void crossProduct(const float v_A[3], const float v_B[3], float c_P[3]) {
+    c_P[0] = v_A[1] * v_B[2] - v_A[2] * v_B[1];
+    c_P[1] = v_A[2] * v_B[0] - v_A[0] * v_B[2];
+    c_P[2] = v_A[0] * v_B[1] - v_A[1] * v_B[0];
+}
+
+void vecDiff(const float v_A[3], const float v_B[3], float c_P[3]) {
+    c_P[0] = v_A[0] - v_B[0];
+    c_P[1] = v_A[1] - v_B[1];
+    c_P[2] = v_A[2] - v_B[2];
+}
+
+
 
 /*
 ================================================================================
@@ -501,8 +507,8 @@ void OvrHRPlot::draw() {
             float a[3];
             float b[3];
             float c1[3];
-            diff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition2], a);
-            diff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition3], b);
+            vecDiff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition2], a);
+            vecDiff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition3], b);
             crossProduct(a,
                          b,
                          c1);
@@ -511,8 +517,8 @@ void OvrHRPlot::draw() {
             vertexPosition1 = y * (QUAD_GRID_SIZE + 1) + x;
             vertexPosition2 = (y + 1) * (QUAD_GRID_SIZE + 1) + x;
             vertexPosition3 = y * (QUAD_GRID_SIZE + 1) + x + 1;
-            diff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition2], a);
-            diff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition3], b);
+            vecDiff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition2], a);
+            vecDiff(hrVertices.vertices[vertexPosition1], hrVertices.vertices[vertexPosition3], b);
             crossProduct(a,
                          b,
                          c2);

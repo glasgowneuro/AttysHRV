@@ -5,16 +5,16 @@
 #ifndef OCULUSECG_UTIL_H
 #define OCULUSECG_UTIL_H
 
-void crossProduct(const float v_A[3], const float v_B[3], float c_P[3]) {
-    c_P[0] = v_A[1] * v_B[2] - v_A[2] * v_B[1];
-    c_P[1] = v_A[2] * v_B[0] - v_A[0] * v_B[2];
-    c_P[2] = v_A[0] * v_B[1] - v_A[1] * v_B[0];
-}
+#include <android/log.h>
 
-void diff(const float v_A[3], const float v_B[3], float c_P[3]) {
-    c_P[0] = v_A[0] - v_B[0];
-    c_P[1] = v_A[1] - v_B[1];
-    c_P[2] = v_A[2] - v_B[2];
-}
+#define DEBUG 1
+#define LOG_TAG "OculusECG"
+
+#define ALOGE(...) __android_log_print( ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__ )
+#if DEBUG
+#define ALOGV(...) __android_log_print( ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__ )
+#else
+#define ALOGV(...)
+#endif
 
 #endif //OCULUSECG_UTIL_H
