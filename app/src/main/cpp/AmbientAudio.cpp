@@ -57,9 +57,10 @@ void AmbientAudio::AudioSource::loadWAV(AAssetManager *aAssetManager, const char
 }
 
 void AmbientAudio::AudioSource::fillBuffer(int16_t *buffer, int numFrames) {
+    int16_t* p = buffer;
     for (int i = 0; i < numFrames; ++i) {
-        buffer[i] = wave[offset++];
-        buffer[i] = wave[offset++];
+        *(p++) = wave[offset++];
+        *(p++) = wave[offset++];
         if (offset >= wave.size()) {
             offset = 0;
         }
