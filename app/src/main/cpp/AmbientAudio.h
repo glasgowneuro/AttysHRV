@@ -27,13 +27,19 @@ private:
         AmbientAudio* ambientAudio;
     };
 
+    class AudioSource {
+    public:
+        void loadWAV(AAssetManager *aAssetManager, const char* name);
+        void fillBuffer(int16_t* buffer, int numFrames);
+    private:
+        std::vector<int16_t> wave;
+        int offset = 0;
+    };
+
+    AudioSource audioSource1;
+
     MyCallback myCallback;
     std::shared_ptr<oboe::AudioStream> mStream;
-    std::vector<int16_t> wave1;
-
-    std::vector<int16_t> loadWAV(AAssetManager *aAssetManager, const char* name);
-
-    int frameptr = 0;
 };
 
 

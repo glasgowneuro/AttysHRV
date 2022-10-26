@@ -36,40 +36,42 @@ void AmbientAudio::stop() {
 }
 
 void AmbientAudio::init(AAssetManager *aAssetManager) {
-    wave1 = loadWAV(aAssetManager,"wave1.pcm");
+    audioSource1.loadWAV(aAssetManager,"wave1.pcm");
 }
 
-std::vector<int16_t> AmbientAudio::loadWAV(AAssetManager *aAssetManager, const char *name) {
-    std::vector<int16_t> raw;
+void AmbientAudio::AudioSource::loadWAV(AAssetManager *aAssetManager, const char *name) {
     const int bytesinsample = sizeof(int16_t);
     ALOGV("Loading asset %s.",name);
     AAsset* asset = AAssetManager_open(aAssetManager,name,AASSET_MODE_BUFFER);
     if (!asset) {
         ALOGE("Asset %s does not exist.",name);
-        return raw;
+        return;
     }
     size_t nSamples = AAsset_getLength(asset) / bytesinsample;
-    raw.resize(nSamples);
-    const int actualNumberOfBytes = AAsset_read(asset, raw.data(), nSamples * 2);
+    wave.resize(nSamples);
+    const int actualNumberOfBytes = AAsset_read(asset, wave.data(), nSamples * 2);
     AAsset_close(asset);
     const int actualNumberOfSamples = actualNumberOfBytes / bytesinsample;
-    raw.resize(actualNumberOfSamples);
+    wave.resize(actualNumberOfSamples);
     ALOGV("Loaded %d samples from %s.",actualNumberOfSamples, name);
-    return raw;
+}
+
+void AmbientAudio::AudioSource::fillBuffer(int16_t *buffer, int numFrames) {
+    for (int i = 0; i < numFrames; ++i) {
+        buffer[i] = wave[offset++];
+        buffer[i] = wave[offset++];
+        if (offset >= wave.size()) {
+            offset = 0;
+        }
+    }
 }
 
 oboe::DataCallbackResult
 AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream, void *audioData,
                                        int32_t numFrames) {
     auto *outputData = static_cast<int16_t*>(audioData);
-    int outputDataIndex = 0;
 
-    for (int i = 0; i < numFrames; ++i) {
-        outputData[outputDataIndex++] = ambientAudio->wave1[ambientAudio->frameptr++];
-        outputData[outputDataIndex++] = ambientAudio->wave1[ambientAudio->frameptr++];
-        if (ambientAudio->frameptr >= ambientAudio->wave1.size()) {
-            ambientAudio->frameptr = 0;
-        }
-    }
+    ambientAudio->audioSource1.fillBuffer(outputData,numFrames);
+
     return DataCallbackResult::Continue;
 }
