@@ -20,6 +20,11 @@ public:
 
 private:
 
+    struct __attribute__ ((packed)) FrameData {
+        int16_t left;
+        int16_t right;
+    };
+
     class MyCallback : public oboe::AudioStreamDataCallback {
     public:
         oboe::DataCallbackResult
@@ -30,9 +35,9 @@ private:
     class AudioSource {
     public:
         void loadWAV(AAssetManager *aAssetManager, const char* name);
-        void fillBuffer(int16_t* buffer, int numFrames);
+        void fillBuffer(FrameData* buffer, int numFrames);
     private:
-        std::vector<int16_t> wave;
+        std::vector<FrameData> wave;
         int offset = 0;
     };
 

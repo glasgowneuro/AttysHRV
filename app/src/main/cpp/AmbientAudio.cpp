@@ -40,26 +40,25 @@ void AmbientAudio::init(AAssetManager *aAssetManager) {
 }
 
 void AmbientAudio::AudioSource::loadWAV(AAssetManager *aAssetManager, const char *name) {
-    const int bytesinsample = sizeof(int16_t);
+    const int bytesinframe = sizeof(FrameData);
     ALOGV("Loading asset %s.",name);
     AAsset* asset = AAssetManager_open(aAssetManager,name,AASSET_MODE_BUFFER);
     if (!asset) {
         ALOGE("Asset %s does not exist.",name);
         return;
     }
-    size_t nSamples = AAsset_getLength(asset) / bytesinsample;
-    wave.resize(nSamples);
-    const int actualNumberOfBytes = AAsset_read(asset, wave.data(), nSamples * 2);
+    size_t nFrames = AAsset_getLength(asset) / bytesinframe;
+    wave.resize(nFrames);
+    const int actualNumberOfBytes = AAsset_read(asset, wave.data(), nFrames * bytesinframe);
     AAsset_close(asset);
-    const int actualNumberOfSamples = actualNumberOfBytes / bytesinsample;
-    wave.resize(actualNumberOfSamples);
-    ALOGV("Loaded %d samples from %s.",actualNumberOfSamples, name);
+    const int actualNumberOfFrames = actualNumberOfBytes / bytesinframe;
+    wave.resize(actualNumberOfFrames);
+    ALOGV("Loaded %d frames from %s.",actualNumberOfFrames, name);
 }
 
-void AmbientAudio::AudioSource::fillBuffer(int16_t *buffer, int numFrames) {
-    int16_t* p = buffer;
+void AmbientAudio::AudioSource::fillBuffer(AmbientAudio::FrameData *buffer, int numFrames) {
+    FrameData* p = buffer;
     for (int i = 0; i < numFrames; ++i) {
-        *(p++) = wave[offset++];
         *(p++) = wave[offset++];
         if (offset >= wave.size()) {
             offset = 0;
@@ -70,7 +69,7 @@ void AmbientAudio::AudioSource::fillBuffer(int16_t *buffer, int numFrames) {
 oboe::DataCallbackResult
 AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream, void *audioData,
                                        int32_t numFrames) {
-    auto *outputData = static_cast<int16_t*>(audioData);
+    auto *outputData = static_cast<FrameData*>(audioData);
 
     ambientAudio->audioSource1.fillBuffer(outputData,numFrames);
 
