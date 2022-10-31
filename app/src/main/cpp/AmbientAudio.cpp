@@ -4,6 +4,9 @@
 
 #include "AmbientAudio.h"
 #include <android/log.h>
+#include <jni.h>
+
+static std::vector<float> hrBuffer;
 
 void AmbientAudio::start() {
     myCallback.ambientAudio = this;
@@ -11,12 +14,12 @@ void AmbientAudio::start() {
     builder.setDirection(oboe::Direction::Output);
     builder.setPerformanceMode(oboe::PerformanceMode::LowLatency);
     builder.setSharingMode(oboe::SharingMode::Exclusive);
-    builder.setFormat(oboe::AudioFormat::I16);
+    builder.setFormat(oboe::AudioFormat::Float);
     builder.setChannelCount(oboe::ChannelCount::Stereo);
     builder.setPerformanceMode(oboe::PerformanceMode::LowLatency)
             ->setSharingMode(oboe::SharingMode::Exclusive)
             ->setDataCallback(&myCallback)
-            ->setFormat(oboe::AudioFormat::I16);
+            ->setFormat(oboe::AudioFormat::Float);
     oboe::Result result = builder.openStream(mStream);
     if (result != oboe::Result::OK) {
         ALOGE("Failed to create stream. Error: %s", oboe::convertToText(result));
@@ -36,36 +39,66 @@ void AmbientAudio::stop() {
 }
 
 void AmbientAudio::init(AAssetManager *aAssetManager) {
-    audioSource1.loadWAV(aAssetManager,"wave1.pcm");
+    waveSound1.loadWAV(aAssetManager, "wave1.pcm");
+    backgroundSound1.loadWAV(aAssetManager, "ocean-waves.pcm");
+    backgroundSound1.play();
 }
 
 void AmbientAudio::AudioSource::loadWAV(AAssetManager *aAssetManager, const char *name) {
-    const int bytesinframe = sizeof(FrameData);
     ALOGV("Loading asset %s.",name);
     AAsset* asset = AAssetManager_open(aAssetManager,name,AASSET_MODE_BUFFER);
     if (!asset) {
         ALOGE("Asset %s does not exist.",name);
         return;
     }
-    size_t nFrames = AAsset_getLength(asset) / bytesinframe;
-    wave.resize(nFrames);
-    const int actualNumberOfBytes = AAsset_read(asset, wave.data(), nFrames * bytesinframe);
+    const size_t assetLength = AAsset_getLength(asset);
+    std::vector<unsigned char> tmp;
+    tmp.resize(assetLength);
+    const long int actualNumberOfBytes = AAsset_read(asset, tmp.data(), assetLength);
     AAsset_close(asset);
-    const int actualNumberOfFrames = actualNumberOfBytes / bytesinframe;
+    if (assetLength != actualNumberOfBytes) {
+        ALOGE("Asset read %s: expected %ld bytes but only got %ld bytes.",
+              name,AAsset_getLength(asset),actualNumberOfBytes);
+        return;
+    }
+    const int bytesinframe = sizeof(FrameData);
+    const size_t nFrames = actualNumberOfBytes / bytesinframe;
+    wave.resize(nFrames);
+    const long int actualNumberOfFrames = actualNumberOfBytes / bytesinframe;
     wave.resize(actualNumberOfFrames);
-    ALOGV("Loaded %d frames from %s.",actualNumberOfFrames, name);
+    for(long int i = 0; i < actualNumberOfFrames; i++) {
+        wave[i].left = (float)((int16_t)(tmp[4*i]) + (int16_t)(tmp[4*i+1] << 8))/32768.f;
+        wave[i].right = (float)((int16_t)(tmp[4*i+2]) + (int16_t)(tmp[4*i+3] << 8))/32768.f;
+    }
+    ALOGV("Loaded %ld frames from %s.",actualNumberOfFrames, name);
 }
 
 void AmbientAudio::AudioSource::fillBuffer(AmbientAudio::FrameData *buffer, int numFrames) {
     if (!isPlaying) return;
     FrameData* p = buffer;
     for (int i = 0; i < numFrames; ++i) {
-        *(p++) = wave[offset++];
+        p->left  += wave[offset].left;
+        p->right += wave[offset].right;
+        p++;
+        offset++;
         if (offset >= wave.size()) {
             offset = 0;
+            if (!loopPlaying) {
+                isPlaying = false;
+                ALOGV("Stopped playing");
+            }
         }
     }
 }
+
+void AmbientAudio::AudioSource::play(bool doLoopPlaying) {
+    if (isPlaying) return;
+    isPlaying = true;
+    loopPlaying = doLoopPlaying;
+    offset = 0;
+    ALOGV("Started playing");
+}
+
 
 oboe::DataCallbackResult
 AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream, void *audioData,
@@ -78,16 +111,31 @@ AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream, void *aud
         *(p++) = s;
     }
 
-    if (ambientAudio->hrBuffer.size() > 2) {
+    if (hrBuffer.size() > 2) {
         if (
-                (ambientAudio->hrBuffer[0] < ambientAudio->hrBuffer[1]) &&
-                (ambientAudio->hrBuffer[1] < ambientAudio->hrBuffer[2])
+                (hrBuffer[0] < hrBuffer[1]) &&
+                (hrBuffer[1] < hrBuffer[2])
                 ) {
-            ambientAudio->audioSource1.start(false);
+            ALOGV("Monotonic HR: %f,%f,%f",
+                  hrBuffer[0],
+                  hrBuffer[1],
+                  hrBuffer[2]);
+            ambientAudio->waveSound1.play(false);
         }
     }
 
-    ambientAudio->audioSource1.fillBuffer(outputData,numFrames);
+    ambientAudio->waveSound1.fillBuffer(outputData, numFrames);
+    ambientAudio->backgroundSound1.fillBuffer(outputData, numFrames);
 
     return DataCallbackResult::Continue;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_tech_glasgowneuro_oculusecg_ANativeActivity_hr4Sound(JNIEnv *env, jclass clazz, jlong inst,
+                                                          jfloat v) {
+    hrBuffer.push_back(v);
+    if (hrBuffer.size() > 3) {
+        hrBuffer.erase(hrBuffer.begin());
+    }
 }

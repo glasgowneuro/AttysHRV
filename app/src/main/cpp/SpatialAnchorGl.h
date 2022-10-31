@@ -133,6 +133,8 @@ struct OvrHRPlot : OvrGeometry {
     int frameCtr = 0;
     int fps = 0;
     std::chrono::time_point<std::chrono::steady_clock> start_fps_ts;
+    double minHR = 1000;
+    double maxHR = 0;
 };
 
 struct ovrFramebuffer {

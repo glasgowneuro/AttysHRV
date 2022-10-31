@@ -426,8 +426,6 @@ void OvrHRPlot::CreateGeometry() {
 void OvrHRPlot::draw() {
     const int shiftbuffersize = QUAD_GRID_SIZE * 10;
     double hrnorm = -1;
-    double min = 1000;
-    double max = 0;
     double hrShiftBuffer[shiftbuffersize] = {};
 
     const std::chrono::time_point<std::chrono::steady_clock> current_ts = std::chrono::steady_clock::now();
@@ -441,15 +439,15 @@ void OvrHRPlot::draw() {
             if ((dt > (hrSpline.getLowerBound() - spline_pred_sec)) &&
                 (dt < (hrSpline.getUpperBound() + spline_pred_sec))) {
                 hrInterpol = hrSpline(dt);
-                if (hrInterpol < min) min = hrInterpol;
-                if (hrInterpol > max) max = hrInterpol;
+                if ((hrInterpol < minHR) && (hrInterpol > 30)) minHR = hrInterpol;
+                if ((hrInterpol > maxHR) && (hrInterpol < 180)) maxHR = hrInterpol;
             } else {
                 hrInterpol = 0;
             }
             hrShiftBuffer[i] = hrInterpol;
         }
-        hrnorm = max - min;
-        //ALOGV("before: min = %f, max = %f, norm = %f", min, max, hrnorm);
+        hrnorm = maxHR - minHR;
+        //ALOGV("before: minHR = %f, maxHR = %f, norm = %f", minHR, maxHR, hrnorm);
         if (hrnorm < minHRdiff) {
             hrnorm = minHRdiff;
         }
@@ -466,7 +464,7 @@ void OvrHRPlot::draw() {
     dropAnim[1].spatialFreq = 500;
     dropAnim[1].temporalFreq = 4;
 
-    //ALOGV("after: min = %f, max = %f, norm = %f", min, max, hrnorm);
+    //ALOGV("after: minHR = %f, maxHR = %f, norm = %f", minHR, maxHR, hrnorm);
     for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
         for (int y = 0; y <= QUAD_GRID_SIZE; y++) {
             int vertexPosition = y * (QUAD_GRID_SIZE + 1) + x;
@@ -477,7 +475,7 @@ void OvrHRPlot::draw() {
             float h = 0;
             if ( (r < shiftbuffersize) && (hrnorm > 0) ) {
                 if (hrShiftBuffer[r] > 0) {
-                    h += (float) ((hrShiftBuffer[r] - min) / hrnorm * 5.0);
+                    h += (float) ((hrShiftBuffer[r] - minHR) / hrnorm * 5.0);
                 }
             }
             for(auto &da:dropAnim) {
