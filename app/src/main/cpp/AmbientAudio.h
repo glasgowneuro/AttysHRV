@@ -15,6 +15,9 @@ using namespace oboe;
 class AmbientAudio {
 public:
     void init(AAssetManager *aAssetManager);
+    void setHRbuffer(std::vector<float> b) {
+        hrBuffer = b;
+    }
     void start();
     void stop();
 
@@ -36,15 +39,27 @@ private:
     public:
         void loadWAV(AAssetManager *aAssetManager, const char* name);
         void fillBuffer(FrameData* buffer, int numFrames);
+        void start(bool doLoopPlaying = true) {
+            if (isPlaying) return;
+            isPlaying = true;
+            loopPlaying = doLoopPlaying;
+            offset = 0;
+        }
+        void stop() {
+            isPlaying = false;
+        }
     private:
         std::vector<FrameData> wave;
         int offset = 0;
+        bool isPlaying = false;
+        bool loopPlaying = false;
     };
 
     AudioSource audioSource1;
 
     MyCallback myCallback;
     std::shared_ptr<oboe::AudioStream> mStream;
+    std::vector<float> hrBuffer;
 };
 
 

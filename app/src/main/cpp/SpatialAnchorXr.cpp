@@ -67,6 +67,8 @@ enum { ovrMaxLayerCount = 16 };
 // Forward declarations
 XrInstance instance;
 
+static std::vector<float> hrBuffer;
+
 /*
 ================================================================================
 
@@ -1576,6 +1578,7 @@ void android_main(struct android_app* androidApp) {
 
     // audio
     app.ambientAudio.init(androidApp->activity->assetManager);
+    app.ambientAudio.setHRbuffer(hrBuffer);
 
     while (androidApp->destroyRequested == 0)
     {
@@ -1851,4 +1854,14 @@ void android_main(struct android_app* androidApp) {
     OXR(xrDestroyInstance(instance));
 
     (*androidApp->activity->vm).DetachCurrentThread();
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_tech_glasgowneuro_oculusecg_ANativeActivity_hr4Sound(JNIEnv *env, jclass clazz, jlong inst,
+                                                          jfloat v) {
+    hrBuffer.push_back(v);
+    if (hrBuffer.size() > 3) {
+        hrBuffer.erase(hrBuffer.begin());
+    }
 }

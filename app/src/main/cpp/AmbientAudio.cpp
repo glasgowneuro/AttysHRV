@@ -57,6 +57,7 @@ void AmbientAudio::AudioSource::loadWAV(AAssetManager *aAssetManager, const char
 }
 
 void AmbientAudio::AudioSource::fillBuffer(AmbientAudio::FrameData *buffer, int numFrames) {
+    if (!isPlaying) return;
     FrameData* p = buffer;
     for (int i = 0; i < numFrames; ++i) {
         *(p++) = wave[offset++];
@@ -69,7 +70,22 @@ void AmbientAudio::AudioSource::fillBuffer(AmbientAudio::FrameData *buffer, int 
 oboe::DataCallbackResult
 AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream, void *audioData,
                                        int32_t numFrames) {
-    auto *outputData = static_cast<FrameData*>(audioData);
+    auto *outputData = static_cast<FrameData *>(audioData);
+    FrameData *p = outputData;
+
+    const FrameData s = {0,0};
+    for (int i = 0; i < numFrames; ++i) {
+        *(p++) = s;
+    }
+
+    if (ambientAudio->hrBuffer.size() > 2) {
+        if (
+                (ambientAudio->hrBuffer[0] < ambientAudio->hrBuffer[1]) &&
+                (ambientAudio->hrBuffer[1] < ambientAudio->hrBuffer[2])
+                ) {
+            ambientAudio->audioSource1.start(false);
+        }
+    }
 
     ambientAudio->audioSource1.fillBuffer(outputData,numFrames);
 
