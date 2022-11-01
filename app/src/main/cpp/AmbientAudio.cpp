@@ -12,6 +12,7 @@ static std::vector<float> hrBuffer;
 void AmbientAudio::start() {
     myCallback.ambientAudio = this;
     oboe::AudioStreamBuilder builder;
+    builder.setSampleRate(samplingRate);
     builder.setDirection(oboe::Direction::Output);
     builder.setPerformanceMode(oboe::PerformanceMode::LowLatency);
     builder.setSharingMode(oboe::SharingMode::Exclusive);
@@ -76,19 +77,44 @@ void AmbientAudio::AudioSource::loadWAV(AAssetManager *aAssetManager, const std:
     ALOGV("Loaded %ld frames from %s.",actualNumberOfFrames, name.c_str());
 }
 
-void AmbientAudio::AudioSource::fillBuffer(AmbientAudio::FrameData *buffer, int numFrames) {
+void AmbientAudio::AudioSource::fillBuffer(AmbientAudio::FrameData *buffer, int numFrames,float gain) {
     if (!isPlaying) return;
     FrameData* p = buffer;
-    for (int i = 0; i < numFrames; ++i) {
-        p->left  += wave[offset].left;
-        p->right += wave[offset].right;
-        p++;
-        offset++;
-        if (offset >= wave.size()) {
-            offset = 0;
-            if (!loopPlaying) {
-                isPlaying = false;
-                ALOGV("Stopped playing");
+    if (!loopPlaying) {
+        for (int i = 0; i < numFrames; ++i) {
+            p->left += wave[offset].left * gain;
+            p->right += wave[offset].right * gain;
+            p++;
+            offset++;
+            if (offset >= wave.size()) {
+                offset = 0;
+                    isPlaying = false;
+                    ALOGV("Stopped playing");
+            }
+        }
+    } else {
+        const long int sampleOverlap = samplingRate;
+        for (int i = 0; i < numFrames; ++i) {
+            if (offset < (wave.size() - sampleOverlap)) {
+                p->left += wave[offset].left * gain;
+                p->right += wave[offset].right * gain;
+                p++;
+                offset++;
+                offset2 = 0;
+            } else {
+                float w = (float)offset2 / (float)sampleOverlap;
+                if (w > 1) w = 1;
+                p->left += wave[offset].left * gain * (1 - w);
+                p->right += wave[offset].right * gain * (1 - w);
+                p->left += wave[offset2].left * gain * w;
+                p->right += wave[offset2].right * gain * w;
+                p++;
+                offset++;
+                offset2++;
+                if (offset >= wave.size()) {
+                    offset = offset2;
+                    ALOGV("Rewind at %d, weight=%f",offset2,w);
+                }
             }
         }
     }
@@ -128,8 +154,8 @@ AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream, void *aud
         }
     }
 
-    for(int i = 0; i < numOfWaveSounds; i++) {
-        ambientAudio->waveSounds[i].fillBuffer(outputData, numFrames);
+    for(auto & waveSound : ambientAudio->waveSounds) {
+        waveSound.fillBuffer(outputData, numFrames, 0.1);
     }
     ambientAudio->backgroundSound.fillBuffer(outputData, numFrames);
 

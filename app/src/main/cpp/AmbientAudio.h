@@ -12,9 +12,14 @@
 #include "util.h"
 using namespace oboe;
 
+static constexpr int samplingRate = 48000;
 const std::string nameBackgroundSound = "ocean-waves.pcm";
-static constexpr int numOfWaveSounds = 2;
-const std::string namesOfWaves[numOfWaveSounds] = {"wave1.pcm","wave2.pcm"};
+static constexpr int numOfWaveSounds = 5;
+const std::string namesOfWaves[numOfWaveSounds] = {"wave1.pcm",
+                                                   "wave2.pcm",
+                                                   "wave3.pcm",
+                                                   "wave4.pcm",
+                                                   "wave5.pcm"};
 
 class AmbientAudio {
 public:
@@ -39,12 +44,13 @@ private:
     class AudioSource {
     public:
         void loadWAV(AAssetManager *aAssetManager, const std::string &name);
-        void fillBuffer(FrameData* buffer, int numFrames);
+        void fillBuffer(FrameData* buffer, int numFrames,float gain = 1.0f);
         void play(bool doLoopPlaying = true);
         void stop() { isPlaying = false; }
     private:
         std::vector<FrameData> wave;
         int offset = 0;
+        int offset2 = 0;
         bool isPlaying = false;
         bool loopPlaying = false;
     };
