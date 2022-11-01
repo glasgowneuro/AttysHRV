@@ -5,6 +5,7 @@
 #include "AmbientAudio.h"
 #include <android/log.h>
 #include <jni.h>
+#include <random>
 
 static std::vector<float> hrBuffer;
 
@@ -39,16 +40,18 @@ void AmbientAudio::stop() {
 }
 
 void AmbientAudio::init(AAssetManager *aAssetManager) {
-    waveSound1.loadWAV(aAssetManager, "wave1.pcm");
-    backgroundSound1.loadWAV(aAssetManager, "ocean-waves.pcm");
-    backgroundSound1.play();
+    for(int i = 0; i < numOfWaveSounds; i++) {
+        waveSounds[i].loadWAV(aAssetManager, namesOfWaves[i]);
+    }
+    backgroundSound.loadWAV(aAssetManager, nameBackgroundSound);
+    backgroundSound.play();
 }
 
-void AmbientAudio::AudioSource::loadWAV(AAssetManager *aAssetManager, const char *name) {
-    ALOGV("Loading asset %s.",name);
-    AAsset* asset = AAssetManager_open(aAssetManager,name,AASSET_MODE_BUFFER);
+void AmbientAudio::AudioSource::loadWAV(AAssetManager *aAssetManager, const std::string &name) {
+    ALOGV("Loading asset %s.",name.c_str());
+    AAsset* asset = AAssetManager_open(aAssetManager,name.c_str(),AASSET_MODE_BUFFER);
     if (!asset) {
-        ALOGE("Asset %s does not exist.",name);
+        ALOGE("Asset %s does not exist.",name.c_str());
         return;
     }
     const size_t assetLength = AAsset_getLength(asset);
@@ -58,7 +61,7 @@ void AmbientAudio::AudioSource::loadWAV(AAssetManager *aAssetManager, const char
     AAsset_close(asset);
     if (assetLength != actualNumberOfBytes) {
         ALOGE("Asset read %s: expected %ld bytes but only got %ld bytes.",
-              name,AAsset_getLength(asset),actualNumberOfBytes);
+              name.c_str(),AAsset_getLength(asset),actualNumberOfBytes);
         return;
     }
     const int bytesinframe = sizeof(FrameData);
@@ -70,7 +73,7 @@ void AmbientAudio::AudioSource::loadWAV(AAssetManager *aAssetManager, const char
         wave[i].left = (float)((int16_t)(tmp[4*i]) + (int16_t)(tmp[4*i+1] << 8))/32768.f;
         wave[i].right = (float)((int16_t)(tmp[4*i+2]) + (int16_t)(tmp[4*i+3] << 8))/32768.f;
     }
-    ALOGV("Loaded %ld frames from %s.",actualNumberOfFrames, name);
+    ALOGV("Loaded %ld frames from %s.",actualNumberOfFrames, name.c_str());
 }
 
 void AmbientAudio::AudioSource::fillBuffer(AmbientAudio::FrameData *buffer, int numFrames) {
@@ -120,12 +123,15 @@ AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream, void *aud
                   hrBuffer[0],
                   hrBuffer[1],
                   hrBuffer[2]);
-            ambientAudio->waveSound1.play(false);
+            int i = (int)(random() % (long)numOfWaveSounds);
+            ambientAudio->waveSounds[i].play(false);
         }
     }
 
-    ambientAudio->waveSound1.fillBuffer(outputData, numFrames);
-    ambientAudio->backgroundSound1.fillBuffer(outputData, numFrames);
+    for(int i = 0; i < numOfWaveSounds; i++) {
+        ambientAudio->waveSounds[i].fillBuffer(outputData, numFrames);
+    }
+    ambientAudio->backgroundSound.fillBuffer(outputData, numFrames);
 
     return DataCallbackResult::Continue;
 }

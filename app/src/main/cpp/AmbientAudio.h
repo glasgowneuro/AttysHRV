@@ -12,6 +12,10 @@
 #include "util.h"
 using namespace oboe;
 
+const std::string nameBackgroundSound = "ocean-waves.pcm";
+static constexpr int numOfWaveSounds = 2;
+const std::string namesOfWaves[numOfWaveSounds] = {"wave1.pcm","wave2.pcm"};
+
 class AmbientAudio {
 public:
     void init(AAssetManager *aAssetManager);
@@ -34,7 +38,7 @@ private:
 
     class AudioSource {
     public:
-        void loadWAV(AAssetManager *aAssetManager, const char* name);
+        void loadWAV(AAssetManager *aAssetManager, const std::string &name);
         void fillBuffer(FrameData* buffer, int numFrames);
         void play(bool doLoopPlaying = true);
         void stop() { isPlaying = false; }
@@ -45,8 +49,8 @@ private:
         bool loopPlaying = false;
     };
 
-    AudioSource waveSound1;
-    AudioSource backgroundSound1;
+    AudioSource waveSounds[numOfWaveSounds];
+    AudioSource backgroundSound;
 
     MyCallback myCallback;
     std::shared_ptr<oboe::AudioStream> mStream;
