@@ -337,7 +337,7 @@ static const char HRTEXT_VERTEX_SHADER[] =
         "out vec2 fragmentTexCoord;\n"
         "void main()\n"
         "{\n"
-        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
+        "	gl_Position = vec4(vertexPosition, 1.0);\n"
         "	fragmentColor = vertexColor;\n"
         "	fragmentTexCoord = texCoord;\n"
         "}\n";
@@ -349,8 +349,7 @@ static const char HRTEXT_FRAGMENT_SHADER[] =
         "out lowp vec4 outColor;\n"
         "void main()\n"
         "{\n"
-        "   vec4 diffuse = texture( Texture0, fragmentTexCoord);\n"
-        "	outColor = fragmentColor + diffuse;\n"
+        "	outColor = texture( Texture0, fragmentTexCoord );\n"
         "}\n";
 
 
@@ -396,21 +395,17 @@ void OvrHRText::CreateGeometry() {
     GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STATIC_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-    const int texIndex = 0;
-    int i = glGetUniformLocation(Program, "Texture0");
-    GL(glUniform1i(i, texIndex));
-    glActiveTexture(GL_TEXTURE0);
-
     glGenTextures( 1, &texid );
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture( GL_TEXTURE_2D, texid );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexImage2D( GL_TEXTURE_2D, 0, GL_ALPHA, font.tex_width, font.tex_height,
                   0, GL_ALPHA, GL_UNSIGNED_BYTE, font.tex_data );
-    glBindTexture( GL_TEXTURE_2D, texid );
-    glEnable( GL_TEXTURE_2D );
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture( GL_TEXTURE_2D, 0 );
 
     add_text("Hello",1,1,1,0,0);
     ALOGV("HR Text index count: %d.",IndexCount);
@@ -419,39 +414,25 @@ void OvrHRText::CreateGeometry() {
 }
 
 void OvrHRText::draw() {
-    GL(glDepthMask(GL_FALSE));
-    GL(glEnable(GL_DEPTH_TEST));
-    GL(glDepthFunc(GL_LEQUAL));
-    GL(glDisable(GL_CULL_FACE));
-    GL(glEnable(GL_BLEND));
-    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
     GL(glBindVertexArray(VertexArrayObject));
     GL(glBindTexture(GL_TEXTURE_2D, texid));
     GL(glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_SHORT, nullptr));
     GL(glBindVertexArray(0));
     GL(glBindTexture(GL_TEXTURE_2D, 0));
-
-    GL(glDepthMask(GL_TRUE));
-    GL(glDisable(GL_BLEND));
 }
 
-
 void OvrHRText::add_text(const char *text, float r, float g, float b, float x, float y ) {
-        size_t i;
-        float a = 1.0;
-    for( i = 0; i < strlen(text); ++i )
-    {
+    size_t i;
+    float a = 1.0;
+    for (i = 0; i < strlen(text); ++i) {
         texture_glyph_t *glyph = 0;
-        uint32_t codepoint = ftgl::utf8_to_utf32( text + i );
-        glyph = font.glyphs[codepoint>>8][codepoint&0xff];
-        if( glyph != nullptr )
-        {
-            float kerning = 0.0f;
-            float x0  = x + glyph->offset_x;
-            float y0  = y + glyph->offset_y;
-            float x1  = x0 + glyph->width ;
-            float y1  = y0 - glyph->height;
+        uint32_t codepoint = ftgl::utf8_to_utf32(text + i);
+        glyph = font.glyphs[codepoint >> 8][codepoint & 0xff];
+        if (glyph != nullptr) {
+            float x0 = x + glyph->offset_x;
+            float y0 = y + glyph->offset_y;
+            float x1 = x0 + glyph->width;
+            float y1 = y0 - glyph->height;
             float s0 = glyph->s0;
             float t0 = glyph->t0;
             float s1 = glyph->s1;
@@ -470,11 +451,11 @@ void OvrHRText::add_text(const char *text, float r, float g, float b, float x, f
             axesIndices[IndexCount++] = index + 2;
             axesIndices[IndexCount++] = index + 3;
             std::vector<OneVertex> oneVertex;
-            oneVertex.push_back( { x0,y0,0,  s0,t0,  r,g,b,a } );
-            oneVertex.push_back( { x0,y1,0,  s0,t1,  r,g,b,a } );
-            oneVertex.push_back( { x1,y1,0,  s1,t1,  r,g,b,a } );
-            oneVertex.push_back( { x1,y0,0,  s1,t0,  r,g,b,a } );
-            for(auto &v:oneVertex) {
+            oneVertex.push_back({x0, y0, 0, s0, t0, r, g, b, a});
+            oneVertex.push_back({x0, y1, 0, s0, t1, r, g, b, a});
+            oneVertex.push_back({x1, y1, 0, s1, t1, r, g, b, a});
+            oneVertex.push_back({x1, y0, 0, s1, t0, r, g, b, a});
+            for (auto &v: oneVertex) {
                 axesVertices.positions[VertexCount][0] = v.x;
                 axesVertices.positions[VertexCount][1] = v.y;
                 axesVertices.positions[VertexCount][2] = v.z;
