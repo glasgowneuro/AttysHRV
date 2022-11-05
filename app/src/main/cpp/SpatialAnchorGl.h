@@ -45,7 +45,6 @@ public:
     // These will be -1 if not used by the program.
     GLint UniformLocation[MAX_PROGRAM_UNIFORMS]; // ProgramUniforms[].name
     GLint UniformBinding[MAX_PROGRAM_UNIFORMS]; // ProgramUniforms[].name
-    GLint Textures[MAX_PROGRAM_TEXTURES]; // Texture%i
 
     void CreateVAO();
     void DestroyVAO();
@@ -73,6 +72,21 @@ public:
 struct OvrAxes : OvrGeometry {
     void CreateGeometry();
     virtual void draw();
+};
+
+struct OvrHRText : OvrGeometry {
+    static constexpr int nPoints = 500;
+    struct AxesVertices {
+        float positions[nPoints][3];
+        float text2D[nPoints][2];
+        unsigned char colors[nPoints][4];
+    };
+    GLuint texid = 0;
+    AxesVertices axesVertices = {};
+    unsigned short axesIndices[nPoints];
+    void CreateGeometry();
+    virtual void draw();
+    void add_text(const char *text, float r, float g, float b, float x, float y );
 };
 
 struct OvrECGPlot : OvrGeometry {
@@ -173,6 +187,7 @@ struct ovrScene {
     OvrAxes Axes;
     OvrECGPlot ECGPlot;
     OvrHRPlot HrPlot;
+    OvrHRText HrText;
     float ClearColor[4];
     std::vector<XrSpace> SpaceList;
 };

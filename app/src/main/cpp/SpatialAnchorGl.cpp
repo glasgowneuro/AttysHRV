@@ -37,6 +37,8 @@ Copyright	:	Copyright (c) Facebook Technologies, LLC and its affiliates. All rig
 
 #include "util.h"
 #include "spline.hpp"
+#include "VeraMoBd.h"
+#include "utf8-utils.h"
 
 using namespace OVR;
 
@@ -220,6 +222,36 @@ static cubic_spline hrSpline;
 static const std::chrono::time_point<std::chrono::steady_clock> start_ts = std::chrono::steady_clock::now();
 static std::chrono::time_point<std::chrono::steady_clock> current_hr_ts = std::chrono::steady_clock::now();
 
+
+static const char AXES_VERTEX_SHADER[] =
+        "#define NUM_VIEWS 2\n"
+        "#define VIEW_ID gl_ViewID_OVR\n"
+        "#extension GL_OVR_multiview2 : require\n"
+        "layout(num_views=NUM_VIEWS) in;\n"
+        "in vec3 vertexPosition;\n"
+        "in vec4 vertexColor;\n"
+        "uniform mat4 ModelMatrix;\n"
+        "uniform SceneMatrices\n"
+        "{\n"
+        "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
+        "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
+        "} sm;\n"
+        "out vec4 fragmentColor;\n"
+        "void main()\n"
+        "{\n"
+        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
+        "	fragmentColor = vertexColor;\n"
+        "}\n";
+
+
+static const char AXES_FRAGMENT_SHADER[] =
+        "in lowp vec4 fragmentColor;\n"
+        "out lowp vec4 outColor;\n"
+        "void main()\n"
+        "{\n"
+        "	outColor = fragmentColor;\n"
+        "}\n";
+
 void OvrAxes::CreateGeometry() {
     struct ovrAxesVertices {
         float positions[6][3];
@@ -284,6 +316,188 @@ void OvrAxes::draw() {
     GL(glDrawElements(GL_LINES, IndexCount, GL_UNSIGNED_SHORT, nullptr));
     GL(glBindVertexArray(0));
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+
+static const char HRTEXT_VERTEX_SHADER[] =
+        "#define NUM_VIEWS 2\n"
+        "#define VIEW_ID gl_ViewID_OVR\n"
+        "#extension GL_OVR_multiview2 : require\n"
+        "layout(num_views=NUM_VIEWS) in;\n"
+        "in vec3 vertexPosition;\n"
+        "in vec2 texCoord;\n"
+        "in vec4 vertexColor;\n"
+        "uniform mat4 ModelMatrix;\n"
+        "uniform SceneMatrices\n"
+        "{\n"
+        "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
+        "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
+        "} sm;\n"
+        "out vec4 fragmentColor;\n"
+        "out vec2 fragmentTexCoord;\n"
+        "void main()\n"
+        "{\n"
+        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
+        "	fragmentColor = vertexColor;\n"
+        "	fragmentTexCoord = texCoord;\n"
+        "}\n";
+
+static const char HRTEXT_FRAGMENT_SHADER[] =
+        "in lowp vec4 fragmentColor;\n"
+        "in lowp vec2 fragmentTexCoord;\n"
+        "uniform sampler2D Texture0;\n"
+        "out lowp vec4 outColor;\n"
+        "void main()\n"
+        "{\n"
+        "   vec4 diffuse = texture( Texture0, fragmentTexCoord);\n"
+        "	outColor = fragmentColor + diffuse;\n"
+        "}\n";
+
+
+
+
+
+
+
+void OvrHRText::CreateGeometry() {
+    VertexCount = 0;
+    IndexCount = 0;
+
+    VertexAttribs[0].Index = 0;
+    VertexAttribs[1].Name = "vertexPosition";
+    VertexAttribs[0].Size = 3;
+    VertexAttribs[0].Type = GL_FLOAT;
+    VertexAttribs[0].Normalized = false;
+    VertexAttribs[0].Stride = sizeof(axesVertices.positions[0]);
+    VertexAttribs[0].Pointer = (const GLvoid *) offsetof(AxesVertices, positions);
+
+    VertexAttribs[1].Index = 1;
+    VertexAttribs[1].Name = "texCoord";
+    VertexAttribs[1].Size = 2;
+    VertexAttribs[1].Type = GL_FLOAT;
+    VertexAttribs[1].Stride = sizeof(axesVertices.text2D[0]);
+    VertexAttribs[1].Pointer = (const GLvoid *) offsetof(AxesVertices, text2D);
+
+    VertexAttribs[1].Index = 2;
+    VertexAttribs[1].Name = "vertexColor";
+    VertexAttribs[1].Size = 4;
+    VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
+    VertexAttribs[1].Normalized = true;
+    VertexAttribs[1].Stride = sizeof(axesVertices.colors[0]);
+    VertexAttribs[1].Pointer = (const GLvoid *) offsetof(AxesVertices, colors);
+
+    GL(glGenBuffers(1, &VertexBuffer));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STATIC_DRAW));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+    GL(glGenBuffers(1, &IndexBuffer));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
+    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STATIC_DRAW));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+    const int texIndex = 0;
+    int i = glGetUniformLocation(Program, "Texture0");
+    GL(glUniform1i(i, texIndex));
+    glActiveTexture(GL_TEXTURE0);
+
+    glGenTextures( 1, &texid );
+    glBindTexture( GL_TEXTURE_2D, texid );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_ALPHA, font.tex_width, font.tex_height,
+                  0, GL_ALPHA, GL_UNSIGNED_BYTE, font.tex_data );
+    glBindTexture( GL_TEXTURE_2D, texid );
+    glEnable( GL_TEXTURE_2D );
+
+    add_text("Hello",1,1,1,0,0);
+    ALOGV("HR Text index count: %d.",IndexCount);
+
+    CreateVAO();
+}
+
+void OvrHRText::draw() {
+    GL(glDepthMask(GL_FALSE));
+    GL(glEnable(GL_DEPTH_TEST));
+    GL(glDepthFunc(GL_LEQUAL));
+    GL(glDisable(GL_CULL_FACE));
+    GL(glEnable(GL_BLEND));
+    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+    GL(glBindVertexArray(VertexArrayObject));
+    GL(glBindTexture(GL_TEXTURE_2D, texid));
+    GL(glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_SHORT, nullptr));
+    GL(glBindVertexArray(0));
+    GL(glBindTexture(GL_TEXTURE_2D, 0));
+
+    GL(glDepthMask(GL_TRUE));
+    GL(glDisable(GL_BLEND));
+}
+
+
+void OvrHRText::add_text(const char *text, float r, float g, float b, float x, float y ) {
+        size_t i;
+        float a = 1.0;
+    for( i = 0; i < strlen(text); ++i )
+    {
+        texture_glyph_t *glyph = 0;
+        uint32_t codepoint = ftgl::utf8_to_utf32( text + i );
+        glyph = font.glyphs[codepoint>>8][codepoint&0xff];
+        if( glyph != nullptr )
+        {
+            float kerning = 0.0f;
+            float x0  = x + glyph->offset_x;
+            float y0  = y + glyph->offset_y;
+            float x1  = x0 + glyph->width ;
+            float y1  = y0 - glyph->height;
+            float s0 = glyph->s0;
+            float t0 = glyph->t0;
+            float s1 = glyph->s1;
+            float t1 = glyph->t1;
+
+            struct OneVertex {
+                float x, y, z;
+                float s, t;
+                float r, g, b, a;
+            };
+            GLuint index = VertexCount;
+            axesIndices[IndexCount++] = index;
+            axesIndices[IndexCount++] = index + 1;
+            axesIndices[IndexCount++] = index + 2;
+            axesIndices[IndexCount++] = index;
+            axesIndices[IndexCount++] = index + 2;
+            axesIndices[IndexCount++] = index + 3;
+            std::vector<OneVertex> oneVertex;
+            oneVertex.push_back( { x0,y0,0,  s0,t0,  r,g,b,a } );
+            oneVertex.push_back( { x0,y1,0,  s0,t1,  r,g,b,a } );
+            oneVertex.push_back( { x1,y1,0,  s1,t1,  r,g,b,a } );
+            oneVertex.push_back( { x1,y0,0,  s1,t0,  r,g,b,a } );
+            for(auto &v:oneVertex) {
+                axesVertices.positions[VertexCount][0] = v.x;
+                axesVertices.positions[VertexCount][1] = v.y;
+                axesVertices.positions[VertexCount][2] = v.z;
+                axesVertices.text2D[VertexCount][0] = v.s;
+                axesVertices.text2D[VertexCount][1] = v.t;
+                axesVertices.colors[VertexCount][0] = v.r;
+                axesVertices.colors[VertexCount][2] = v.g;
+                axesVertices.colors[VertexCount][3] = v.b;
+                axesVertices.colors[VertexCount][0] = v.a;
+                VertexCount++;
+            }
+            x += glyph->advance_x;
+        } else {
+            ALOGE("Glyph is nullptr");
+        }
+    }
+}
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////
 
 void OvrECGPlot::CreateGeometry() {
     ALOGV("OvrECGPlot::Create()");
@@ -362,6 +576,76 @@ void OvrECGPlot::draw() {
     GL(glDrawElements(GL_LINES, IndexCount, GL_UNSIGNED_SHORT, nullptr));
     GL(glBindVertexArray(0));
 }
+
+
+/////////////////////////////////////
+
+const char HRPLOT_VERTEX_SHADER[] =
+        "#define NUM_VIEWS 2\n"
+        "#define VIEW_ID gl_ViewID_OVR\n"
+        "#extension GL_OVR_multiview2 : require\n"
+        "layout(num_views=NUM_VIEWS) in;\n"
+        "in vec3 vertexPosition;\n"
+        "in vec3 vertexNormal;\n"
+        "out vec3 normal;\n"
+        "out vec3 fragPos;\n"
+        "out vec4 modPos;\n"
+        "out vec3 modNorm;\n"
+        "uniform mat4 ModelMatrix;\n"
+        "uniform SceneMatrices\n"
+        "{\n"
+        "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
+        "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
+        "} sm;\n"
+        "void main()\n"
+        "{\n"
+        "   modPos = ModelMatrix * ( vec4( vertexPosition, 1.0 ) );\n"
+        "   modNorm = normalize((ModelMatrix * ( vec4( vertexNormal, 1.0 ) )).xyz);\n"
+        "	vec4 modelView = sm.ViewMatrix[VIEW_ID] * modPos;\n"
+        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * modelView;\n"
+        "   normal = normalize(vertexNormal);\n"
+        "   fragPos = vertexPosition;\n"
+        "}\n";
+
+const char HRPLOT_FRAGMENT_SHADER[] =
+        "in vec3 normal;\n"
+        "in vec3 fragPos;\n"
+        "in vec4 modPos;\n"
+        "in vec3 modNorm;\n"
+        "out lowp vec4 outColor;\n"
+        "const float pi = 3.14159;\n"
+        "uniform float time;\n"
+        "float wave(float x, float y, float t, float speed, vec2 direction) {\n"
+        "   float theta = dot(direction, vec2(x, y));\n"
+        "   return (sin(theta * pi + t * speed) + 2.0) / 3.0;\n"
+        "}\n"
+        "void main()\n"
+        "{\n"
+        "   vec3 lightPos = vec3(-5.0, 30.0, -5.0);\n"
+        "   vec3 specLightPos = vec3(-1.0,1.5,-1.0);\n"
+        "   vec3 lightDir = normalize(lightPos - fragPos);\n"
+        "   float diffuse = max(dot(normal, lightDir), 0.0);\n"
+        "   vec3 lightReflect = normalize(reflect(specLightPos, normal));\n"
+        "   float specularFactor = max(dot(specLightPos, lightReflect), 0.0);\n"
+        "   specularFactor = pow(specularFactor, 8.0) * 0.002;\n"
+        "   float v1 = wave(fragPos.x, fragPos.z, time, 5.0, vec2(0.5,0.25));\n"
+        "   vec4 texColor1 = vec4( 0.0, v1, v1, 1.0);\n"
+        "   float v2 = wave(fragPos.x, fragPos.z, time, -4.0, vec2(0.5,-0.25));\n"
+        "   vec4 texColor2 = vec4( 0.0, v2, v2, 1.0);\n"
+        "   float v3 = wave(fragPos.x, fragPos.z, time, -0.7, vec2(0.03,0.07));\n"
+        "   float v4 = wave(fragPos.x, fragPos.z, time, 0.51, vec2(0.03,-0.03));\n"
+        "   float vSlow = (v3+v4)/6.0+0.75;\n"
+        "   vec4 texColorFast = mix(texColor1,texColor2,0.5);\n"
+        "   float theta = abs(dot(normalize(modPos.xyz),normal));\n"
+        "   float trans = 1.0 - theta;\n"
+        "   vec4 diffuseColour = vec4( 0.0, diffuse, diffuse, 1.0 );\n"
+        "	outColor = texColorFast*pow(theta,2.0)*0.25 + diffuseColour*vSlow;\n"
+        "   outColor = outColor + vec4(specularFactor, specularFactor, specularFactor * 0.5, 1.0);\n"
+        "	outColor = vec4(outColor.xyz, trans + 0.5);\n"
+        "}\n";
+
+
+
 
 void OvrHRPlot::CreateGeometry() {
     VertexCount = NR_VERTICES;
@@ -750,59 +1034,6 @@ void OvrGeometry::Destroy() {
     }
 }
 
-static const char STAGE_VERTEX_SHADER[] =
-        "#define NUM_VIEWS 2\n"
-        "#define VIEW_ID gl_ViewID_OVR\n"
-        "#extension GL_OVR_multiview2 : require\n"
-        "layout(num_views=NUM_VIEWS) in;\n"
-        "in vec3 vertexPosition;\n"
-        "uniform mat4 ModelMatrix;\n"
-        "uniform SceneMatrices\n"
-        "{\n"
-        "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
-        "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
-        "} sm;\n"
-        "void main()\n"
-        "{\n"
-        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
-        "}\n";
-
-static const char STAGE_FRAGMENT_SHADER[] =
-        "out lowp vec4 outColor;\n"
-        "void main()\n"
-        "{\n"
-        "	outColor = vec4( 0.5, 0.5, 1.0, 0.5 );\n"
-        "}\n";
-
-static const char AXES_VERTEX_SHADER[] =
-        "#define NUM_VIEWS 2\n"
-        "#define VIEW_ID gl_ViewID_OVR\n"
-        "#extension GL_OVR_multiview2 : require\n"
-        "layout(num_views=NUM_VIEWS) in;\n"
-        "in vec3 vertexPosition;\n"
-        "in vec4 vertexColor;\n"
-        "uniform mat4 ModelMatrix;\n"
-        "uniform SceneMatrices\n"
-        "{\n"
-        "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
-        "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
-        "} sm;\n"
-        "out vec4 fragmentColor;\n"
-        "void main()\n"
-        "{\n"
-        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
-        "	fragmentColor = vertexColor;\n"
-        "}\n";
-
-static const char AXES_FRAGMENT_SHADER[] =
-        "in lowp vec4 fragmentColor;\n"
-        "out lowp vec4 outColor;\n"
-        "void main()\n"
-        "{\n"
-        "	outColor = fragmentColor;\n"
-        "}\n";
-
-
 /*
 ================================================================================
 
@@ -984,74 +1215,14 @@ void ovrScene::Create() {
         ALOGE("Failed to compile axes program");
     }
 
+    if (!HrText.Create(HRTEXT_VERTEX_SHADER, HRTEXT_FRAGMENT_SHADER)) {
+        ALOGE("Failed to compile hrtext program");
+    }
+
     // ECG
     if (!ECGPlot.Create(AXES_VERTEX_SHADER, AXES_FRAGMENT_SHADER)) {
         ALOGE("Failed to compile plot program");
     }
-
-    const char HRPLOT_VERTEX_SHADER[] =
-            "#define NUM_VIEWS 2\n"
-            "#define VIEW_ID gl_ViewID_OVR\n"
-            "#extension GL_OVR_multiview2 : require\n"
-            "layout(num_views=NUM_VIEWS) in;\n"
-            "in vec3 vertexPosition;\n"
-            "in vec3 vertexNormal;\n"
-            "out vec3 normal;\n"
-            "out vec3 fragPos;\n"
-            "out vec4 modPos;\n"
-            "out vec3 modNorm;\n"
-            "uniform mat4 ModelMatrix;\n"
-            "uniform SceneMatrices\n"
-            "{\n"
-            "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
-            "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
-            "} sm;\n"
-            "void main()\n"
-            "{\n"
-            "   modPos = ModelMatrix * ( vec4( vertexPosition, 1.0 ) );\n"
-            "   modNorm = normalize((ModelMatrix * ( vec4( vertexNormal, 1.0 ) )).xyz);\n"
-            "	vec4 modelView = sm.ViewMatrix[VIEW_ID] * modPos;\n"
-            "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * modelView;\n"
-            "   normal = normalize(vertexNormal);\n"
-            "   fragPos = vertexPosition;\n"
-            "}\n";
-
-    const char HRPLOT_FRAGMENT_SHADER[] =
-            "in vec3 normal;\n"
-            "in vec3 fragPos;\n"
-            "in vec4 modPos;\n"
-            "in vec3 modNorm;\n"
-            "out lowp vec4 outColor;\n"
-            "const float pi = 3.14159;\n"
-            "uniform float time;\n"
-            "float wave(float x, float y, float t, float speed, vec2 direction) {\n"
-            "   float theta = dot(direction, vec2(x, y));\n"
-            "   return (sin(theta * pi + t * speed) + 2.0) / 3.0;\n"
-            "}\n"
-            "void main()\n"
-            "{\n"
-            "   vec3 lightPos = vec3(-5.0, 30.0, -5.0);\n"
-            "   vec3 specLightPos = vec3(-1.0,1.5,-1.0);\n"
-            "   vec3 lightDir = normalize(lightPos - fragPos);\n"
-            "   float diffuse = max(dot(normal, lightDir), 0.0);\n"
-            "   vec3 lightReflect = normalize(reflect(specLightPos, normal));\n"
-            "   float specularFactor = max(dot(specLightPos, lightReflect), 0.0);\n"
-            "   specularFactor = pow(specularFactor, 8.0) * 0.002;\n"
-            "   float v1 = wave(fragPos.x, fragPos.z, time, 5.0, vec2(0.5,0.25));\n"
-            "   vec4 texColor1 = vec4( 0.0, v1, v1, 1.0);\n"
-            "   float v2 = wave(fragPos.x, fragPos.z, time, -4.0, vec2(0.5,-0.25));\n"
-            "   vec4 texColor2 = vec4( 0.0, v2, v2, 1.0);\n"
-            "   float v3 = wave(fragPos.x, fragPos.z, time, -0.7, vec2(0.03,0.07));\n"
-            "   float v4 = wave(fragPos.x, fragPos.z, time, 0.51, vec2(0.03,-0.03));\n"
-            "   float vSlow = (v3+v4)/6.0+0.75;\n"
-            "   vec4 texColorFast = mix(texColor1,texColor2,0.5);\n"
-            "   float theta = abs(dot(normalize(modPos.xyz),normal));\n"
-            "   float trans = 1.0 - theta;\n"
-            "   vec4 diffuseColour = vec4( 0.0, diffuse, diffuse, 1.0 );\n"
-            "	outColor = texColorFast*pow(theta,2.0)*0.25 + diffuseColour*vSlow;\n"
-            "   outColor = outColor + vec4(specularFactor, specularFactor, specularFactor * 0.5, 1.0);\n"
-            "	outColor = vec4(outColor.xyz, trans + 0.5);\n"
-            "}\n";
 
     // HRPlot
     if (!HrPlot.Create(HRPLOT_VERTEX_SHADER, HRPLOT_FRAGMENT_SHADER)) {
@@ -1164,6 +1335,33 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
     Scene.Axes.draw();
     GL(glUseProgram(0));
+
+
+
+    // "tracking space" axes (could be LOCAL or LOCAL_FLOOR)
+    GL(glUseProgram(Scene.HrText.Program));
+    GL(glBindBufferBase(
+            GL_UNIFORM_BUFFER,
+            Scene.HrText.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
+            Scene.SceneMatrices));
+    if (Scene.HrText.UniformLocation[ovrUniform::Index::VIEW_ID] >=
+        0) // NOTE: will not be present when multiview path is enabled.
+    {
+        GL(glUniform1i(Scene.HrText.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
+    }
+    if (Scene.HrText.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
+        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
+        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -0.5, -1);
+        const Matrix4f m1 = stagePoseMat * scale;
+        GL(glUniformMatrix4fv(
+                Scene.HrText.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
+                1,
+                GL_TRUE,
+                &m1.M[0][0]));
+    }
+    Scene.HrText.draw();
+    GL(glUseProgram(0));
+
 
     // ECG Plot
     GL(glUseProgram(Scene.ECGPlot.Program));
