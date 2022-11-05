@@ -587,7 +587,6 @@ void OvrGeometry::Clear() {
     FragmentShader = 0;
     memset(UniformLocation, 0, sizeof(UniformLocation));
     memset(UniformBinding, 0, sizeof(UniformBinding));
-    memset(Textures, 0, sizeof(Textures));
 }
 
 void OvrGeometry::CreateVAO() {
@@ -716,16 +715,6 @@ bool OvrGeometry::Create(const char *vertexSource, const char *fragmentSource) {
     }
 
     GL(glUseProgram(Program));
-
-    // Get the texture locations.
-    for (int i = 0; i < MAX_PROGRAM_TEXTURES; i++) {
-        char name[32];
-        sprintf(name, "Texture%i", i);
-        Textures[i] = glGetUniformLocation(Program, name);
-        if (Textures[i] != -1) {
-            GL(glUniform1i(Textures[i], i));
-        }
-    }
 
     CreateGeometry();
 
