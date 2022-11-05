@@ -263,11 +263,11 @@ void OvrAxes::CreateGeometry() {
             {{0,   0, 0}, {1,   0, 0}, {0, 0,   0}, {0, 1,   0}, {0, 0, 0}, {0, 0, 1}},
             // colors
             {{255, 0, 0, 255},
-                          {255, 0, 0, 255},
-                                       {0, 255, 0, 255},
-                                                    {0, 255, 0, 255},
-                                                                 {0, 0, 255, 255},
-                                                                            {0, 0, 255, 255}},
+             {255, 0, 0, 255},
+             {0, 255, 0, 255},
+             {0, 255, 0, 255},
+             {0, 0, 255, 255},
+             {0, 0, 255, 255}},
     };
 
     static const unsigned short axesIndices[6] = {
@@ -352,18 +352,12 @@ static const char HRTEXT_FRAGMENT_SHADER[] =
         "	outColor = texture( Texture0, fragmentTexCoord );\n"
         "}\n";
 
-
-
-
-
-
-
 void OvrHRText::CreateGeometry() {
     VertexCount = 0;
     IndexCount = 0;
 
     VertexAttribs[0].Index = 0;
-    VertexAttribs[1].Name = "vertexPosition";
+    VertexAttribs[0].Name = "vertexPosition";
     VertexAttribs[0].Size = 3;
     VertexAttribs[0].Type = GL_FLOAT;
     VertexAttribs[0].Normalized = false;
@@ -377,13 +371,13 @@ void OvrHRText::CreateGeometry() {
     VertexAttribs[1].Stride = sizeof(axesVertices.text2D[0]);
     VertexAttribs[1].Pointer = (const GLvoid *) offsetof(AxesVertices, text2D);
 
-    VertexAttribs[1].Index = 2;
-    VertexAttribs[1].Name = "vertexColor";
-    VertexAttribs[1].Size = 4;
-    VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
-    VertexAttribs[1].Normalized = true;
-    VertexAttribs[1].Stride = sizeof(axesVertices.colors[0]);
-    VertexAttribs[1].Pointer = (const GLvoid *) offsetof(AxesVertices, colors);
+    VertexAttribs[2].Index = 2;
+    VertexAttribs[2].Name = "vertexColor";
+    VertexAttribs[2].Size = 4;
+    VertexAttribs[2].Type = GL_UNSIGNED_BYTE;
+    VertexAttribs[2].Normalized = true;
+    VertexAttribs[2].Stride = sizeof(axesVertices.colors[0]);
+    VertexAttribs[2].Pointer = (const GLvoid *) offsetof(AxesVertices, colors);
 
     GL(glGenBuffers(1, &VertexBuffer));
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
@@ -405,7 +399,6 @@ void OvrHRText::CreateGeometry() {
     glTexImage2D( GL_TEXTURE_2D, 0, GL_ALPHA, font.tex_width, font.tex_height,
                   0, GL_ALPHA, GL_UNSIGNED_BYTE, font.tex_data );
     glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture( GL_TEXTURE_2D, 0 );
 
     add_text("Hello",1,1,1,0,0);
     ALOGV("HR Text index count: %d.",IndexCount);
