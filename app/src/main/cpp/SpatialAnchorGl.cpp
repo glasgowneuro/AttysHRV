@@ -325,8 +325,8 @@ static const char HRTEXT_VERTEX_SHADER[] =
         "#extension GL_OVR_multiview2 : require\n"
         "layout(num_views=NUM_VIEWS) in;\n"
         "in vec3 vertexPosition;\n"
-        "in vec2 texCoord;\n"
         "in vec4 vertexColor;\n"
+        "in vec2 texCoord;\n"
         "uniform mat4 ModelMatrix;\n"
         "uniform SceneMatrices\n"
         "{\n"
@@ -337,19 +337,23 @@ static const char HRTEXT_VERTEX_SHADER[] =
         "out vec2 fragmentTexCoord;\n"
         "void main()\n"
         "{\n"
-        "	gl_Position = vec4(vertexPosition, 1.0);\n"
+        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
         "	fragmentColor = vertexColor;\n"
         "	fragmentTexCoord = texCoord;\n"
         "}\n";
 
 static const char HRTEXT_FRAGMENT_SHADER[] =
-        "in lowp vec4 fragmentColor;\n"
+        "in vec4 fragmentColor;\n"
         "in lowp vec2 fragmentTexCoord;\n"
         "uniform sampler2D Texture0;\n"
-        "out lowp vec4 outColor;\n"
+        "out vec4 outColor;\n"
         "void main()\n"
         "{\n"
-        "	outColor = texture( Texture0, fragmentTexCoord );\n"
+        "   vec4 color = texture( Texture0, fragmentTexCoord );\n"
+        "   color.g = 0.0;"
+        "   color.b = 0.5;"
+        "   color.r = 0.0;"
+        "   outColor = color;\n"
         "}\n";
 
 void OvrHRText::CreateGeometry() {
@@ -364,30 +368,20 @@ void OvrHRText::CreateGeometry() {
     VertexAttribs[0].Stride = sizeof(axesVertices.positions[0]);
     VertexAttribs[0].Pointer = (const GLvoid *) offsetof(AxesVertices, positions);
 
-    VertexAttribs[1].Index = 1;
+    VertexAttribs[2].Index = 1;
+    VertexAttribs[2].Name = "vertexColor";
+    VertexAttribs[2].Size = 4;
+    VertexAttribs[2].Normalized = true;
+    VertexAttribs[2].Type = GL_UNSIGNED_BYTE;
+    VertexAttribs[2].Stride = sizeof(axesVertices.colors[0]);
+    VertexAttribs[2].Pointer = (const GLvoid *) offsetof(AxesVertices, colors);
+
+    VertexAttribs[1].Index = 2;
     VertexAttribs[1].Name = "texCoord";
     VertexAttribs[1].Size = 2;
     VertexAttribs[1].Type = GL_FLOAT;
     VertexAttribs[1].Stride = sizeof(axesVertices.text2D[0]);
     VertexAttribs[1].Pointer = (const GLvoid *) offsetof(AxesVertices, text2D);
-
-    VertexAttribs[2].Index = 2;
-    VertexAttribs[2].Name = "vertexColor";
-    VertexAttribs[2].Size = 4;
-    VertexAttribs[2].Type = GL_UNSIGNED_BYTE;
-    VertexAttribs[2].Normalized = true;
-    VertexAttribs[2].Stride = sizeof(axesVertices.colors[0]);
-    VertexAttribs[2].Pointer = (const GLvoid *) offsetof(AxesVertices, colors);
-
-    GL(glGenBuffers(1, &VertexBuffer));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STATIC_DRAW));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-
-    GL(glGenBuffers(1, &IndexBuffer));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
-    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STATIC_DRAW));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
     glGenTextures( 1, &texid );
     glActiveTexture(GL_TEXTURE0);
@@ -400,8 +394,7 @@ void OvrHRText::CreateGeometry() {
                   0, GL_ALPHA, GL_UNSIGNED_BYTE, font.tex_data );
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    add_text("Hello",1,1,1,0,0);
-    ALOGV("HR Text index count: %d.",IndexCount);
+    add_text("Hello",255,255,255,0,0);
 
     CreateVAO();
 }
@@ -414,18 +407,21 @@ void OvrHRText::draw() {
     GL(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
-void OvrHRText::add_text(const char *text, float r, float g, float b, float x, float y ) {
-    size_t i;
-    float a = 1.0;
-    for (i = 0; i < strlen(text); ++i) {
-        texture_glyph_t *glyph = 0;
+void OvrHRText::add_text(const char *text,
+                         unsigned char r, unsigned char g, unsigned char b,
+                         float x, float y ) {
+    VertexCount = 0;
+    IndexCount = 0;
+    unsigned char a = 255;
+    for (int i = 0; i < strlen(text); ++i) {
+        texture_glyph_t *glyph = nullptr;
         uint32_t codepoint = ftgl::utf8_to_utf32(text + i);
         glyph = font.glyphs[codepoint >> 8][codepoint & 0xff];
         if (glyph != nullptr) {
-            float x0 = x + glyph->offset_x;
-            float y0 = y + glyph->offset_y;
-            float x1 = x0 + glyph->width;
-            float y1 = y0 - glyph->height;
+            float x0 = x + (float)(glyph->offset_x)/fontsize;
+            float y0 = y + (float)(glyph->offset_y)/fontsize;
+            float x1 = x0 + (float)(glyph->width)/fontsize;
+            float y1 = y0 - (float)(glyph->height)/fontsize;
             float s0 = glyph->s0;
             float t0 = glyph->t0;
             float s1 = glyph->s1;
@@ -434,7 +430,7 @@ void OvrHRText::add_text(const char *text, float r, float g, float b, float x, f
             struct OneVertex {
                 float x, y, z;
                 float s, t;
-                float r, g, b, a;
+                unsigned char r, g, b, a;
             };
             GLuint index = VertexCount;
             axesIndices[IndexCount++] = index;
@@ -444,6 +440,7 @@ void OvrHRText::add_text(const char *text, float r, float g, float b, float x, f
             axesIndices[IndexCount++] = index + 2;
             axesIndices[IndexCount++] = index + 3;
             std::vector<OneVertex> oneVertex;
+            ALOGV("Glyph: VC=%d, IC=%d (%f,%f),(%f,%f)",VertexCount,IndexCount,x0,y0,x1,y1);
             oneVertex.push_back({x0, y0, 0, s0, t0, r, g, b, a});
             oneVertex.push_back({x0, y1, 0, s0, t1, r, g, b, a});
             oneVertex.push_back({x1, y1, 0, s1, t1, r, g, b, a});
@@ -455,16 +452,27 @@ void OvrHRText::add_text(const char *text, float r, float g, float b, float x, f
                 axesVertices.text2D[VertexCount][0] = v.s;
                 axesVertices.text2D[VertexCount][1] = v.t;
                 axesVertices.colors[VertexCount][0] = v.r;
-                axesVertices.colors[VertexCount][2] = v.g;
-                axesVertices.colors[VertexCount][3] = v.b;
-                axesVertices.colors[VertexCount][0] = v.a;
+                axesVertices.colors[VertexCount][1] = v.g;
+                axesVertices.colors[VertexCount][2] = v.b;
+                axesVertices.colors[VertexCount][3] = v.a;
                 VertexCount++;
             }
-            x += glyph->advance_x;
+            x += (float)(glyph->advance_x)/fontsize;
         } else {
             ALOGE("Glyph is nullptr");
         }
     }
+    ALOGV("Glyph: HR Text index count: %d. Vertex count: %d.",IndexCount,VertexCount);
+
+    GL(glGenBuffers(1, &VertexBuffer));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_DYNAMIC_DRAW));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+    GL(glGenBuffers(1, &IndexBuffer));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
+    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_DYNAMIC_DRAW));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
 
 
@@ -1325,7 +1333,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
     if (Scene.HrText.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
         const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -0.5, -1);
+        const Matrix4f stagePoseMat = Matrix4f::Translation(-0.15, -0.5, -1.05);
         const Matrix4f m1 = stagePoseMat * scale;
         GL(glUniformMatrix4fv(
                 Scene.HrText.UniformLocation[ovrUniform::Index::MODEL_MATRIX],

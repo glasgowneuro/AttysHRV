@@ -76,6 +76,7 @@ struct OvrAxes : OvrGeometry {
 
 struct OvrHRText : OvrGeometry {
     static constexpr int nPoints = 500;
+    static constexpr float fontsize = 36;
     struct AxesVertices {
         float positions[nPoints][3];
         float text2D[nPoints][2];
@@ -86,7 +87,9 @@ struct OvrHRText : OvrGeometry {
     unsigned short axesIndices[nPoints];
     void CreateGeometry();
     virtual void draw();
-    void add_text(const char *text, float r, float g, float b, float x, float y );
+    void add_text(const char *text,
+                  unsigned char r, unsigned char g, unsigned char b,
+                  float x, float y );
 };
 
 struct OvrECGPlot : OvrGeometry {
