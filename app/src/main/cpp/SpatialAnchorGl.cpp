@@ -350,10 +350,8 @@ static const char HRTEXT_FRAGMENT_SHADER[] =
         "void main()\n"
         "{\n"
         "   vec4 color = texture( Texture0, fragmentTexCoord );\n"
-        "   color.g = 0.0;"
-        "   color.b = 0.5;"
-        "   color.r = 0.0;"
-        "   outColor = color;\n"
+        "   color.a = color.a * 0.5;"
+        "   outColor = vec4(fragmentColor.rgb,color.a);\n"
         "}\n";
 
 void OvrHRText::CreateGeometry() {
@@ -392,6 +390,12 @@ void OvrHRText::CreateGeometry() {
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexImage2D( GL_TEXTURE_2D, 0, GL_ALPHA, font.tex_width, font.tex_height,
                   0, GL_ALPHA, GL_UNSIGNED_BYTE, font.tex_data );
+    std::string s = "Texture = ";
+    for(auto &d:font.tex_data) {
+        s += std::to_string(d);
+        s += ", ";
+    }
+    ALOGV("%s",s.c_str());
     glGenerateMipmap(GL_TEXTURE_2D);
 
     add_text("Hello",255,255,255,0,0);
@@ -402,7 +406,19 @@ void OvrHRText::CreateGeometry() {
 void OvrHRText::draw() {
     GL(glBindVertexArray(VertexArrayObject));
     GL(glBindTexture(GL_TEXTURE_2D, texid));
+
+    GL(glDepthMask(GL_FALSE));
+    GL(glEnable(GL_DEPTH_TEST));
+    GL(glDepthFunc(GL_LEQUAL));
+    GL(glDisable(GL_CULL_FACE));
+    GL(glEnable(GL_BLEND));
+    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
     GL(glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_SHORT, nullptr));
+
+    GL(glDepthMask(GL_TRUE));
+    GL(glDisable(GL_BLEND));
+
     GL(glBindVertexArray(0));
     GL(glBindTexture(GL_TEXTURE_2D, 0));
 }
@@ -1320,31 +1336,6 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
 
 
 
-    // "tracking space" axes (could be LOCAL or LOCAL_FLOOR)
-    GL(glUseProgram(Scene.HrText.Program));
-    GL(glBindBufferBase(
-            GL_UNIFORM_BUFFER,
-            Scene.HrText.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
-            Scene.SceneMatrices));
-    if (Scene.HrText.UniformLocation[ovrUniform::Index::VIEW_ID] >=
-        0) // NOTE: will not be present when multiview path is enabled.
-    {
-        GL(glUniform1i(Scene.HrText.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
-    }
-    if (Scene.HrText.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(-0.15, -0.5, -1.05);
-        const Matrix4f m1 = stagePoseMat * scale;
-        GL(glUniformMatrix4fv(
-                Scene.HrText.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
-                1,
-                GL_TRUE,
-                &m1.M[0][0]));
-    }
-    Scene.HrText.draw();
-    GL(glUseProgram(0));
-
-
     // ECG Plot
     GL(glUseProgram(Scene.ECGPlot.Program));
     GL(glBindBufferBase(
@@ -1397,6 +1388,36 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     GL(glUniform1f(Scene.HrPlot.UniformLocation[ovrUniform::Index::TIME_S], t));
     Scene.HrPlot.draw();
     GL(glUseProgram(0));
+
+
+
+    GL(glUseProgram(Scene.HrText.Program));
+    GL(glBindBufferBase(
+            GL_UNIFORM_BUFFER,
+            Scene.HrText.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
+            Scene.SceneMatrices));
+    if (Scene.HrText.UniformLocation[ovrUniform::Index::VIEW_ID] >=
+        0) // NOTE: will not be present when multiview path is enabled.
+    {
+        GL(glUniform1i(Scene.HrText.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
+    }
+    if (Scene.HrText.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
+        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
+        const Matrix4f stagePoseMat = Matrix4f::Translation(-0.15, -0.5, -0.75);
+        const Matrix4f rot = Matrix4f::RotationX(-M_PI/2.0);
+        const Matrix4f m1 = stagePoseMat * scale * rot;
+        GL(glUniformMatrix4fv(
+                Scene.HrText.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
+                1,
+                GL_TRUE,
+                &m1.M[0][0]));
+    }
+    Scene.HrText.draw();
+    GL(glUseProgram(0));
+
+
+
+
 
     Framebuffer.Unbind();
 }
