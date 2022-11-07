@@ -20,10 +20,12 @@
 
 #define NUM_EYES 2
 
+constexpr int SAMPLINGRATE = 250;
+constexpr int NOTCH_CENTER = 50;
+
 class OvrGeometry {
 public:
     static constexpr int MAX_PROGRAM_UNIFORMS = 8;
-    static constexpr int MAX_PROGRAM_TEXTURES = 8;
     static constexpr int MAX_VERTEX_ATTRIB_POINTERS = 3;
 
     OvrGeometry() {
@@ -90,6 +92,8 @@ struct OvrHRText : OvrGeometry {
     void add_text(const char *text,
                   unsigned char r, unsigned char g, unsigned char b,
                   float x, float y );
+    void updateText();
+    double lastHR = 0;
 };
 
 struct OvrECGPlot : OvrGeometry {
@@ -107,6 +111,11 @@ struct OvrECGPlot : OvrGeometry {
 
     void CreateGeometry();
     void draw();
+
+    static constexpr int iirorder = 2;
+
+    Iir::Butterworth::BandStop<iirorder> iirnotch;
+    Iir::Butterworth::HighPass<iirorder> iirhp;
 };
 
 struct OvrHRPlot : OvrGeometry {

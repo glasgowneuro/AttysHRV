@@ -39,6 +39,7 @@ Copyright	:	Copyright (c) Facebook Technologies, LLC and its affiliates. All rig
 #include "spline.hpp"
 #include "VeraMoBd.h"
 #include "utf8-utils.h"
+#include "Iir.h"
 
 using namespace OVR;
 
@@ -388,17 +389,21 @@ void OvrHRText::CreateGeometry() {
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexImage2D( GL_TEXTURE_2D, 0, GL_ALPHA, font.tex_width, font.tex_height,
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_ALPHA, (GLsizei)font.tex_width, (GLsizei)font.tex_height,
                   0, GL_ALPHA, GL_UNSIGNED_BYTE, font.tex_data );
-    std::string s = "Texture = ";
-    for(auto &d:font.tex_data) {
-        s += std::to_string(d);
-        s += ", ";
-    }
-    ALOGV("%s",s.c_str());
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    add_text("Hello",255,255,255,0,0);
+    GL(glGenBuffers(1, &VertexBuffer));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_DYNAMIC_DRAW));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+    GL(glGenBuffers(1, &IndexBuffer));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
+    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_DYNAMIC_DRAW));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+    add_text("Hello!",255,255,255,0,0);
 
     CreateVAO();
 }
@@ -456,7 +461,7 @@ void OvrHRText::add_text(const char *text,
             axesIndices[IndexCount++] = index + 2;
             axesIndices[IndexCount++] = index + 3;
             std::vector<OneVertex> oneVertex;
-            ALOGV("Glyph: VC=%d, IC=%d (%f,%f),(%f,%f)",VertexCount,IndexCount,x0,y0,x1,y1);
+            //ALOGV("Glyph: VC=%d, IC=%d (%f,%f),(%f,%f)",VertexCount,IndexCount,x0,y0,x1,y1);
             oneVertex.push_back({x0, y0, 0, s0, t0, r, g, b, a});
             oneVertex.push_back({x0, y1, 0, s0, t1, r, g, b, a});
             oneVertex.push_back({x1, y1, 0, s1, t1, r, g, b, a});
@@ -478,17 +483,29 @@ void OvrHRText::add_text(const char *text,
             ALOGE("Glyph is nullptr");
         }
     }
-    ALOGV("Glyph: HR Text index count: %d. Vertex count: %d.",IndexCount,VertexCount);
+    // ALOGV("Glyph: HR Text index count: %d. Vertex count: %d.",IndexCount,VertexCount);
 
-    GL(glGenBuffers(1, &VertexBuffer));
+    // just updating it
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
     GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_DYNAMIC_DRAW));
     GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-    GL(glGenBuffers(1, &IndexBuffer));
+    // just updating it
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
     GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_DYNAMIC_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+}
+
+void OvrHRText::updateText() {
+    if (!(hrBuffer.empty())) {
+        if (hrBuffer.back() != lastHR) {
+            lastHR = hrBuffer.back();
+            ALOGV("Updating HR to %d.",(int)round(lastHR));
+            char tmp[256];
+            sprintf(tmp,"%3d BPM",(int)round(lastHR));
+            add_text(tmp,255,255,255,0,0);
+        }
+    }
 }
 
 
@@ -545,15 +562,20 @@ void OvrECGPlot::CreateGeometry() {
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
     CreateVAO();
+
+    iirhp.setup(SAMPLINGRATE,0.5);
+    iirnotch.setup(SAMPLINGRATE,NOTCH_CENTER,2.5);
 }
 
 void OvrECGPlot::draw() {
 
-    for (auto &v: dataBuffer) {
+    for (auto const &v: dataBuffer) {
+        double v2 = iirhp.filter(v);
+        v2 = iirnotch.filter(v2);
         for (int i = 0; i < (nPoints - 1); i++) {
             axesVertices.positions[i][1] = axesVertices.positions[i + 1][1];
         }
-        axesVertices.positions[nPoints - 1][1] = (float) v;
+        axesVertices.positions[nPoints - 1][1] = (float) v2 * 1000;
         // ALOGV("OvrECGPlot::draw, buffersz=%u, %f", (unsigned int) dataBuffer.size(),v);
     }
     dataBuffer.clear();
@@ -1360,7 +1382,8 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     Scene.ECGPlot.draw();
     GL(glUseProgram(0));
 
-    // HRStage
+
+    // HRPlot
     GL(glUseProgram(Scene.HrPlot.Program));
     GL(glBindBufferBase(
             GL_UNIFORM_BUFFER,
@@ -1372,7 +1395,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
         GL(glUniform1i(Scene.HrPlot.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
     }
     if (Scene.HrPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
+        const Matrix4f scale = Matrix4f::Scaling(0.12, 0.1, 0.12);
         const Matrix4f stagePoseMat = Matrix4f::Translation(0, -1, 0);
         const Matrix4f m1 = stagePoseMat * scale;
         GL(glUniformMatrix4fv(
@@ -1390,7 +1413,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     GL(glUseProgram(0));
 
 
-
+    // HR Text
     GL(glUseProgram(Scene.HrText.Program));
     GL(glBindBufferBase(
             GL_UNIFORM_BUFFER,
@@ -1403,7 +1426,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
     if (Scene.HrText.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
         const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(-0.15, -0.5, -0.75);
+        const Matrix4f stagePoseMat = Matrix4f::Translation(-0.25, -0.5, -0.75);
         const Matrix4f rot = Matrix4f::RotationX(-M_PI/2.0);
         const Matrix4f m1 = stagePoseMat * scale * rot;
         GL(glUniformMatrix4fv(
@@ -1412,6 +1435,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
                 GL_TRUE,
                 &m1.M[0][0]));
     }
+    Scene.HrText.updateText();
     Scene.HrText.draw();
     GL(glUseProgram(0));
 
@@ -1424,7 +1448,8 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *env, jclass clazz,
+Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *,
+                                                            jclass,
                                                             jlong instance,
                                                             jfloat data) {
     dataBuffer.push_back(data);
@@ -1433,9 +1458,7 @@ Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *env, jclass 
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_tech_glasgowneuro_oculusecg_ANativeActivity_hrUpdate(JNIEnv *env, jclass clazz,
-                                                          jlong inst,
-                                                          jfloat v) {
+Java_tech_glasgowneuro_oculusecg_ANativeActivity_hrUpdate(JNIEnv *,jclass, jlong, jfloat v) {
     auto current_ts = std::chrono::steady_clock::now();
     std::chrono::duration<double> d = current_ts - start_ts;
     double t = d.count();

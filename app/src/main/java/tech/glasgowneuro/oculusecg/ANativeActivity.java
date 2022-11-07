@@ -30,9 +30,6 @@ public class ANativeActivity extends android.app.NativeActivity {
     public void gotData(long l, float[] f) {
       double v = f[AttysComm.INDEX_Analogue_channel_1];
       ecg_rr_det_ch.detect((float)v,false);
-      v = dcFilter.filter(v);
-      v = v * 1000;
-      v = powerlineFilter.filter(v);
       dataUpdate(instance, (float)v);
     }
   };
