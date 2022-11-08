@@ -143,14 +143,12 @@ AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream, void *aud
     if (hrBuffer.size() > 2) {
         if (
                 (hrBuffer[0] < hrBuffer[1]) &&
-                (hrBuffer[1] < hrBuffer[2]) &&
-                (hrBuffer[2] < hrBuffer[3])
+                (hrBuffer[1] < hrBuffer[2])
                 ) {
-            ALOGV("Monotonic HR: %f < %f < %f < %f",
+            ALOGV("Monotonic HR: %f < %f < %f",
                   hrBuffer[0],
                   hrBuffer[1],
-                  hrBuffer[2],
-                  hrBuffer[3]);
+                  hrBuffer[2]);
             int i = (int)(random() % (long)numOfWaveSounds);
             ambientAudio->waveSounds[i].play(false);
         }

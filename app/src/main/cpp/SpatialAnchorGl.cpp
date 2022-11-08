@@ -634,41 +634,35 @@ const char* HRPLOT_VERTEX_SHADER = R"SHADER_SRC(
 )SHADER_SRC";
 
 const char* HRPLOT_FRAGMENT_SHADER = R"SHADER_SRC(
-        in vec3 normal;
-        in vec3 fragPos;
-        in vec4 modPos;
-        in vec3 modNorm;
-        out lowp vec4 outColor;
-        const float pi = 3.14159;
-        uniform float time;
-        float wave(float x, float y, float t, float speed, vec2 direction) {
-           float theta = dot(direction, vec2(x, y));
-           return (sin(theta * pi + t * speed) + 2.0) / 3.0;
-        }
-        void main()
-        {
-           vec3 lightPos = vec3(-5.0, 30.0, -5.0);
-           vec3 specLightPos = vec3(-1.0,1.5,-1.0);
-           vec3 lightDir = normalize(lightPos - fragPos);
-           float diffuse = max(dot(normal, lightDir), 0.0);
-           vec3 lightReflect = normalize(reflect(specLightPos, normal));
-           float specularFactor = max(dot(specLightPos, lightReflect), 0.0);
-           specularFactor = pow(specularFactor, 8.0) * 0.002;
-           float v1 = wave(fragPos.x, fragPos.z, time, 5.0, vec2(0.5,0.25));
-           vec4 texColor1 = vec4( 0.0, v1, v1, 1.0);
-           float v2 = wave(fragPos.x, fragPos.z, time, -4.0, vec2(0.5,-0.25));
-           vec4 texColor2 = vec4( 0.0, v2, v2, 1.0);
-           float v3 = wave(fragPos.x, fragPos.z, time, -0.7, vec2(0.03,0.07));
-           float v4 = wave(fragPos.x, fragPos.z, time, 0.51, vec2(0.03,-0.03));
-           float vSlow = (v3+v4)/6.0+0.75;
-           vec4 texColorFast = mix(texColor1,texColor2,0.5);
-           float theta = abs(dot(normalize(modPos.xyz),normal));
-           float trans = max(1.0 - theta, 0.0);
-           vec4 diffuseColour = vec4( 0.0, diffuse, diffuse, 1.0 );
-        	outColor = texColorFast*pow(theta,2.0)*0.25 + diffuseColour*vSlow;
-           outColor = outColor + vec4(specularFactor, specularFactor, specularFactor * 0.5, 1.0);
-        	outColor = vec4(outColor.xyz, trans + 0.5);
-        }
+in vec3 normal;
+in vec3 fragPos;
+in vec4 modPos;
+in vec3 modNorm;
+out lowp vec4 outColor;
+const float pi = 3.14159;
+uniform highp float time;
+float wave(float x, float y, float t, float speed, vec2 direction) {
+    float theta = dot(direction, vec2(x, y));
+    return (sin(theta * pi + t * speed) + 2.0) / 3.0;
+}
+void main()
+{
+    vec3 lightPos = vec3(-5.0, 30.0, -3.0);
+    vec3 specLightPos = vec3(-1.0,1.5,-1.0);
+    vec3 lightDir = normalize(lightPos - fragPos);
+    float diffuse = max(dot(normal, lightDir), 0.0);
+    vec3 lightReflect = normalize(reflect(specLightPos, normal));
+    float specularFactor = max(dot(specLightPos, lightReflect), 0.0);
+    specularFactor = pow(specularFactor, 8.0) * 0.005;
+    float v3 = wave(fragPos.x, fragPos.z, time, -0.7, vec2(0.03,0.07));
+    float v4 = wave(fragPos.x, fragPos.z, time, 0.51, vec2(0.03,-0.03));
+    float vSlow = (v3+v4)/6.0+0.75;
+    float theta = abs(dot(normalize(modPos.xyz),normal));
+    float trans = max(1.0 - theta, 0.0);
+    vec4 diffuseColour = vec4( specularFactor, diffuse + specularFactor, diffuse + specularFactor, 1.0 );
+    outColor = diffuseColour*vSlow;
+    outColor = vec4(outColor.xyz, trans + 0.5);
+}
 )SHADER_SRC";
 
 
@@ -738,7 +732,7 @@ void OvrHRPlot::draw() {
     const int shiftbuffersize = QUAD_GRID_SIZE * 10;
     double hrnorm = -1;
     double hrShiftBuffer[shiftbuffersize] = {};
-    const double hrDecayConstant = 0.25;
+    const double hrDecayConstant = 0.05;
 
     const std::chrono::time_point<std::chrono::steady_clock> current_ts = std::chrono::steady_clock::now();
     const std::chrono::duration<double> d = current_ts - start_ts;
@@ -1415,7 +1409,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
         GL(glUniform1i(Scene.HrPlot.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
     }
     if (Scene.HrPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-        const Matrix4f scale = Matrix4f::Scaling(0.12, 0.1, 0.12);
+        const Matrix4f scale = Matrix4f::Scaling(0.2, 0.1, 0.2);
         const Matrix4f stagePoseMat = Matrix4f::Translation(0, -1, 0);
         const Matrix4f m1 = stagePoseMat * scale;
         GL(glUniformMatrix4fv(
