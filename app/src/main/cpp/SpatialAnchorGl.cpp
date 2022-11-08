@@ -754,14 +754,15 @@ void OvrHRPlot::draw() {
         for (int i = 0; i < shiftbuffersize; i++) {
             double dt = t - (double) i / (double) shiftbuffersize * maxtime;
             double hrInterpol = 0;
-            if ((dt > (hrSpline.getLowerBound() - spline_pred_sec)) &&
-                (dt < (hrSpline.getUpperBound() + spline_pred_sec))) {
-                hrInterpol = hrSpline(dt);
-                if ((hrInterpol < minHR) && (hrInterpol > 30)) minHR = hrInterpol;
-                if ((hrInterpol > maxHR) && (hrInterpol < 180)) maxHR = hrInterpol;
+            if (dt < (hrSpline.getLowerBound() - spline_pred_sec)) {
+                hrInterpol = hrSpline(hrSpline.getLowerBound() - spline_pred_sec);
+            } else if (dt > (hrSpline.getUpperBound() + spline_pred_sec) ) {
+                hrInterpol = hrSpline(hrSpline.getUpperBound() + spline_pred_sec);
             } else {
-                hrInterpol = 0;
+                hrInterpol = hrSpline(dt);
             }
+            if ((hrInterpol < minHR) && (hrInterpol > 30)) minHR = hrInterpol;
+            if ((hrInterpol > maxHR) && (hrInterpol < 180)) maxHR = hrInterpol;
             hrShiftBuffer[i] = hrInterpol;
         }
         hrnorm = maxHR - minHR;
