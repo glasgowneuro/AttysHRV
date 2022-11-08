@@ -224,34 +224,37 @@ static const std::chrono::time_point<std::chrono::steady_clock> start_ts = std::
 static std::chrono::time_point<std::chrono::steady_clock> current_hr_ts = std::chrono::steady_clock::now();
 
 
-static const char AXES_VERTEX_SHADER[] =
-        "#define NUM_VIEWS 2\n"
-        "#define VIEW_ID gl_ViewID_OVR\n"
-        "#extension GL_OVR_multiview2 : require\n"
-        "layout(num_views=NUM_VIEWS) in;\n"
-        "in vec3 vertexPosition;\n"
-        "in vec4 vertexColor;\n"
-        "uniform mat4 ModelMatrix;\n"
-        "uniform SceneMatrices\n"
-        "{\n"
-        "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
-        "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
-        "} sm;\n"
-        "out vec4 fragmentColor;\n"
-        "void main()\n"
-        "{\n"
-        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
-        "	fragmentColor = vertexColor;\n"
-        "}\n";
+static const char* AXES_VERTEX_SHADER = R"SHADER_SRC(
+        #define NUM_VIEWS 2
+        #define VIEW_ID gl_ViewID_OVR
+        #extension GL_OVR_multiview2 : require
+        layout(num_views=NUM_VIEWS) in;
+        in vec3 vertexPosition;
+        in vec4 vertexColor;
+        uniform mat4 ModelMatrix;
+        uniform SceneMatrices
+        {
+        	uniform mat4 ViewMatrix[NUM_VIEWS];
+        	uniform mat4 ProjectionMatrix[NUM_VIEWS];
+        } sm;
+        out vec4 fragmentColor;
+        void main()
+        {
+        	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );
+        	fragmentColor = vertexColor;
+        }
+)SHADER_SRC";
 
 
-static const char AXES_FRAGMENT_SHADER[] =
-        "in lowp vec4 fragmentColor;\n"
-        "out lowp vec4 outColor;\n"
-        "void main()\n"
-        "{\n"
-        "	outColor = fragmentColor;\n"
-        "}\n";
+static const char* AXES_FRAGMENT_SHADER = R"SHADER_SRC(
+        in lowp vec4 fragmentColor;
+        out lowp vec4 outColor;
+        void main()
+        {
+        	outColor = fragmentColor;
+        }
+)SHADER_SRC";
+
 
 void OvrAxes::CreateGeometry() {
     struct ovrAxesVertices {
@@ -320,40 +323,42 @@ void OvrAxes::draw() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-static const char HRTEXT_VERTEX_SHADER[] =
-        "#define NUM_VIEWS 2\n"
-        "#define VIEW_ID gl_ViewID_OVR\n"
-        "#extension GL_OVR_multiview2 : require\n"
-        "layout(num_views=NUM_VIEWS) in;\n"
-        "in vec3 vertexPosition;\n"
-        "in vec4 vertexColor;\n"
-        "in vec2 texCoord;\n"
-        "uniform mat4 ModelMatrix;\n"
-        "uniform SceneMatrices\n"
-        "{\n"
-        "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
-        "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
-        "} sm;\n"
-        "out vec4 fragmentColor;\n"
-        "out vec2 fragmentTexCoord;\n"
-        "void main()\n"
-        "{\n"
-        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );\n"
-        "	fragmentColor = vertexColor;\n"
-        "	fragmentTexCoord = texCoord;\n"
-        "}\n";
+static const char* HRTEXT_VERTEX_SHADER = R"SHADER_SRC(
+        #define NUM_VIEWS 2
+        #define VIEW_ID gl_ViewID_OVR
+        #extension GL_OVR_multiview2 : require
+        layout(num_views=NUM_VIEWS) in;
+        in vec3 vertexPosition;
+        in vec4 vertexColor;
+        in vec2 texCoord;
+        uniform mat4 ModelMatrix;
+        uniform SceneMatrices
+        {
+        	uniform mat4 ViewMatrix[NUM_VIEWS];
+        	uniform mat4 ProjectionMatrix[NUM_VIEWS];
+        } sm;
+        out vec4 fragmentColor;
+        out vec2 fragmentTexCoord;
+        void main()
+        {
+        	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );
+        	fragmentColor = vertexColor;
+        	fragmentTexCoord = texCoord;
+        }
+)SHADER_SRC";
 
-static const char HRTEXT_FRAGMENT_SHADER[] =
-        "in vec4 fragmentColor;\n"
-        "in lowp vec2 fragmentTexCoord;\n"
-        "uniform sampler2D Texture0;\n"
-        "out vec4 outColor;\n"
-        "void main()\n"
-        "{\n"
-        "   vec4 color = texture( Texture0, fragmentTexCoord );\n"
-        "   color.a = color.a * 0.5;"
-        "   outColor = vec4(fragmentColor.rgb,color.a);\n"
-        "}\n";
+static const char* HRTEXT_FRAGMENT_SHADER = R"SHADER_SRC(
+        in vec4 fragmentColor;
+        in lowp vec2 fragmentTexCoord;
+        uniform sampler2D Texture0;
+        out vec4 outColor;
+        void main()
+        {
+           vec4 color = texture( Texture0, fragmentTexCoord );
+           color.a = color.a * 0.5;
+           outColor = vec4(fragmentColor.rgb,color.a);
+        }
+)SHADER_SRC";
 
 void OvrHRText::CreateGeometry() {
     VertexCount = 0;
@@ -600,69 +605,71 @@ void OvrECGPlot::draw() {
 
 /////////////////////////////////////
 
-const char HRPLOT_VERTEX_SHADER[] =
-        "#define NUM_VIEWS 2\n"
-        "#define VIEW_ID gl_ViewID_OVR\n"
-        "#extension GL_OVR_multiview2 : require\n"
-        "layout(num_views=NUM_VIEWS) in;\n"
-        "in vec3 vertexPosition;\n"
-        "in vec3 vertexNormal;\n"
-        "out vec3 normal;\n"
-        "out vec3 fragPos;\n"
-        "out vec4 modPos;\n"
-        "out vec3 modNorm;\n"
-        "uniform mat4 ModelMatrix;\n"
-        "uniform SceneMatrices\n"
-        "{\n"
-        "	uniform mat4 ViewMatrix[NUM_VIEWS];\n"
-        "	uniform mat4 ProjectionMatrix[NUM_VIEWS];\n"
-        "} sm;\n"
-        "void main()\n"
-        "{\n"
-        "   modPos = ModelMatrix * ( vec4( vertexPosition, 1.0 ) );\n"
-        "   modNorm = normalize((ModelMatrix * ( vec4( vertexNormal, 1.0 ) )).xyz);\n"
-        "	vec4 modelView = sm.ViewMatrix[VIEW_ID] * modPos;\n"
-        "	gl_Position = sm.ProjectionMatrix[VIEW_ID] * modelView;\n"
-        "   normal = normalize(vertexNormal);\n"
-        "   fragPos = vertexPosition;\n"
-        "}\n";
+const char* HRPLOT_VERTEX_SHADER = R"SHADER_SRC(
+        #define NUM_VIEWS 2
+        #define VIEW_ID gl_ViewID_OVR
+        #extension GL_OVR_multiview2 : require
+        layout(num_views=NUM_VIEWS) in;
+        in vec3 vertexPosition;
+        in vec3 vertexNormal;
+        out vec3 normal;
+        out vec3 fragPos;
+        out vec4 modPos;
+        out vec3 modNorm;
+        uniform mat4 ModelMatrix;
+        uniform SceneMatrices
+        {
+        	uniform mat4 ViewMatrix[NUM_VIEWS];
+        	uniform mat4 ProjectionMatrix[NUM_VIEWS];
+        } sm;
+        void main()
+        {
+           modPos = ModelMatrix * ( vec4( vertexPosition, 1.0 ) );
+           modNorm = normalize((ModelMatrix * ( vec4( vertexNormal, 1.0 ) )).xyz);
+        	vec4 modelView = sm.ViewMatrix[VIEW_ID] * modPos;
+        	gl_Position = sm.ProjectionMatrix[VIEW_ID] * modelView;
+           normal = normalize(vertexNormal);
+           fragPos = vertexPosition;
+        }
+)SHADER_SRC";
 
-const char HRPLOT_FRAGMENT_SHADER[] =
-        "in vec3 normal;\n"
-        "in vec3 fragPos;\n"
-        "in vec4 modPos;\n"
-        "in vec3 modNorm;\n"
-        "out lowp vec4 outColor;\n"
-        "const float pi = 3.14159;\n"
-        "uniform float time;\n"
-        "float wave(float x, float y, float t, float speed, vec2 direction) {\n"
-        "   float theta = dot(direction, vec2(x, y));\n"
-        "   return (sin(theta * pi + t * speed) + 2.0) / 3.0;\n"
-        "}\n"
-        "void main()\n"
-        "{\n"
-        "   vec3 lightPos = vec3(-5.0, 30.0, -5.0);\n"
-        "   vec3 specLightPos = vec3(-1.0,1.5,-1.0);\n"
-        "   vec3 lightDir = normalize(lightPos - fragPos);\n"
-        "   float diffuse = max(dot(normal, lightDir), 0.0);\n"
-        "   vec3 lightReflect = normalize(reflect(specLightPos, normal));\n"
-        "   float specularFactor = max(dot(specLightPos, lightReflect), 0.0);\n"
-        "   specularFactor = pow(specularFactor, 8.0) * 0.002;\n"
-        "   float v1 = wave(fragPos.x, fragPos.z, time, 5.0, vec2(0.5,0.25));\n"
-        "   vec4 texColor1 = vec4( 0.0, v1, v1, 1.0);\n"
-        "   float v2 = wave(fragPos.x, fragPos.z, time, -4.0, vec2(0.5,-0.25));\n"
-        "   vec4 texColor2 = vec4( 0.0, v2, v2, 1.0);\n"
-        "   float v3 = wave(fragPos.x, fragPos.z, time, -0.7, vec2(0.03,0.07));\n"
-        "   float v4 = wave(fragPos.x, fragPos.z, time, 0.51, vec2(0.03,-0.03));\n"
-        "   float vSlow = (v3+v4)/6.0+0.75;\n"
-        "   vec4 texColorFast = mix(texColor1,texColor2,0.5);\n"
-        "   float theta = abs(dot(normalize(modPos.xyz),normal));\n"
-        "   float trans = max(1.0 - theta, 0);\n"
-        "   vec4 diffuseColour = vec4( 0.0, diffuse, diffuse, 1.0 );\n"
-        "	outColor = texColorFast*pow(theta,2.0)*0.25 + diffuseColour*vSlow;\n"
-        "   outColor = outColor + vec4(specularFactor, specularFactor, specularFactor * 0.5, 1.0);\n"
-        "	outColor = vec4(outColor.xyz, trans + 0.5);\n"
-        "}\n";
+const char* HRPLOT_FRAGMENT_SHADER = R"SHADER_SRC(
+        in vec3 normal;
+        in vec3 fragPos;
+        in vec4 modPos;
+        in vec3 modNorm;
+        out lowp vec4 outColor;
+        const float pi = 3.14159;
+        uniform float time;
+        float wave(float x, float y, float t, float speed, vec2 direction) {
+           float theta = dot(direction, vec2(x, y));
+           return (sin(theta * pi + t * speed) + 2.0) / 3.0;
+        }
+        void main()
+        {
+           vec3 lightPos = vec3(-5.0, 30.0, -5.0);
+           vec3 specLightPos = vec3(-1.0,1.5,-1.0);
+           vec3 lightDir = normalize(lightPos - fragPos);
+           float diffuse = max(dot(normal, lightDir), 0.0);
+           vec3 lightReflect = normalize(reflect(specLightPos, normal));
+           float specularFactor = max(dot(specLightPos, lightReflect), 0.0);
+           specularFactor = pow(specularFactor, 8.0) * 0.002;
+           float v1 = wave(fragPos.x, fragPos.z, time, 5.0, vec2(0.5,0.25));
+           vec4 texColor1 = vec4( 0.0, v1, v1, 1.0);
+           float v2 = wave(fragPos.x, fragPos.z, time, -4.0, vec2(0.5,-0.25));
+           vec4 texColor2 = vec4( 0.0, v2, v2, 1.0);
+           float v3 = wave(fragPos.x, fragPos.z, time, -0.7, vec2(0.03,0.07));
+           float v4 = wave(fragPos.x, fragPos.z, time, 0.51, vec2(0.03,-0.03));
+           float vSlow = (v3+v4)/6.0+0.75;
+           vec4 texColorFast = mix(texColor1,texColor2,0.5);
+           float theta = abs(dot(normalize(modPos.xyz),normal));
+           float trans = max(1.0 - theta, 0.0);
+           vec4 diffuseColour = vec4( 0.0, diffuse, diffuse, 1.0 );
+        	outColor = texColorFast*pow(theta,2.0)*0.25 + diffuseColour*vSlow;
+           outColor = outColor + vec4(specularFactor, specularFactor, specularFactor * 0.5, 1.0);
+        	outColor = vec4(outColor.xyz, trans + 0.5);
+        }
+)SHADER_SRC";
 
 
 
