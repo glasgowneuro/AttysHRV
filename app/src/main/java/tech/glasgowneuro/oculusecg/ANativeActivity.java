@@ -13,9 +13,6 @@ public class ANativeActivity extends android.app.NativeActivity {
 
   static AttysComm attysComm;
 
-  final static private Butterworth dcFilter = new Butterworth();
-  final static private Butterworth powerlineFilter = new Butterworth();
-
   static private ECG_rr_det ecg_rr_det_ch;
 
   static {
@@ -42,8 +39,6 @@ public class ANativeActivity extends android.app.NativeActivity {
     instance = inst;
     attysComm = new AttysComm();
     attysComm.registerDataListener(dataListener);
-    dcFilter.highPass(2,attysComm.getSamplingRateInHz(),0.5);
-    powerlineFilter.bandStop(2,attysComm.getSamplingRateInHz(),powerlineHz,2);
     ecg_rr_det_ch = new ECG_rr_det(attysComm.getSamplingRateInHz(), powerlineHz);
     ecg_rr_det_ch.setRrListener(new ECG_rr_det.RRlistener() {
       @Override

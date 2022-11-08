@@ -150,8 +150,6 @@ struct OvrHRPlot : OvrGeometry {
 
     HRVertices hrVertices = {};
 
-    Iir::RBJ::LowPass lp;
-
     unsigned short indices[NR_INDICES] = {};
 
     void CreateGeometry();

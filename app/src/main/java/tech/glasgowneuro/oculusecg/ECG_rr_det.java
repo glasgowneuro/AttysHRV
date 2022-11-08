@@ -156,7 +156,7 @@ public class ECG_rr_det {
                 float t = (timestamp - t2) / samplingRateInHz;
                 float bpm = 1 / t * 60;
                 //Log.d(TAG,"bpm="+bpm);
-                if ((bpm > 30) && (bpm < 250)) {
+                if ((bpm > 30) && (bpm < 200)) {
                     if (ignoreRRvalue > 0) {
                         ignoreRRvalue--;
                     } else {

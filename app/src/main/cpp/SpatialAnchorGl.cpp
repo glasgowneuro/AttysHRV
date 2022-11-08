@@ -657,7 +657,7 @@ const char HRPLOT_FRAGMENT_SHADER[] =
         "   float vSlow = (v3+v4)/6.0+0.75;\n"
         "   vec4 texColorFast = mix(texColor1,texColor2,0.5);\n"
         "   float theta = abs(dot(normalize(modPos.xyz),normal));\n"
-        "   float trans = 1.0 - theta;\n"
+        "   float trans = max(1.0 - theta, 0);\n"
         "   vec4 diffuseColour = vec4( 0.0, diffuse, diffuse, 1.0 );\n"
         "	outColor = texColorFast*pow(theta,2.0)*0.25 + diffuseColour*vSlow;\n"
         "   outColor = outColor + vec4(specularFactor, specularFactor, specularFactor * 0.5, 1.0);\n"
@@ -731,10 +731,23 @@ void OvrHRPlot::draw() {
     const int shiftbuffersize = QUAD_GRID_SIZE * 10;
     double hrnorm = -1;
     double hrShiftBuffer[shiftbuffersize] = {};
+    const double hrDecayConstant = 0.25;
 
     const std::chrono::time_point<std::chrono::steady_clock> current_ts = std::chrono::steady_clock::now();
     const std::chrono::duration<double> d = current_ts - start_ts;
     const double t = d.count();
+
+    // leaky min and max boundaries
+    if (fps > 0) {
+        // gettimg them closer after an artefact
+        if (maxHR > minHR) {
+            if (maxHR > 30) {
+                maxHR = maxHR - hrDecayConstant * maxHR / fps;
+            }
+            minHR = minHR - hrDecayConstant * (minHR - maxHR) / fps;
+            ALOGV("minHR = %f, maxHR = %f",minHR,maxHR);
+        }
+    }
 
     if (hrBuffer.size() > 2) {
         for (int i = 0; i < shiftbuffersize; i++) {
