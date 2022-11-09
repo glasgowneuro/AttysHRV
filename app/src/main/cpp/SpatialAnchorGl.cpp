@@ -224,6 +224,80 @@ static const std::chrono::time_point<std::chrono::steady_clock> start_ts = std::
 static std::chrono::time_point<std::chrono::steady_clock> current_hr_ts = std::chrono::steady_clock::now();
 
 
+
+
+
+/////////////// BACKGROUND /////////////////
+
+static const char* BACKGROUND_VERTEX_SHADER = R"SHADER_SRC(
+        #define NUM_VIEWS 2
+        #define VIEW_ID gl_ViewID_OVR
+        #extension GL_OVR_multiview2 : require
+        layout(num_views=NUM_VIEWS) in;
+        uniform mat4 ModelMatrix;
+        uniform SceneMatrices
+        {
+        	uniform mat4 ViewMatrix[NUM_VIEWS];
+        	uniform mat4 ProjectionMatrix[NUM_VIEWS];
+        } sm;
+        out vec3 v_uv;
+        void main()
+        {
+            vec2 v = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+            gl_Position = vec4(v * vec2(2.0, -2.0) + vec2(-1.0, 1.0), 0.0, 1.0);
+            vec3 multiply = vec3 (0 ,0 ,0);
+            multiply.x = 1.0 / sm.ProjectionMatrix[VIEW_ID][0][0];
+            multiply.y = 1.0 / sm.ProjectionMatrix[VIEW_ID][1][1];
+            vec3 tempPos = ( gl_Position.xyz * multiply ) - vec3(0 ,0 ,1);
+            v_uv = transpose ( mat3(sm.ViewMatrix[VIEW_ID])) * normalize (tempPos);
+        }
+)SHADER_SRC";
+
+static const char* BACKGROUND_FRAGMENT_SHADER = R"SHADER_SRC(
+    in vec3 v_uv;
+    out vec4 outColor;
+
+    void main()
+    {
+        float a = 1.0 - v_uv.y;
+        if (a < 0.0) a = 0.0;
+        if (a > 1.0) a = 1.0;
+        vec4 bot_color = vec4(0.0, a * 0.5, 1.0, a);
+        outColor = bot_color;
+    }
+)SHADER_SRC";
+
+
+
+void OvrBackground::draw() {
+    GL(glDepthMask(GL_FALSE));
+    GL(glEnable(GL_DEPTH_TEST));
+    GL(glDepthFunc(GL_LEQUAL));
+    GL(glDisable(GL_CULL_FACE));
+    GL(glEnable(GL_BLEND));
+    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+    glBindVertexArray( background_vao );
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
+
+    GL(glDepthMask(GL_TRUE));
+    GL(glDisable(GL_BLEND));
+}
+
+void OvrBackground::CreateGeometry() {
+    glGenVertexArrays(1, &background_vao);
+}
+
+
+
+
+
+
+
+//////////////// AXES ////////////////////////
+
+
 static const char* AXES_VERTEX_SHADER = R"SHADER_SRC(
         #define NUM_VIEWS 2
         #define VIEW_ID gl_ViewID_OVR
@@ -1264,6 +1338,10 @@ void ovrScene::Create() {
         ALOGE("Failed to compile HRPlot program");
     }
 
+    if (!background.Create(BACKGROUND_VERTEX_SHADER,BACKGROUND_FRAGMENT_SHADER)) {
+        ALOGE("Failed to compile the background shader");
+    }
+
     CreatedScene = true;
 
     float c[] = {0.0, 0.0, 0.0, 0.0};
@@ -1345,6 +1423,30 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     GL(glClearColor(
             Scene.ClearColor[0], Scene.ClearColor[1], Scene.ClearColor[2], Scene.ClearColor[3]));
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+
+    // Background
+    GL(glUseProgram(Scene.background.Program));
+    GL(glBindBufferBase(
+            GL_UNIFORM_BUFFER,
+            Scene.background.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
+            Scene.SceneMatrices));
+    if (Scene.background.UniformLocation[ovrUniform::Index::VIEW_ID] >=
+        0) // NOTE: will not be present when multiview path is enabled.
+    {
+        GL(glUniform1i(Scene.background.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
+    }
+    if (Scene.background.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
+        const Matrix4f m1 = Matrix4f::Scaling(1, 1, 1);
+        GL(glUniformMatrix4fv(
+                Scene.background.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
+                1,
+                GL_TRUE,
+                &m1.M[0][0]));
+    }
+    Scene.background.draw();
+    GL(glUseProgram(0));
+
 
     GL(glLineWidth(3.0));
     // "tracking space" axes (could be LOCAL or LOCAL_FLOOR)
@@ -1453,9 +1555,6 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     Scene.HrText.updateText();
     Scene.HrText.draw();
     GL(glUseProgram(0));
-
-
-
 
 
     Framebuffer.Unbind();

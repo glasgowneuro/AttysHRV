@@ -76,6 +76,13 @@ struct OvrAxes : OvrGeometry {
     virtual void draw();
 };
 
+
+struct OvrBackground : OvrGeometry {
+    void CreateGeometry();
+    virtual void draw();
+    GLuint background_vao = 0;
+};
+
 struct OvrHRText : OvrGeometry {
     static constexpr int nPoints = 500;
     static constexpr float fontsize = 36;
@@ -198,6 +205,7 @@ struct ovrScene {
     OvrECGPlot ECGPlot;
     OvrHRPlot HrPlot;
     OvrHRText HrText;
+    OvrBackground background;
     float ClearColor[4];
     std::vector<XrSpace> SpaceList;
 };
