@@ -32,7 +32,6 @@ public class ANativeActivity extends android.app.NativeActivity {
   };
 
   static native void hrUpdate(long inst, float v);
-  static native void hr4Sound(long inst, float v);
 
   static void startAttysComm(long inst) {
     Log.d(TAG,"Starting AttysComm");
@@ -44,7 +43,6 @@ public class ANativeActivity extends android.app.NativeActivity {
       @Override
       public void haveRpeak(long samplenumber, float bpm, double amplitude, double confidence) {
         hrUpdate(instance,bpm);
-        hr4Sound(instance,bpm);
         Log.d(TAG,"HR = "+bpm);
       }
     });

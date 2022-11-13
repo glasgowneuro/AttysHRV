@@ -10,6 +10,8 @@
 #include <android/asset_manager.h>
 #include <vector>
 #include "util.h"
+#include "attysjava2cpp.h"
+
 using namespace oboe;
 
 static constexpr int samplingRate = 48000;
@@ -58,8 +60,11 @@ private:
     AudioSource waveSounds[numOfWaveSounds];
     AudioSource backgroundSound;
 
+    void hasHR(float hr);
+
     MyCallback myCallback;
     std::shared_ptr<oboe::AudioStream> mStream;
+    std::vector<float> hrBuffer;
 };
 
 

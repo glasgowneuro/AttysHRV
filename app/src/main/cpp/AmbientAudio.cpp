@@ -7,8 +7,6 @@
 #include <jni.h>
 #include <random>
 
-static std::vector<float> hrBuffer;
-
 void AmbientAudio::start() {
     myCallback.ambientAudio = this;
     oboe::AudioStreamBuilder builder;
@@ -41,6 +39,7 @@ void AmbientAudio::stop() {
 }
 
 void AmbientAudio::init(AAssetManager *aAssetManager) {
+    registerAttysHRCallback([this](float hr){ hasHR(hr); });
     for(int i = 0; i < numOfWaveSounds; i++) {
         waveSounds[i].loadWAV(aAssetManager, namesOfWaves[i]);
     }
@@ -128,9 +127,16 @@ void AmbientAudio::AudioSource::play(bool doLoopPlaying) {
     ALOGV("Started playing");
 }
 
+void AmbientAudio::hasHR(float hr) {
+    hrBuffer.push_back(hr);
+    if (hrBuffer.size() > 3) {
+        hrBuffer.erase(hrBuffer.begin());
+    }
+}
 
 oboe::DataCallbackResult
-AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream, void *audioData,
+AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream,
+                                       void *audioData,
                                        int32_t numFrames) {
     auto *outputData = static_cast<FrameData *>(audioData);
     FrameData *p = outputData;
@@ -140,10 +146,10 @@ AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream, void *aud
         *(p++) = s;
     }
 
-    if (hrBuffer.size() > 2) {
+    if (ambientAudio->hrBuffer.size() > 2) {
         if (
-                (hrBuffer[0] < hrBuffer[1]) &&
-                (hrBuffer[1] < hrBuffer[2])
+                (ambientAudio->hrBuffer[2] < ambientAudio->hrBuffer[1]) &&
+                (ambientAudio->hrBuffer[1] < ambientAudio->hrBuffer[0])
                 ) {
             int i = (int)(random() % (long)numOfWaveSounds);
             ambientAudio->waveSounds[i].play(false);
@@ -156,14 +162,4 @@ AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream, void *aud
     ambientAudio->backgroundSound.fillBuffer(outputData, numFrames);
 
     return DataCallbackResult::Continue;
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_tech_glasgowneuro_oculusecg_ANativeActivity_hr4Sound(JNIEnv *env, jclass clazz, jlong inst,
-                                                          jfloat v) {
-    hrBuffer.push_back(v);
-    if (hrBuffer.size() > 3) {
-        hrBuffer.erase(hrBuffer.begin());
-    }
 }

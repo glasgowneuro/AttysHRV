@@ -5,41 +5,20 @@
 #ifndef OCULUSECG_ATTYSJAVA2CPP_H
 #define OCULUSECG_ATTYSJAVA2CPP_H
 
-//////////////////////////////
-// Raw data callback from JAVA
-std::vector<std::function<void(float)>> attysDataCallbacks;
+#include <android/native_window_jni.h> // for native window JNI
+#include <functional>
+#include <vector>
 
-extern "C"
-JNIEXPORT void JNICALL
-Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *,jclass,
-                                                            jlong instance,
-                                                            jfloat data) {
-    for (auto &v: attysDataCallbacks) {
-        v(data);
-    }
-}
+/**
+ * Registers a callback to get the raw data from channel 1
+ * @param f is a pointer to a function receiving the data
+ */
+void registerAttysDataCallback(const std::function<void(float)>& f);
 
-void registerAttysDataCallback(std::function<void(float)> f) {
-    ALOGV("Registered callback # %lu for Attys data.",(long)attysDataCallbacks.size());
-    attysDataCallbacks.emplace_back(f);
-}
-
-
-////////////////////////////////
-// Heartrate callback from java
-std::vector<std::function<void(float)>> attysHRCallbacks;
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_tech_glasgowneuro_oculusecg_ANativeActivity_hrUpdate(JNIEnv *,jclass, jlong, jfloat v) {
-    for(auto &cb: attysHRCallbacks) {
-        cb(v);
-    }
-}
-
-void registerAttysHRCallback(std::function<void(float)> f){
-    attysHRCallbacks.emplace_back(f);
-}
-
+/**
+ * Registers a callback to receive the heartrate
+ * @param f heartrate in BPM
+ */
+void registerAttysHRCallback(const std::function<void(float)>& f);
 
 #endif //OCULUSECG_ATTYSJAVA2CPP_H
