@@ -256,10 +256,13 @@ static const char* BACKGROUND_FRAGMENT_SHADER = R"SHADER_SRC(
 
     void main()
     {
-        float a = 1.0 - v_uv.y;
+        float b = 1.0 - v_uv.y;
+        if (b < 0.0) b = 0.0;
+        if (b > 1.0) b = 1.0;
+        float a = 1.0 - abs(v_uv.y) * 2.0;
         if (a < 0.0) a = 0.0;
         if (a > 1.0) a = 1.0;
-        vec4 bot_color = vec4(0.0, a * 0.5, a, a);
+        vec4 bot_color = vec4(b * 0.5, b * 0.5, b, a);
         outColor = bot_color;
     }
 )SHADER_SRC";
@@ -726,7 +729,7 @@ void main()
     float theta = abs(dot(normalize(modPos.xyz),normal));
     float trans = max(1.0 - theta, 0.0);
     vec4 diffuseColour = vec4( specularFactor, diffuse + specularFactor, diffuse + specularFactor, 1.0 );
-    outColor = diffuseColour*vSlow;
+    outColor = diffuseColour*vSlow*0.9;
     outColor = vec4(outColor.xyz, trans + 0.5);
 }
 )SHADER_SRC";
