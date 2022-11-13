@@ -41,6 +41,9 @@ public class ECG_rr_det {
     // 10mV as the threshold the bandpass filtered ECG is an artefact
     private double artefact_threshold = 10;
 
+    // lead off threshold
+    private double leadoff_threshold = 0.1; // 100mV
+
     // ignores 1000 samples to let the filter settle
     private int ignoreECGdetector = 1000;
 
@@ -127,8 +130,17 @@ public class ECG_rr_det {
         }
         double h = ecgDetNotch.filter(v * 1000);
         h = ecgDetector.filter(h);
+        if (Math.abs(v) > leadoff_threshold) {
+            // ignore signal for 2 sec
+            ignoreECGdetector = ((int) samplingRateInHz) * 2;
+            //Log.d(TAG,"artefact="+(Math.sqrt(h)));
+            ignoreRRvalue = 2;
+            amplitude = 0;
+            return;
+        }
         if (ignoreECGdetector > 0) {
             ignoreECGdetector--;
+            amplitude = 0;
             return;
         }
         h = h * h;

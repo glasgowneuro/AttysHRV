@@ -34,7 +34,7 @@ public class ANativeActivity extends android.app.NativeActivity {
   static native void hrUpdate(long inst, float v);
 
   static void startAttysComm(long inst) {
-    Log.d(TAG,"Starting AttysComm");
+    Log.d(TAG, "Starting AttysComm");
     instance = inst;
     attysComm = new AttysComm();
     attysComm.registerDataListener(dataListener);
@@ -42,10 +42,13 @@ public class ANativeActivity extends android.app.NativeActivity {
     ecg_rr_det_ch.setRrListener(new ECG_rr_det.RRlistener() {
       @Override
       public void haveRpeak(long samplenumber, float bpm, double amplitude, double confidence) {
-        hrUpdate(instance,bpm);
-        Log.d(TAG,"HR = "+bpm);
+        hrUpdate(instance, bpm);
+        Log.d(TAG, "HR = " + bpm);
       }
     });
+    attysComm.setAdc_samplingrate_index(AttysComm.ADC_RATE_250HZ);
+    attysComm.setBiasCurrent(AttysComm.ADC_CURRENT_22NA);
+    attysComm.enableCurrents(true, false, false);
     attysComm.start();
   }
 

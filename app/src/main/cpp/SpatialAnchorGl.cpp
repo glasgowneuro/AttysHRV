@@ -482,11 +482,12 @@ void OvrHRText::CreateGeometry() {
     GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_DYNAMIC_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-    add_text(defaultgreeting,255,255,255,0,0);
+    reportStatus(connecting);
 
     CreateVAO();
 
     registerAttysHRCallback([this](float hr){ updateHR(hr); });
+    registerAttysDataCallback([this](float v){ attysDataCallBack(v); });
 }
 
 void OvrHRText::draw() {
@@ -590,12 +591,48 @@ void OvrHRText::add_text(const char *text,
 }
 
 void OvrHRText::updateHR(float hr) {
+    if ((status == lefterr) || (status == righterr)) return;
+    if (hr < 30) return;
+    status = running;
     lastHR = hr;
     ALOGV("Updating HR to %d.", (int) round(lastHR));
     char tmp[256];
-    sprintf(tmp, "%3d BPM", (int) round(lastHR));
-    // updates the vertices
+    sprintf(tmp, "%d BPM", (int) round(lastHR));
     add_text(tmp, 255, 255, 255, 0, 0);
+}
+
+void OvrHRText::attysDataCallBack(float v) {
+    if (v > leadOffThreshold) {
+        reportStatus(lefterr);
+        return;
+    }
+    if (v < (-leadOffThreshold)) {
+        reportStatus(righterr);
+        return;
+    }
+    if (status == running) return;
+    reportStatus(receiving);
+}
+
+void OvrHRText::reportStatus(const Status s) {
+    if (s == status) return;
+    switch (s) {
+        case connecting:
+            add_text(defaultgreeting, 255, 255, 255, 0, 0);
+            break;
+        case lefterr:
+            add_text("<-- Check electrodes: left ankle/hip & arm", 255, 255, 255, 0, 0);
+            break;
+        case righterr:
+            add_text("Check electrodes: right arm & ankle/hip -->", 255, 255, 255, 0, 0);
+            break;
+        case receiving:
+            add_text("Deep breaths and create waves", 255, 255, 255, 0, 0);
+            break;
+        default:
+            break;
+    }
+    status = s;
 }
 
 //////////////////////////////////////////////////////////////////////

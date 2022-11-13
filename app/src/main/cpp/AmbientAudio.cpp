@@ -129,7 +129,7 @@ void AmbientAudio::AudioSource::play(bool doLoopPlaying) {
 
 void AmbientAudio::hasHR(float hr) {
     hrBuffer.push_back(hr);
-    if (hrBuffer.size() > 3) {
+    if (hrBuffer.size() > buffersize) {
         hrBuffer.erase(hrBuffer.begin());
     }
 }
@@ -146,13 +146,19 @@ AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream,
         *(p++) = s;
     }
 
-    if (ambientAudio->hrBuffer.size() > 2) {
+    if (ambientAudio->hrBuffer.size() == buffersize) {
         if (
-                (ambientAudio->hrBuffer[2] < ambientAudio->hrBuffer[1]) &&
-                (ambientAudio->hrBuffer[1] < ambientAudio->hrBuffer[0])
+                (ambientAudio->hrBuffer[0] < ambientAudio->hrBuffer[1]) &&
+                (ambientAudio->hrBuffer[1] < ambientAudio->hrBuffer[2]) &&
+                (ambientAudio->hrBuffer[2] < ambientAudio->hrBuffer[3])
                 ) {
             int i = (int)(random() % (long)numOfWaveSounds);
             ambientAudio->waveSounds[i].play(false);
+            ALOGV("Descending HR values: %f %f %f% f%",
+                  ambientAudio->hrBuffer[0],
+                  ambientAudio->hrBuffer[1],
+                  ambientAudio->hrBuffer[2],
+                  ambientAudio->hrBuffer[3]);
         }
     }
 

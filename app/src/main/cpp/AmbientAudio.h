@@ -17,6 +17,7 @@ using namespace oboe;
 static constexpr int samplingRate = 48000;
 const std::string nameBackgroundSound = "ocean-waves.pcm";
 static constexpr int numOfWaveSounds = 5;
+static constexpr int buffersize = 4;
 const std::string namesOfWaves[numOfWaveSounds] = {"wave1.pcm",
                                                    "wave2.pcm",
                                                    "wave3.pcm",

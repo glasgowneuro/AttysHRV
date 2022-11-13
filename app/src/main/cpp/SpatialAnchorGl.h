@@ -88,6 +88,7 @@ struct OvrBackground : OvrGeometry {
 struct OvrHRText : OvrGeometry {
     static constexpr int nPoints = 500;
     static constexpr float fontsize = 36;
+    static constexpr float leadOffThreshold = 0.1; // 100mV
     struct AxesVertices {
         float positions[nPoints][3];
         float text2D[nPoints][2];
@@ -103,7 +104,11 @@ struct OvrHRText : OvrGeometry {
                   float x, float y,
                   bool centered = true);
     void updateHR(float hr);
+    void attysDataCallBack(float);
     double lastHR = 0;
+    enum Status {none, connecting, receiving, lefterr, righterr, running};
+    Status status = none;
+    void reportStatus(const Status s);
 };
 
 struct OvrECGPlot : OvrGeometry {
