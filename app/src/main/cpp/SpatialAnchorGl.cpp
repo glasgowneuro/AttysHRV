@@ -40,6 +40,7 @@ Copyright	:	Copyright (c) Facebook Technologies, LLC and its affiliates. All rig
 #include "VeraMoBd.h"
 #include "utf8-utils.h"
 #include "Iir.h"
+#include "attysjava2cpp.h"
 
 using namespace OVR;
 
@@ -216,7 +217,6 @@ OvrGeometry
 ================================================================================
 */
 
-static std::vector<double> dataBuffer;
 static std::vector<double> hrBuffer;
 static std::vector<double> hrTs;
 static cubic_spline hrSpline;
@@ -262,7 +262,7 @@ static const char* BACKGROUND_FRAGMENT_SHADER = R"SHADER_SRC(
         float a = 1.0 - v_uv.y;
         if (a < 0.0) a = 0.0;
         if (a > 1.0) a = 1.0;
-        vec4 bot_color = vec4(0.0, a * 0.5, 1.0, a);
+        vec4 bot_color = vec4(0.0, a * 0.5, a, a);
         outColor = bot_color;
     }
 )SHADER_SRC";
@@ -644,20 +644,20 @@ void OvrECGPlot::CreateGeometry() {
 
     iirhp.setup(SAMPLINGRATE,0.5);
     iirnotch.setup(SAMPLINGRATE,NOTCH_CENTER,2.5);
+
+    registerAttysDataCallback([this](float v) { attysDataCallBack(v); });
+}
+
+void OvrECGPlot::attysDataCallBack(float v) {
+    double v2 = iirhp.filter(v);
+    v2 = iirnotch.filter(v2);
+    for (int i = 0; i < (nPoints - 1); i++) {
+        axesVertices.positions[i][1] = axesVertices.positions[i + 1][1];
+    }
+    axesVertices.positions[nPoints - 1][1] = (float) v2 * 1000;
 }
 
 void OvrECGPlot::draw() {
-
-    for (auto const &v: dataBuffer) {
-        double v2 = iirhp.filter(v);
-        v2 = iirnotch.filter(v2);
-        for (int i = 0; i < (nPoints - 1); i++) {
-            axesVertices.positions[i][1] = axesVertices.positions[i + 1][1];
-        }
-        axesVertices.positions[nPoints - 1][1] = (float) v2 * 1000;
-        // ALOGV("OvrECGPlot::draw, buffersz=%u, %f", (unsigned int) dataBuffer.size(),v);
-    }
-    dataBuffer.clear();
 
 #ifdef FAKE_DATA
     for(int i = 0; i < nPoints; i++) {
@@ -820,7 +820,7 @@ void OvrHRPlot::draw() {
                 maxHR = maxHR - hrDecayConstant * maxHR / fps;
             }
             minHR = minHR - hrDecayConstant * (minHR - maxHR) / fps;
-            ALOGV("minHR = %f, maxHR = %f",minHR,maxHR);
+            // ALOGV("minHR = %f, maxHR = %f",minHR,maxHR);
         }
     }
 
@@ -1559,16 +1559,6 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
 
     Framebuffer.Unbind();
 }
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *,
-                                                            jclass,
-                                                            jlong instance,
-                                                            jfloat data) {
-    dataBuffer.push_back(data);
-}
-
 
 extern "C"
 JNIEXPORT void JNICALL

@@ -123,6 +123,7 @@ struct OvrECGPlot : OvrGeometry {
 
     Iir::Butterworth::BandStop<iirorder> iirnotch;
     Iir::Butterworth::HighPass<iirorder> iirhp;
+    void attysDataCallBack(float);
 };
 
 struct OvrHRPlot : OvrGeometry {
