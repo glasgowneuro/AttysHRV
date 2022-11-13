@@ -18,6 +18,8 @@
 #include "Iir.h"
 #include "spline.hpp"
 
+static const char* defaultgreeting = "Connecting to Attys";
+
 #define NUM_EYES 2
 
 constexpr int SAMPLINGRATE = 250;
@@ -98,7 +100,8 @@ struct OvrHRText : OvrGeometry {
     virtual void draw();
     void add_text(const char *text,
                   unsigned char r, unsigned char g, unsigned char b,
-                  float x, float y );
+                  float x, float y,
+                  bool centered = true);
     void updateHR(float hr);
     double lastHR = 0;
 };

@@ -482,7 +482,7 @@ void OvrHRText::CreateGeometry() {
     GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_DYNAMIC_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-    add_text("Hello!",255,255,255,0,0);
+    add_text(defaultgreeting,255,255,255,0,0);
 
     CreateVAO();
 
@@ -521,10 +521,22 @@ void OvrHRText::draw() {
 
 void OvrHRText::add_text(const char *text,
                          unsigned char r, unsigned char g, unsigned char b,
-                         float x, float y ) {
+                         float x, float y, bool centered) {
     VertexCount = 0;
     IndexCount = 0;
     unsigned char a = 255;
+    if (centered) {
+        float xoff = 0;
+        for (int i = 0; i < strlen(text); ++i) {
+            texture_glyph_t *glyph = nullptr;
+            uint32_t codepoint = ftgl::utf8_to_utf32(text + i);
+            glyph = font.glyphs[codepoint >> 8][codepoint & 0xff];
+            if (glyph != nullptr) {
+                xoff += (float)(glyph->advance_x)/fontsize;
+            }
+        }
+        x -= xoff / 2;
+    }
     for (int i = 0; i < strlen(text); ++i) {
         texture_glyph_t *glyph = nullptr;
         uint32_t codepoint = ftgl::utf8_to_utf32(text + i);
@@ -1561,7 +1573,7 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
     if (Scene.HrText.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
         const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(-0.25, -0.5, -0.75);
+        const Matrix4f stagePoseMat = Matrix4f::Translation(0.0, -0.5, -0.75);
         const Matrix4f rot = Matrix4f::RotationX(-M_PI/2.0);
         const Matrix4f m1 = stagePoseMat * scale * rot;
         GL(glUniformMatrix4fv(
