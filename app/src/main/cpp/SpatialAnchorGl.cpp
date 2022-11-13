@@ -730,7 +730,11 @@ void main()
     float trans = max(1.0 - theta, 0.0);
     vec4 diffuseColour = vec4( specularFactor, diffuse + specularFactor, diffuse + specularFactor, 1.0 );
     outColor = diffuseColour*vSlow*0.9;
-    outColor = vec4(outColor.xyz, trans + 0.5);
+    float a = trans + 0.5;
+    if (length(fragPos) > 50.0) {
+        a = 0.0;
+    }
+    outColor = vec4(outColor.xyz, a);
 }
 )SHADER_SRC";
 
