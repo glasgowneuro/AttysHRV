@@ -99,7 +99,7 @@ struct OvrHRText : OvrGeometry {
     void add_text(const char *text,
                   unsigned char r, unsigned char g, unsigned char b,
                   float x, float y );
-    void updateText();
+    void updateHR(float hr);
     double lastHR = 0;
 };
 
@@ -167,6 +167,10 @@ struct OvrHRPlot : OvrGeometry {
     std::chrono::time_point<std::chrono::steady_clock> start_fps_ts;
     double minHR = 1000;
     double maxHR = 0;
+    std::vector<double> hrBuffer;
+    std::vector<double> hrTs;
+    cubic_spline hrSpline;
+    void addHR(float hr);
 };
 
 struct ovrFramebuffer {

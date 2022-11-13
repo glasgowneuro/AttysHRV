@@ -217,9 +217,6 @@ OvrGeometry
 ================================================================================
 */
 
-static std::vector<double> hrBuffer;
-static std::vector<double> hrTs;
-static cubic_spline hrSpline;
 static const std::chrono::time_point<std::chrono::steady_clock> start_ts = std::chrono::steady_clock::now();
 static std::chrono::time_point<std::chrono::steady_clock> current_hr_ts = std::chrono::steady_clock::now();
 
@@ -485,9 +482,21 @@ void OvrHRText::CreateGeometry() {
     add_text("Hello!",255,255,255,0,0);
 
     CreateVAO();
+
+    registerAttysHRCallback([this](float hr){ updateHR(hr); });
 }
 
 void OvrHRText::draw() {
+    // just updating it
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_DYNAMIC_DRAW));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+    // just updating it
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
+    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_DYNAMIC_DRAW));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
     GL(glBindVertexArray(VertexArrayObject));
     GL(glBindTexture(GL_TEXTURE_2D, texid));
 
@@ -563,33 +572,16 @@ void OvrHRText::add_text(const char *text,
         }
     }
     // ALOGV("Glyph: HR Text index count: %d. Vertex count: %d.",IndexCount,VertexCount);
-
-    // just updating it
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_DYNAMIC_DRAW));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-
-    // just updating it
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
-    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_DYNAMIC_DRAW));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
 
-void OvrHRText::updateText() {
-    if (!(hrBuffer.empty())) {
-        if (hrBuffer.back() != lastHR) {
-            lastHR = hrBuffer.back();
-            ALOGV("Updating HR to %d.",(int)round(lastHR));
-            char tmp[256];
-            sprintf(tmp,"%3d BPM",(int)round(lastHR));
-            add_text(tmp,255,255,255,0,0);
-        }
-    }
+void OvrHRText::updateHR(float hr) {
+    lastHR = hr;
+    ALOGV("Updating HR to %d.", (int) round(lastHR));
+    char tmp[256];
+    sprintf(tmp, "%3d BPM", (int) round(lastHR));
+    // updates the vertices
+    add_text(tmp, 255, 255, 255, 0, 0);
 }
-
-
-
-
 
 //////////////////////////////////////////////////////////////////////
 
@@ -800,6 +792,25 @@ void OvrHRPlot::CreateGeometry() {
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
     CreateVAO();
+
+    registerAttysHRCallback([this](float v){ addHR(v); });
+}
+
+void OvrHRPlot::addHR(float hr) {
+    auto current_ts = std::chrono::steady_clock::now();
+    std::chrono::duration<double> d = current_ts - start_ts;
+    double t = d.count();
+    ALOGV("hrUpdate: t=%f, hr=%f",t,hr);
+    hrTs.push_back(t);
+    hrBuffer.push_back(hr);
+    if (hrBuffer.size() > 60) {
+        hrBuffer.erase(hrBuffer.begin());
+        hrTs.erase(hrTs.begin());
+    }
+    if (hrTs.size() > 2) {
+        hrSpline.calc(hrTs, hrBuffer);
+        ALOGV("Prediction: hr(%f)=%f",t+1,hrSpline(t+1));
+    }
 }
 
 void OvrHRPlot::draw() {
@@ -1552,29 +1563,9 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
                 GL_TRUE,
                 &m1.M[0][0]));
     }
-    Scene.HrText.updateText();
     Scene.HrText.draw();
     GL(glUseProgram(0));
 
 
     Framebuffer.Unbind();
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_tech_glasgowneuro_oculusecg_ANativeActivity_hrUpdate(JNIEnv *,jclass, jlong, jfloat v) {
-    auto current_ts = std::chrono::steady_clock::now();
-    std::chrono::duration<double> d = current_ts - start_ts;
-    double t = d.count();
-    ALOGV("hrUpdate: t=%f, hr=%f",t,v);
-    hrTs.push_back(t);
-    hrBuffer.push_back(v);
-    if (hrBuffer.size() > 60) {
-        hrBuffer.erase(hrBuffer.begin());
-        hrTs.erase(hrTs.begin());
-    }
-    if (hrTs.size() > 2) {
-        hrSpline.calc(hrTs, hrBuffer);
-        ALOGV("Prediction: hr(%f)=%f",t+1,hrSpline(t+1));
-    }
 }
