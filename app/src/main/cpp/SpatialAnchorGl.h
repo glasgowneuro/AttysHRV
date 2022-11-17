@@ -106,9 +106,7 @@ struct OvrHRText : OvrGeometry {
     void updateHR(float hr);
     void attysDataCallBack(float);
     double lastHR = 0;
-    enum Status {none, connecting, receiving, lefterr, righterr, running};
-    Status status = none;
-    void reportStatus(const Status s);
+    bool instructionShown = false;
 };
 
 struct OvrECGPlot : OvrGeometry {

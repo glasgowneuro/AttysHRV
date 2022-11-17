@@ -47,8 +47,6 @@ public class ANativeActivity extends android.app.NativeActivity {
       }
     });
     attysComm.setAdc_samplingrate_index(AttysComm.ADC_RATE_250HZ);
-    attysComm.setBiasCurrent(AttysComm.ADC_CURRENT_22NA);
-    attysComm.enableCurrents(true, false, false);
     attysComm.start();
   }
 
