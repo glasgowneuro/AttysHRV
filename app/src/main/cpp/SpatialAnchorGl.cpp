@@ -245,7 +245,9 @@ static const char* SKYBOX_VERTEX_SHADER = R"SHADER_SRC(
         void main()
         {
             mat3 view = mat3(sm.ViewMatrix[VIEW_ID]);
-        	gl_Position = sm.ProjectionMatrix[VIEW_ID] * vec4( view * vertexPosition, 1.0 );
+            vec3 shiftedVertexPos = vertexPosition;
+            shiftedVertexPos.y = shiftedVertexPos.y - 0.1;
+        	gl_Position = sm.ProjectionMatrix[VIEW_ID] * vec4( view * shiftedVertexPos, 1.0 );
         	fragmentColor = vertexColor;
             texCoords = vertexPosition;
         }
@@ -494,10 +496,10 @@ static const char* BACKGROUND_FRAGMENT_SHADER = R"SHADER_SRC(
         float b = 1.0 - v_uv.y;
         if (b < 0.0) b = 0.0;
         if (b > 1.0) b = 1.0;
-        float a = 1.0 - abs(v_uv.y) * 2.0;
+        float a = 1.0 - abs(v_uv.y) * 4.0;
         if (a < 0.0) a = 0.0;
         if (a > 1.0) a = 1.0;
-        vec4 bot_color = vec4(b * 0.5, b * 0.5, b, a);
+        vec4 bot_color = vec4(b * 0.9, b * 0.9, b, a);
         outColor = bot_color;
     }
 )SHADER_SRC";
