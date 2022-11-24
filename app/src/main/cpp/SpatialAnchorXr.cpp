@@ -432,7 +432,6 @@ struct ovrApp {
     bool SessionActive;
 
     ovrExtensionFunctionPointers FunPtrs;
-    ovrScene Scene;
 
     int SwapInterval;
     int CpuLevel;
@@ -868,7 +867,7 @@ static void app_handle_cmd(struct android_app* androidApp, int32_t cmd) {
         case APP_CMD_RESUME: {
             ALOGV("onResume()");
             ALOGV("    APP_CMD_RESUME");
-            app.Env->CallStaticVoidMethod(app.nativeApplicationHandle, app.startAttysComm, &app.Scene);
+            app.Env->CallStaticVoidMethod(app.nativeApplicationHandle, app.startAttysComm, &app.AppRenderer.Scene);
             app.ambientAudio.start();
             app.Resumed = true;
             break;
@@ -1577,6 +1576,9 @@ void android_main(struct android_app* androidApp) {
     // audio
     app.ambientAudio.init(androidApp->activity->assetManager);
 
+    // skybox
+    app.AppRenderer.Scene.ovrSkybox.aAssetManager = androidApp->activity->assetManager;
+
     while (androidApp->destroyRequested == 0)
     {
         frameCount++;
@@ -1779,7 +1781,7 @@ void android_main(struct android_app* androidApp) {
         memset(app.Layers, 0, sizeof(ovrCompositorLayer_Union) * ovrMaxLayerCount);
 
         // passthrough layer is backmost layer (if available)
-        if (reconPassthroughLayer != XR_NULL_HANDLE) {
+        if (0) { //if (reconPassthroughLayer != XR_NULL_HANDLE) {
             XrCompositionLayerPassthroughFB passthrough_layer = {};
             passthrough_layer.type = XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB;
             passthrough_layer.layerHandle = reconPassthroughLayer;

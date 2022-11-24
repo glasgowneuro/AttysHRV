@@ -85,6 +85,14 @@ struct OvrBackground : OvrGeometry {
     GLuint background_vao = 0;
 };
 
+struct OvrSkybox : OvrGeometry {
+    GLuint texid = 0;
+    AAssetManager *aAssetManager = nullptr;
+    void loadTextures(const std::vector<std::string> &faces) const;
+    void CreateGeometry();
+    virtual void draw();
+};
+
 struct OvrHRText : OvrGeometry {
     static constexpr int nPoints = 500;
     static constexpr float fontsize = 36;
@@ -213,6 +221,7 @@ struct ovrScene {
     bool CreatedScene;
     GLuint SceneMatrices;
     OvrAxes Axes;
+    OvrSkybox ovrSkybox;
     OvrECGPlot ECGPlot;
     OvrHRPlot HrPlot;
     OvrHRText HrText;

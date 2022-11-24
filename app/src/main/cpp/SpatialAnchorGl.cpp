@@ -32,6 +32,7 @@ Copyright	:	Copyright (c) Facebook Technologies, LLC and its affiliates. All rig
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>
+#include <android/asset_manager.h>
 
 #include "SpatialAnchorGl.h"
 
@@ -224,6 +225,239 @@ static std::chrono::time_point<std::chrono::steady_clock> current_hr_ts = std::c
 
 
 
+////////////// SKYBOX /////////////////////
+
+static const char* SKYBOX_VERTEX_SHADER = R"SHADER_SRC(
+        #define NUM_VIEWS 2
+        #define VIEW_ID gl_ViewID_OVR
+        #extension GL_OVR_multiview2 : require
+        layout(num_views=NUM_VIEWS) in;
+        in vec3 vertexPosition;
+        in vec4 vertexColor;
+        uniform mat4 ModelMatrix;
+        uniform SceneMatrices
+        {
+        	uniform mat4 ViewMatrix[NUM_VIEWS];
+        	uniform mat4 ProjectionMatrix[NUM_VIEWS];
+        } sm;
+        out vec4 fragmentColor;
+        out vec3 texCoords;
+        void main()
+        {
+        	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * vec4( vertexPosition, 1.0 ) );
+        	fragmentColor = vertexColor;
+            texCoords = vertexPosition;
+        }
+)SHADER_SRC";
+
+static const char* SKYBOX_FRAGMENT_SHADER = R"SHADER_SRC(
+        in vec4 fragmentColor;
+        in vec3 texCoords;
+        uniform samplerCube skybox;
+        out vec4 outColor;
+        void main()
+        {
+           vec4 c = texture(skybox, texCoords);
+           outColor = c;
+        }
+)SHADER_SRC";
+
+void OvrSkybox::loadTextures(const std::vector<std::string> &faces) const {
+    const int textureTarget[] = {
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+    };
+    if (nullptr == aAssetManager) {
+        ALOGE("Cannit load textures. aAssetManager == NULL.");
+        return;
+    }
+    for(int i=0; i < faces.size(); i++) {
+        ALOGV("Loading asset %s.", faces[i].c_str());
+        AAsset *asset = AAssetManager_open(aAssetManager, faces[i].c_str(), AASSET_MODE_BUFFER);
+        std::vector<unsigned char> tmp;
+        if (!asset) {
+            ALOGE("Asset %s does not exist.", faces[i].c_str());
+            return;
+        }
+        const size_t assetLength = AAsset_getLength(asset);
+        tmp.resize(assetLength);
+        const long int actualNumberOfBytes = AAsset_read(asset, tmp.data(), assetLength);
+        AAsset_close(asset);
+        if (assetLength != actualNumberOfBytes) {
+            ALOGE("Asset read %s: expected %ld bytes but only got %ld bytes.",
+                  faces[i].c_str(), AAsset_getLength(asset), actualNumberOfBytes);
+            return;
+        }
+        int width, height, max_colour;
+        sscanf((const char*)(tmp.data()),  // NOLINT(cert-err34-c)
+               "P6 %d %d %d",
+               &width, &height, &max_colour);
+        ALOGV("Cubemap %s loaded: %d x %d, 0..%d",faces[i].c_str(),width,height,max_colour);
+        auto it = tmp.begin();
+        for(int j = 0; j < 3; j++) {
+            it = std::find(it,tmp.end(),0x0a);
+            it++;
+        }
+        tmp.erase(tmp.begin(), it);
+        ALOGV("Cubemap %s data starts with: %0x,%0x. Asset size = %ld, want: %d",
+              faces[i].c_str(),tmp[0],tmp[1],tmp.size(),width*height*3);
+        glTexImage2D(
+                textureTarget[i],
+                0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, tmp.data());
+    }
+}
+
+void OvrSkybox::CreateGeometry() {
+    constexpr int nvertices = 36;
+
+    struct OvrSkyBoxVertices {
+        float positions[nvertices][3];
+        unsigned char colors[nvertices][4];
+    };
+
+    const float vertices[nvertices][3] = {
+    -1.0f,  1.0f, -1.0f,
+    -1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+    -1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f, -1.0f,  1.0f,
+
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+
+    -1.0f, -1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f,  1.0f,
+
+    -1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f,  1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f,  1.0f,
+     1.0f, -1.0f,  1.0f
+    };
+
+    VertexCount = nvertices;
+    IndexCount = nvertices;
+
+    OvrSkyBoxVertices skyBoxVertices = {};
+    unsigned short axesIndices[nvertices];
+    for(int i = 0; i < nvertices; i++) {
+        skyBoxVertices.positions[i][0] = vertices[i][0];
+        skyBoxVertices.positions[i][1] = vertices[i][1];
+        skyBoxVertices.positions[i][2] = vertices[i][2];
+        skyBoxVertices.colors[i][0] = 255;
+        skyBoxVertices.colors[i][1] = 255;
+        skyBoxVertices.colors[i][2] = 255;
+        skyBoxVertices.colors[i][2] = 255;
+        axesIndices[i] = i;
+    }
+
+    VertexAttribs[0].Index = 0;
+    VertexAttribs[0].Name = "vertexPosition";
+    VertexAttribs[0].Size = 3;
+    VertexAttribs[0].Type = GL_FLOAT;
+    VertexAttribs[0].Normalized = false;
+    VertexAttribs[0].Stride = sizeof(skyBoxVertices.positions[0]);
+    VertexAttribs[0].Pointer = (const GLvoid *) offsetof(OvrSkyBoxVertices, positions);
+
+    VertexAttribs[1].Index = 1;
+    VertexAttribs[1].Name = "vertexColor";
+    VertexAttribs[1].Size = 4;
+    VertexAttribs[1].Normalized = true;
+    VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
+    VertexAttribs[1].Stride = sizeof(skyBoxVertices.colors[0]);
+    VertexAttribs[1].Pointer = (const GLvoid *) offsetof(OvrSkyBoxVertices, colors);
+
+    glGenTextures( 1, &texid );
+    ALOGV("Skybox texture ID = %d",texid);
+    glActiveTexture(GL_TEXTURE11);
+    glBindTexture( GL_TEXTURE_CUBE_MAP, texid );
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    const std::vector<std::string> faces = {
+            "right.ppm",
+            "left.ppm",
+            "top.ppm",
+            "bottom.ppm",
+            "front.ppm",
+            "back.ppm"
+    };
+
+    loadTextures(faces);
+
+    glBindTexture( GL_TEXTURE_CUBE_MAP, 0 );
+
+    GL(glGenBuffers(1, &VertexBuffer));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
+    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(skyBoxVertices), &skyBoxVertices, GL_STATIC_DRAW));
+    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+    GL(glGenBuffers(1, &IndexBuffer));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
+    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STATIC_DRAW));
+    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+    CreateVAO();
+}
+
+void OvrSkybox::draw() {
+    GL(glActiveTexture(GL_TEXTURE11));
+    GL(glBindTexture(GL_TEXTURE_CUBE_MAP, texid));
+    GL(glBindVertexArray(VertexArrayObject));
+    GL(glUniform1i(glGetUniformLocation(Program, "skybox"), 11));
+
+    GL(glDepthMask(GL_FALSE));
+    GL(glEnable ( GL_DEPTH_TEST ));
+    GL(glEnable ( GL_BLEND ));
+    GL(glBlendFunc ( GL_SRC_ALPHA , GL_ONE_MINUS_SRC_ALPHA));
+
+    GL(glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_SHORT, nullptr));
+
+    GL(glDepthMask(GL_TRUE));
+
+    GL(glBindVertexArray(0));
+    GL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
+}
+
+
+
+
+
+
+
+
 /////////////// BACKGROUND /////////////////
 
 static const char* BACKGROUND_VERTEX_SHADER = R"SHADER_SRC(
@@ -395,7 +629,7 @@ void OvrAxes::draw() {
     GL(glBindVertexArray(0));
 }
 
-///////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////HR TEXT/////////////////////////////////////////////////////
 
 static const char* HRTEXT_VERTEX_SHADER = R"SHADER_SRC(
         #define NUM_VIEWS 2
@@ -501,6 +735,8 @@ void OvrHRText::draw() {
     GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_DYNAMIC_DRAW));
     GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
+    GL(glUniform1i(glGetUniformLocation(Program, "Texture0"), 0));
+    GL(glActiveTexture(GL_TEXTURE0));
     GL(glBindVertexArray(VertexArrayObject));
     GL(glBindTexture(GL_TEXTURE_2D, texid));
 
@@ -1356,6 +1592,10 @@ void ovrScene::Create() {
     GL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
     GL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
+    if (!ovrSkybox.Create(SKYBOX_VERTEX_SHADER,SKYBOX_FRAGMENT_SHADER)) {
+        ALOGE("Failed to compile Skybox program");
+    }
+
     // Axes
     if (!Axes.Create(AXES_VERTEX_SHADER, AXES_FRAGMENT_SHADER)) {
         ALOGE("Failed to compile axes program");
@@ -1390,6 +1630,8 @@ void ovrScene::Destroy() {
     Axes.Destroy();
     ECGPlot.Destroy();
     HrPlot.Destroy();
+    background.Destroy();
+    ovrSkybox.Destroy();
     CreatedScene = false;
 }
 
@@ -1460,6 +1702,21 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     GL(glClearColor(
             Scene.ClearColor[0], Scene.ClearColor[1], Scene.ClearColor[2], Scene.ClearColor[3]));
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+
+    // skybox
+    GL(glUseProgram(Scene.ovrSkybox.Program));
+    GL(glBindBufferBase(
+            GL_UNIFORM_BUFFER,
+            Scene.ovrSkybox.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
+            Scene.SceneMatrices));
+    if (Scene.ovrSkybox.UniformLocation[ovrUniform::Index::VIEW_ID] >=
+        0) // NOTE: will not be present when multiview path is enabled.
+    {
+        GL(glUniform1i(Scene.ovrSkybox.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
+    }
+    Scene.ovrSkybox.draw();
+    GL(glUseProgram(0));
 
 
     // Background
@@ -1595,3 +1852,4 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
 
     Framebuffer.Unbind();
 }
+
