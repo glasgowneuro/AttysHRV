@@ -244,7 +244,8 @@ static const char* SKYBOX_VERTEX_SHADER = R"SHADER_SRC(
         out vec3 texCoords;
         void main()
         {
-        	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * vec4( vertexPosition, 1.0 ) );
+            mat3 view = mat3(sm.ViewMatrix[VIEW_ID]);
+        	gl_Position = sm.ProjectionMatrix[VIEW_ID] * vec4( view * vertexPosition, 1.0 );
         	fragmentColor = vertexColor;
             texCoords = vertexPosition;
         }
@@ -258,7 +259,7 @@ static const char* SKYBOX_FRAGMENT_SHADER = R"SHADER_SRC(
         void main()
         {
            vec4 c = texture(skybox, texCoords);
-           outColor = c;
+           outColor = vec4(c.xyz,1.0);
         }
 )SHADER_SRC";
 

@@ -1781,7 +1781,7 @@ void android_main(struct android_app* androidApp) {
         memset(app.Layers, 0, sizeof(ovrCompositorLayer_Union) * ovrMaxLayerCount);
 
         // passthrough layer is backmost layer (if available)
-        if (0) { //if (reconPassthroughLayer != XR_NULL_HANDLE) {
+        if (reconPassthroughLayer != XR_NULL_HANDLE) {
             XrCompositionLayerPassthroughFB passthrough_layer = {};
             passthrough_layer.type = XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB;
             passthrough_layer.layerHandle = reconPassthroughLayer;
