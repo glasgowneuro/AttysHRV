@@ -79,12 +79,6 @@ struct OvrAxes : OvrGeometry {
 };
 
 
-struct OvrBackground : OvrGeometry {
-    void CreateGeometry();
-    virtual void draw();
-    GLuint background_vao = 0;
-};
-
 struct OvrSkybox : OvrGeometry {
     GLuint texid = 0;
     AAssetManager *aAssetManager = nullptr;
@@ -225,7 +219,6 @@ struct ovrScene {
     OvrECGPlot ECGPlot;
     OvrHRPlot HrPlot;
     OvrHRText HrText;
-    OvrBackground background;
     float ClearColor[4];
     std::vector<XrSpace> SpaceList;
 };
