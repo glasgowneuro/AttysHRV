@@ -261,9 +261,12 @@ static const char* SKYBOX_FRAGMENT_SHADER = R"SHADER_SRC(
         void main()
         {
            vec4 c = texture(skybox, texCoords);
-           float a = 1.0;
-           if (texCoords.y < -0.15) {
+           float a = 1.0 + texCoords.y;
+           if (a < 0.0) {
              a = 0.0;
+           }
+           if (a > 1.0) {
+             a = 1.0;
            }
            outColor = vec4(c.xyz,a);
         }
