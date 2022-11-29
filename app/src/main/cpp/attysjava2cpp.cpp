@@ -4,6 +4,28 @@
 
 #include "attysjava2cpp.h"
 #include "util.h"
+#include "engzee.h"
+#include "Iir.h"
+
+////////////////////////////////
+// Heartrate callback from java
+std::vector<std::function<void(float)>> attysHRCallbacks;
+
+void registerAttysHRCallback(const std::function<void(float)>& f){
+    attysHRCallbacks.emplace_back(f);
+}
+
+struct MyHRCallBack : HRCallback {
+    void hasHR(float hr) override {
+        for (auto &cb: attysHRCallbacks) {
+            cb(hr);
+        }
+    }
+};
+
+Iir::Butterworth::BandStop<4> iirnotch;
+MyHRCallBack hrCallBack;
+Engzee engzee(hrCallBack);
 
 //////////////////////////////
 // Raw data callback from JAVA
@@ -22,23 +44,16 @@ Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *,jclass,
     for (
         auto &v
             : attysDataCallbacks) {
+        data = iirnotch.filter(data);
+        engzee.detect(data);
         v(data);
     }
 }
 
-////////////////////////////////
-// Heartrate callback from java
-std::vector<std::function<void(float)>> attysHRCallbacks;
-
-void registerAttysHRCallback(const std::function<void(float)>& f){
-    attysHRCallbacks.emplace_back(f);
-}
-
 extern "C"
 JNIEXPORT void JNICALL
-Java_tech_glasgowneuro_oculusecg_ANativeActivity_hrUpdate(JNIEnv *,jclass, jlong, jfloat v) {
-    for (auto &cb: attysHRCallbacks) {
-        cb(v);
-    }
+Java_tech_glasgowneuro_oculusecg_ANativeActivity_init_1java2cpp(JNIEnv *env, jclass clazz,
+                                                                jfloat fs) {
+    iirnotch.setup(fs,50,2.5);
+    engzee.init(fs);
 }
-

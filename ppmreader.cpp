@@ -1,10 +1,11 @@
-std::istream& operator >>(std::istream &inputStream, PPMObject &other)
-{
-    inputStream >> other.magicNum;
-    inputStream >> other.width >> other.height >> other.maxColVal;
-    inputStream.get(); // skip the trailing white space
-    size_t size = other.width * other.height * 3;
-    other.m_Ptr = new char[size];
-    inputStream.read(other.m_Ptr, size);
-    return inputStream;
+#include <stdio.h>
+
+int main(int, char**) {
+	FILE* f=fopen("front.ppm","rb");
+	int width, height, max_colour;
+	fscanf (f, "P6 %d %d %d", &width, &height, &max_colour);
+	unsigned char c;
+	fscanf (f, "%c",&c);
+	printf("%d %d %d\n%x\n", width, height, max_colour,c);
+	fclose(f);
 }

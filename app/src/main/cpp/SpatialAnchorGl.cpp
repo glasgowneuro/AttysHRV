@@ -835,14 +835,12 @@ void OvrECGPlot::CreateGeometry() {
     CreateVAO();
 
     iirhp.setup(SAMPLINGRATE,0.5);
-    iirnotch.setup(SAMPLINGRATE,NOTCH_CENTER,2.5);
 
     registerAttysDataCallback([this](float v) { attysDataCallBack(v); });
 }
 
 void OvrECGPlot::attysDataCallBack(float v) {
     double v2 = iirhp.filter(v);
-    v2 = iirnotch.filter(v2);
     for (int i = 0; i < (nPoints - 1); i++) {
         axesVertices.positions[i][1] = axesVertices.positions[i + 1][1];
     }
