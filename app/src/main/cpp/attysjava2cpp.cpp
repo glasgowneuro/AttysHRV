@@ -4,56 +4,61 @@
 
 #include "attysjava2cpp.h"
 #include "util.h"
-#include "engzee.h"
+#include "ecg_rr_det.h"
 #include "Iir.h"
 
 ////////////////////////////////
 // Heartrate callback from java
 std::vector<std::function<void(float)>> attysHRCallbacks;
 
-void registerAttysHRCallback(const std::function<void(float)>& f){
+void registerAttysHRCallback(const std::function<void(float)> &f) {
     attysHRCallbacks.emplace_back(f);
 }
 
-struct MyHRCallBack : HRCallback {
-    void hasHR(float hr) override {
+
+class MyHRCallBack: public ECG_rr_det::RRlistener {
+public:
+    void hasRpeak(long,
+                          float bpm,
+                          double,
+                          double) override {
+        ALOGV("HR");
         for (auto &cb: attysHRCallbacks) {
-            cb(hr);
+            cb(bpm);
         }
     }
 };
 
-Iir::Butterworth::BandStop<4> iirnotch;
 MyHRCallBack hrCallBack;
-Engzee engzee(hrCallBack);
+ECG_rr_det rrDet(&hrCallBack);
 
 //////////////////////////////
 // Raw data callback from JAVA
 std::vector<std::function<void(float)>> attysDataCallbacks;
 
-void registerAttysDataCallback(const std::function<void(float)>& f) {
-    ALOGV("Registered callback # %lu for Attys data.",(long)attysDataCallbacks.size());
+void registerAttysDataCallback(const std::function<void(float)> &f) {
+    ALOGV("Registered callback # %lu for Attys data.", (long) attysDataCallbacks.size());
     attysDataCallbacks.emplace_back(f);
 }
 
+Iir::Butterworth::BandStop<2> iirnotch;
+
 extern "C"
 JNIEXPORT void JNICALL
-Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *,jclass,
-                                                            jlong instance,
-                                                            jfloat data) {
-    for (
-        auto &v
-            : attysDataCallbacks) {
-        data = iirnotch.filter(data);
-        engzee.detect(data);
+Java_tech_glasgowneuro_oculusecg_ANativeActivity_dataUpdate(JNIEnv *, jclass, jlong instance, jfloat data) {
+    data = iirnotch.filter(data);
+    rrDet.detect(data);
+    for (auto &v : attysDataCallbacks) {
         v(data);
     }
 }
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_tech_glasgowneuro_oculusecg_ANativeActivity_init_1java2cpp(JNIEnv *env, jclass clazz,
-                                                                jfloat fs) {
-    iirnotch.setup(fs,50,2.5);
-    engzee.init(fs);
+Java_tech_glasgowneuro_oculusecg_ANativeActivity_initJava2CPP(JNIEnv *env,
+                                                              jclass clazz,
+                                                              jfloat fs) {
+    ALOGV("Settting up the notch filter and HR detector: fs = %f", fs);
+    iirnotch.setup(fs, 50, 2.5);
+    rrDet.init(fs);
 }

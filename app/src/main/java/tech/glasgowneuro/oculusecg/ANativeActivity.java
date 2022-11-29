@@ -27,7 +27,7 @@ public class ANativeActivity extends android.app.NativeActivity {
     }
   };
 
-  static native void init_java2cpp(float fs);
+  static native void initJava2CPP(float fs);
 
   static void startAttysComm(long inst) {
     Log.d(TAG, "Starting AttysComm");
@@ -35,7 +35,7 @@ public class ANativeActivity extends android.app.NativeActivity {
     attysComm = new AttysComm();
     attysComm.registerDataListener(dataListener);
     attysComm.setAdc_samplingrate_index(AttysComm.ADC_RATE_250HZ);
-    init_java2cpp(attysComm.getSamplingRateInHz());
+    initJava2CPP(attysComm.getSamplingRateInHz());
     attysComm.start();
   }
 

@@ -46,6 +46,7 @@ add_library( # Sets the name of the library.
         # Sets the library as a shared library.
         SHARED
 
+        ecg_rr_det.cpp
         attysjava2cpp.cpp
         utf8-utils.c
         SpatialAnchorGl.cpp
