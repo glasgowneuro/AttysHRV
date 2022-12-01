@@ -32,7 +32,7 @@ public:
 MyHRCallBack hrCallBack;
 ECG_rr_det rrDet(&hrCallBack);
 
-//////////////////////////////
+/////////////////////////////////
 // Raw data callback from JAVA
 std::vector<std::function<void(float)>> attysDataCallbacks;
 
