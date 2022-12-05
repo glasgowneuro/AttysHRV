@@ -876,10 +876,8 @@ const char* HRPLOT_VERTEX_SHADER = R"SHADER_SRC(
         layout(num_views=NUM_VIEWS) in;
         in vec3 vertexPosition;
         in vec3 vertexNormal;
-        out vec3 normal;
-        out vec3 fragPos;
-        out vec4 modPos;
-        out vec3 modNorm;
+        out vec3 fragNormal;
+        out vec3 fragPosition;
         uniform mat4 ModelMatrix;
         uniform SceneMatrices
         {
@@ -888,48 +886,64 @@ const char* HRPLOT_VERTEX_SHADER = R"SHADER_SRC(
         } sm;
         void main()
         {
-           modPos = ModelMatrix * ( vec4( vertexPosition, 1.0 ) );
-           modNorm = normalize((ModelMatrix * ( vec4( vertexNormal, 1.0 ) )).xyz);
-        	vec4 modelView = sm.ViewMatrix[VIEW_ID] * modPos;
-        	gl_Position = sm.ProjectionMatrix[VIEW_ID] * modelView;
-           normal = normalize(vertexNormal);
-           fragPos = vertexPosition;
+           gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );
+           mat3 normalMatrix = transpose(inverse(mat3(ModelMatrix)));
+           fragNormal = normalize(normalMatrix * vertexNormal);
+           fragPosition = vec3(ModelMatrix * vec4(vertexPosition, 1));
         }
 )SHADER_SRC";
 
 const char* HRPLOT_FRAGMENT_SHADER = R"SHADER_SRC(
-in vec3 normal;
-in vec3 fragPos;
-in vec4 modPos;
-in vec3 modNorm;
+in vec3 fragNormal;
+in vec3 fragPosition;
 out lowp vec4 outColor;
 const float pi = 3.14159;
 uniform highp float time;
-float wave(float x, float y, float t, float speed, vec2 direction) {
-    float theta = dot(direction, vec2(x, y));
-    return (sin(theta * pi + t * speed) + 2.0) / 3.0;
-}
+
 void main()
 {
-    vec3 lightPos = vec3(-5.0, 30.0, -3.0);
-    vec3 specLightPos = vec3(-1.0,1.5,-1.0);
-    vec3 lightDir = normalize(lightPos - fragPos);
-    float diffuse = max(dot(normal, lightDir), 0.0);
-    vec3 lightReflect = normalize(reflect(specLightPos, normal));
-    float specularFactor = max(dot(specLightPos, lightReflect), 0.0);
-    specularFactor = pow(specularFactor, 8.0) * 0.005;
-    float v3 = wave(fragPos.x, fragPos.z, time, -0.7, vec2(0.03,0.07));
-    float v4 = wave(fragPos.x, fragPos.z, time, 0.51, vec2(0.03,-0.03));
-    float vSlow = (v3+v4)/6.0+0.75;
-    float theta = abs(dot(normalize(modPos.xyz),normal));
-    float trans = max(1.0 - theta, 0.0);
-    vec4 diffuseColour = vec4( specularFactor, diffuse + specularFactor, diffuse + specularFactor, 1.0 );
-    outColor = diffuseColour*vSlow*0.9;
-    float a = trans + 0.5;
-    if (length(fragPos) > 50.0) {
-        a = 0.0;
+    vec3 light_position = vec3(1.2, 5.0, -5.0);
+    vec3 light_color = vec3(0.0, 1.0, 1.0);
+    float shininess = 30.0;
+
+    // Calculate a vector from the fragment location to the light source
+    vec3 to_light = light_position - fragPosition;
+    to_light = normalize( to_light );
+
+    // The vertex's normal vector is being interpolated across the primitive
+    // which can make it un-normalized. So normalize the vertex's normal vector.
+    vec3 vertex_normal = normalize( fragNormal );
+
+    // Calculate the cosine of the angle between the vertex's normal vector
+    // and the vector going to the light.
+    float cos_angle = dot(vertex_normal, to_light);
+    cos_angle = clamp(cos_angle, 0.0, 1.0);
+
+    // Scale the color of this fragment based on its angle to the light.
+    vec3 diffuse_color = light_color * cos_angle;
+
+    // Calculate the reflection vector
+    vec3 reflection = 2.0 * dot(vertex_normal,to_light) * vertex_normal - to_light;
+
+    // Calculate a vector from the fragment location to the camera.
+    // The camera is at the origin, so negating the vertex location gives the vector
+    vec3 to_camera = -1.0 * fragPosition;
+
+    // Calculate the cosine of the angle between the reflection vector
+    // and the vector going to the camera.
+    reflection = normalize( reflection );
+    to_camera = normalize( to_camera );
+    cos_angle = dot(reflection, to_camera);
+    cos_angle = clamp(cos_angle, 0.0, 1.0);
+    cos_angle = pow(cos_angle, shininess);
+
+    // The specular color is from the light source, not the object
+    vec3 specular_color = vec3(0.0, 0.0, 0.0);
+    if (cos_angle > 0.0) {
+        specular_color = light_color * cos_angle;
+        diffuse_color = diffuse_color * (1.0 - cos_angle);
     }
-    outColor = vec4(outColor.xyz, a);
+    outColor = vec4(diffuse_color + specular_color, 1.0);
 }
 )SHADER_SRC";
 
