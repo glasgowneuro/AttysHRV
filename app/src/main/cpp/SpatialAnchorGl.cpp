@@ -878,6 +878,7 @@ const char* HRPLOT_VERTEX_SHADER = R"SHADER_SRC(
         in vec3 vertexNormal;
         out vec3 fragNormal;
         out vec3 fragPosition;
+        out vec3 fragOrigPosition;
         uniform mat4 ModelMatrix;
         uniform SceneMatrices
         {
@@ -890,12 +891,14 @@ const char* HRPLOT_VERTEX_SHADER = R"SHADER_SRC(
            mat3 normalMatrix = transpose(inverse(mat3(ModelMatrix)));
            fragNormal = normalize(normalMatrix * vertexNormal);
            fragPosition = vec3(ModelMatrix * vec4(vertexPosition, 1));
+           fragOrigPosition = vertexPosition;
         }
 )SHADER_SRC";
 
 const char* HRPLOT_FRAGMENT_SHADER = R"SHADER_SRC(
 in vec3 fragNormal;
 in vec3 fragPosition;
+in vec3 fragOrigPosition;
 out lowp vec4 outColor;
 const float pi = 3.14159;
 uniform highp float time;
@@ -943,7 +946,13 @@ void main()
         specular_color = light_color * cos_angle;
         diffuse_color = diffuse_color * (1.0 - cos_angle);
     }
-    outColor = vec4(diffuse_color + specular_color, 1.0);
+    float theta = abs(dot(normalize(fragPosition),fragNormal));
+    float trans = max(1.0 - theta, 0.0);
+    float a = trans + 0.5;
+    if (length(fragOrigPosition) > 50.0) {
+        a = 0.0;
+    }
+    outColor = vec4(diffuse_color + specular_color, a);
 }
 )SHADER_SRC";
 
