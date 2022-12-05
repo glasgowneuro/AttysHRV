@@ -906,7 +906,8 @@ uniform highp float time;
 void main()
 {
     vec3 light_position = vec3(1.2, 5.0, -5.0);
-    vec3 light_color = vec3(0.0, 1.0, 1.0);
+    vec3 diffuse_light_color = vec3(0.0, 1.0, 1.0);
+    vec3 specular_light_color = vec3(1.0, 1.0, 16.0 / 255.0);
     float shininess = 30.0;
 
     // Calculate a vector from the fragment location to the light source
@@ -923,7 +924,7 @@ void main()
     cos_angle = clamp(cos_angle, 0.0, 1.0);
 
     // Scale the color of this fragment based on its angle to the light.
-    vec3 diffuse_color = light_color * cos_angle;
+    vec3 diffuse_color = diffuse_light_color * cos_angle;
 
     // Calculate the reflection vector
     vec3 reflection = 2.0 * dot(vertex_normal,to_light) * vertex_normal - to_light;
@@ -943,7 +944,7 @@ void main()
     // The specular color is from the light source, not the object
     vec3 specular_color = vec3(0.0, 0.0, 0.0);
     if (cos_angle > 0.0) {
-        specular_color = light_color * cos_angle;
+        specular_color = specular_light_color * cos_angle;
         diffuse_color = diffuse_color * (1.0 - cos_angle);
     }
     float theta = abs(dot(normalize(fragPosition),fragNormal));
