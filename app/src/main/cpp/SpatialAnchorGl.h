@@ -149,21 +149,23 @@ struct OvrHRPlot : OvrGeometry {
         float normals[NR_VERTICES][3] = {};
     };
 
-    struct DropAnim {
+    struct WavesAnim {
         double centerX = (QUAD_GRID_SIZE+1)/2;
         double centerY = (QUAD_GRID_SIZE+1)/2;
-        double spatialFreq = 100;
+        double spatialFreqX = 100;
+        double spatialFreqY = 100;
         double temporalFreq = 1;
-        double spatialFreqDecay = 0.0;
+        const double maxr = sqrt((QUAD_GRID_SIZE) * (QUAD_GRID_SIZE));
         float calcHeight(int x, int y, double t) {
-            const double xc = (double) x - centerX;
-            const double yc = (double) y - centerY;
-            const double maxr = sqrt((QUAD_GRID_SIZE) * (QUAD_GRID_SIZE));
-            const double r = sqrt(yc * yc + xc * xc) / maxr;
-            const double spatDec = spatialFreq / (1 + r * spatialFreqDecay );
-            return sin(r * spatDec + t * temporalFreq);
+            const double xc = ((double) x - centerX)/maxr;
+            const double yc = ((double) y - centerY)/maxr;
+            const double dx = (xc * spatialFreqX + yc * spatialFreqY);
+            return 1-fabs(sin(dx + t * temporalFreq));
         }
     };
+
+    float windDir = M_PI/2;
+    float windSpeed = 500;
 
     HRVertices hrVertices = {};
 
