@@ -247,7 +247,7 @@ static const char* SKYBOX_VERTEX_SHADER = R"SHADER_SRC(
             mat3 view = mat3(sm.ViewMatrix[VIEW_ID]);
             vec3 shiftedVertexPos = vertexPosition;
             shiftedVertexPos.y = shiftedVertexPos.y - 0.15;
-        	gl_Position = sm.ProjectionMatrix[VIEW_ID] * vec4( view * shiftedVertexPos, 1.0 );
+        	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( shiftedVertexPos, 1.0 ) ) ) );
         	fragmentColor = vertexColor;
             texCoords = vertexPosition;
         }
@@ -905,7 +905,7 @@ uniform highp float time;
 
 void main()
 {
-    vec3 light_position = vec3(1.2, 5.0, -5.0);
+    vec3 light_position = vec3(5.0, 10.0, -50.0);
     vec3 diffuse_light_color = vec3(0.0, 1.0, 1.0);
     vec3 specular_light_color = vec3(1.0, 1.0, 16.0 / 255.0);
     float shininess = 30.0;
@@ -1633,7 +1633,7 @@ void ovrAppRenderer::Destroy() {
 void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     // Update the scene matrices.
     GL(glBindBuffer(GL_UNIFORM_BUFFER, Scene.SceneMatrices));
-    GL(Matrix4f *sceneMatrices = (Matrix4f *) glMapBufferRange(
+    GL(auto *sceneMatrices = (Matrix4f *) glMapBufferRange(
             GL_UNIFORM_BUFFER,
             0,
             4 * sizeof(Matrix4f) /* 2 view + 2 proj matrices */,
@@ -1673,6 +1673,14 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
         0) // NOTE: will not be present when multiview path is enabled.
     {
         GL(glUniform1i(Scene.ovrSkybox.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
+    }
+    if (Scene.Axes.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
+        const Matrix4f rot = Matrix4f::RotationY(M_PI/2.0f) * Matrix4f::Scaling(10.0, 10.0, 10.0);
+        GL(glUniformMatrix4fv(
+                Scene.Axes.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
+                1,
+                GL_TRUE,
+                &rot.M[0][0]));
     }
     Scene.ovrSkybox.draw();
     GL(glUseProgram(0));
