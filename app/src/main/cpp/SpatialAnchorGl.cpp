@@ -1095,23 +1095,16 @@ void OvrHRPlot::draw() {
     }
 
     WavesAnim wavesAnim[3];
-    wavesAnim[0].centerY = QUAD_GRID_SIZE;
-    wavesAnim[0].centerX = QUAD_GRID_SIZE * 0.12;
-    wavesAnim[0].spatialFreqX = 500;
-    wavesAnim[0].spatialFreqY = 500;
-    wavesAnim[0].temporalFreq = 7;
+    wavesAnim[0].temporalFreq = 7/4.0;
+    wavesAnim[1].temporalFreq = 4/2.0;
+    wavesAnim[2].temporalFreq = 5/3.0;
 
-    wavesAnim[1].centerY = QUAD_GRID_SIZE * 0.9;
-    wavesAnim[1].centerX = QUAD_GRID_SIZE * 0.9;
-    wavesAnim[1].spatialFreqX = 400;
-    wavesAnim[1].spatialFreqY = 450;
-    wavesAnim[1].temporalFreq = 4;
-
-    wavesAnim[2].centerY = QUAD_GRID_SIZE * 0.4;
-    wavesAnim[2].centerX = QUAD_GRID_SIZE * 0.6;
-    wavesAnim[2].spatialFreqX = 450;
-    wavesAnim[2].spatialFreqY = 400;
-    wavesAnim[2].temporalFreq = 5;
+    //windDir += (((float)random() / (float)RAND_MAX) - 0.5f) / fps / 100;
+    auto wd = (float)(windDir - M_PI/7.0f);
+    for(auto &da:wavesAnim) {
+        wd += (float)(M_PI/7.0f);
+        da.updateSpatialFreq(wd,windSpeed);
+    }
 
     //ALOGV("after: minHR = %f, maxHR = %f, norm = %f", minHR, maxHR, hrnorm);
     for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
@@ -1128,7 +1121,7 @@ void OvrHRPlot::draw() {
                 }
             }
             for(auto &da:wavesAnim) {
-                h += da.calcHeight(x, y, t) * 0.05f;
+                h += da.calcHeight(x, y, t) * 0.1f;
             }
             hrVertices.vertices[vertexPosition][1] = h;
         }
