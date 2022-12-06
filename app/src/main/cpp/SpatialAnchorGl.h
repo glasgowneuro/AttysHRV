@@ -154,12 +154,14 @@ struct OvrHRPlot : OvrGeometry {
         double centerY = (QUAD_GRID_SIZE+1)/2;
         double spatialFreq = 100;
         double temporalFreq = 1;
+        double spatialFreqDecay = 0.0;
         float calcHeight(int x, int y, double t) {
             const double xc = (double) x - centerX;
             const double yc = (double) y - centerY;
             const double maxr = sqrt((QUAD_GRID_SIZE) * (QUAD_GRID_SIZE));
             const double r = sqrt(yc * yc + xc * xc) / maxr;
-            return sin(r * spatialFreq + t * temporalFreq);
+            const double spatDec = spatialFreq / (1 + r * spatialFreqDecay );
+            return sin(r * spatDec + t * temporalFreq);
         }
     };
 

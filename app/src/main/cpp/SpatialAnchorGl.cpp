@@ -902,12 +902,16 @@ in vec3 fragOrigPosition;
 out lowp vec4 outColor;
 const float pi = 3.14159;
 uniform highp float time;
-
+float wave(float x, float y, float t, float speed, vec2 direction) {
+    float theta = dot(direction, vec2(x, y));
+    return (sin(theta * pi + t * speed) + 2.0) / 3.0;
+}
 void main()
 {
     vec3 light_position = vec3(5.0, 10.0, -50.0);
     vec3 diffuse_light_color = vec3(0.0, 1.0, 1.0);
     vec3 specular_light_color = vec3(1.0, 1.0, 16.0 / 255.0);
+    vec3 slow_light_color = vec3(0.0, 0.05, 0.2);
     float shininess = 30.0;
 
     // Calculate a vector from the fragment location to the light source
@@ -947,13 +951,20 @@ void main()
         specular_color = specular_light_color * cos_angle;
         diffuse_color = diffuse_color * (1.0 - cos_angle);
     }
+
+    // moving blue shadows
+    float v1 = wave(fragPosition.x, fragPosition.z, time, -0.7, vec2(0.03,0.07));
+    float v2 = wave(fragPosition.x, fragPosition.z, time, 0.51, vec2(0.03,-0.03));
+    float vSlow = (v1+v2)/6.0+0.75;
+    float vSlow2 = (v1+v2);
+
     float theta = abs(dot(normalize(fragPosition),fragNormal));
     float trans = max(1.0 - theta, 0.0);
     float a = trans + 0.5;
     if (length(fragOrigPosition) > 50.0) {
         a = 0.0;
     }
-    outColor = vec4(diffuse_color + specular_color, a);
+    outColor = vec4(diffuse_color * vSlow + specular_color + slow_light_color * vSlow2, a);
 }
 )SHADER_SRC";
 
@@ -1083,16 +1094,24 @@ void OvrHRPlot::draw() {
         }
     }
 
-    DropAnim dropAnim[2];
+    DropAnim dropAnim[3];
     dropAnim[0].centerY = QUAD_GRID_SIZE;
     dropAnim[0].centerX = QUAD_GRID_SIZE*0.12;
-    dropAnim[0].spatialFreq = 500;
+    dropAnim[0].spatialFreq = 1000;
     dropAnim[0].temporalFreq = 7;
+    dropAnim[0].spatialFreqDecay = 0.5;
 
     dropAnim[1].centerY = QUAD_GRID_SIZE*0.9;
     dropAnim[1].centerX = QUAD_GRID_SIZE*0.9;
-    dropAnim[1].spatialFreq = 500;
+    dropAnim[1].spatialFreq = 400;
     dropAnim[1].temporalFreq = 4;
+    dropAnim[1].spatialFreqDecay = 0.15;
+
+    dropAnim[2].centerY = QUAD_GRID_SIZE*0.4;
+    dropAnim[2].centerX = QUAD_GRID_SIZE*0.6;
+    dropAnim[2].spatialFreq = 200;
+    dropAnim[2].temporalFreq = 5;
+    dropAnim[2].spatialFreqDecay = 0.1;
 
     //ALOGV("after: minHR = %f, maxHR = %f, norm = %f", minHR, maxHR, hrnorm);
     for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
