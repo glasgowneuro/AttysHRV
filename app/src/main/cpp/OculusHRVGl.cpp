@@ -34,7 +34,7 @@ Copyright	:	Copyright (c) Facebook Technologies, LLC and its affiliates. All rig
 #include <GLES3/gl3ext.h>
 #include <android/asset_manager.h>
 
-#include "SpatialAnchorGl.h"
+#include "OculusHRVGl.h"
 
 #include "util.h"
 #include "spline.hpp"

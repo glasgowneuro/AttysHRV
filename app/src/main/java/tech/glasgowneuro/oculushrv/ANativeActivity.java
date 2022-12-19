@@ -1,9 +1,8 @@
-package tech.glasgowneuro.oculusecg;
+package tech.glasgowneuro.oculushrv;
 
 import android.util.Log;
 
 import tech.glasgowneuro.attyscomm.AttysComm;
-import uk.me.berndporr.iirj.Butterworth;
 
 public class ANativeActivity extends android.app.NativeActivity {
   static final String TAG = "OculusECG";

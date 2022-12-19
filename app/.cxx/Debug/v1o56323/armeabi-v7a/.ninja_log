@@ -1,6 +1,0 @@
-# ninja log v5
-4	796	1661176468	CMakeFiles/oculusecg.dir/native-lib.cpp.o	2e8c1a9f14af6725
-0	935	1661176468	CMakeFiles/oculusecg.dir/SimpleXrInput.cpp.o	de1a3d7bb940b509
-3	995	1661176468	CMakeFiles/oculusecg.dir/SpatialAnchorGl.cpp.o	19278ea8141f80cb
-4	1420	1661176469	CMakeFiles/oculusecg.dir/SpatialAnchorXr.cpp.o	110af676ce49c968
-1	42	1661176566	/home/bp1/sandbox/OculusECG/app/build/intermediates/cxx/Debug/v1o56323/obj/armeabi-v7a/liboculusecg.so	7cef718a5211e26b
