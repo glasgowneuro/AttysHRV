@@ -1,11 +1,11 @@
-package tech.glasgowneuro.oculushrv;
+package tech.glasgowneuro.attyshrv;
 
 import android.util.Log;
 
 import tech.glasgowneuro.attyscomm.AttysComm;
 
 public class ANativeActivity extends android.app.NativeActivity {
-  static final String TAG = "OculusECG";
+  static final String TAG = "AttysHRV";
 
   static private long instance = 0;
 
@@ -13,7 +13,7 @@ public class ANativeActivity extends android.app.NativeActivity {
 
   static {
     System.loadLibrary("openxr_loader");
-    System.loadLibrary("oculushrv");
+    System.loadLibrary("attyshrv");
   }
 
   static native void dataUpdate(long inst, float v);

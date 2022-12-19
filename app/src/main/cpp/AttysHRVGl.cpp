@@ -34,7 +34,7 @@ Copyright	:	Copyright (c) Facebook Technologies, LLC and its affiliates. All rig
 #include <GLES3/gl3ext.h>
 #include <android/asset_manager.h>
 
-#include "OculusHRVGl.h"
+#include "AttysHRVGl.h"
 
 #include "util.h"
 #include "spline.hpp"
@@ -219,7 +219,6 @@ OvrGeometry
 */
 
 static const std::chrono::time_point<std::chrono::steady_clock> start_ts = std::chrono::steady_clock::now();
-static std::chrono::time_point<std::chrono::steady_clock> current_hr_ts = std::chrono::steady_clock::now();
 
 
 

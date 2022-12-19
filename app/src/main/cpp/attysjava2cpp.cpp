@@ -45,7 +45,7 @@ Iir::Butterworth::BandStop<2> iirnotch;
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_tech_glasgowneuro_oculushrv_ANativeActivity_dataUpdate(JNIEnv *, jclass, jlong instance, jfloat data) {
+Java_tech_glasgowneuro_attyshrv_ANativeActivity_dataUpdate(JNIEnv *, jclass, jlong instance, jfloat data) {
     data = iirnotch.filter(data);
     rrDet.detect(data);
     for (auto &v : attysDataCallbacks) {
@@ -55,7 +55,7 @@ Java_tech_glasgowneuro_oculushrv_ANativeActivity_dataUpdate(JNIEnv *, jclass, jl
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_tech_glasgowneuro_oculushrv_ANativeActivity_initJava2CPP(JNIEnv *env,
+Java_tech_glasgowneuro_attyshrv_ANativeActivity_initJava2CPP(JNIEnv *env,
                                                               jclass clazz,
                                                               jfloat fs) {
     ALOGV("Settting up the notch filter and HR detector: fs = %f", fs);

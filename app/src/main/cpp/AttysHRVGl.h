@@ -23,7 +23,6 @@ static const char* defaultgreeting = "Connecting to Attys";
 #define NUM_EYES 2
 
 constexpr int SAMPLINGRATE = 250;
-constexpr int NOTCH_CENTER = 50;
 
 class OvrGeometry {
 public:
@@ -90,7 +89,7 @@ struct OvrSkybox : OvrGeometry {
 struct OvrHRText : OvrGeometry {
     static constexpr int nPoints = 500;
     static constexpr float fontsize = 36;
-    static constexpr float leadOffThreshold = 0.1; // 100mV
+    // 100mV
     struct AxesVertices {
         float positions[nPoints][3];
         float text2D[nPoints][2];

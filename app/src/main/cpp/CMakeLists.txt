@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.18.1)
 
 # Declares and names the project.
 
-project("oculushrv")
+project("attyshrv")
 
 # set it to the oculus API
 set(OCULUS_OPENXR_MOBILE_SDK /home/bp1/sandbox/ovr_openxr_mobile_sdk)
@@ -41,7 +41,7 @@ add_library(native_app_glue STATIC
         ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
 
 add_library( # Sets the name of the library.
-        oculushrv
+        attyshrv
 
         # Sets the library as a shared library.
         SHARED
@@ -49,9 +49,9 @@ add_library( # Sets the name of the library.
         ecg_rr_det.cpp
         attysjava2cpp.cpp
         utf8-utils.c
-        OculusHRVGl.cpp
+        AttysHRVGl.cpp
         SimpleXrInput.cpp
-        OculusHRVXr.cpp
+        AttysHRVXr.cpp
         AmbientAudio.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -74,7 +74,7 @@ find_library( # Sets the name of the path variable.
 # set (CMAKE_CXX_LINK_LIBRARY_FLAG "-u ANativeActivity_onCreate")
 
 target_link_libraries( # Specifies the target library.
-        oculushrv
+        attyshrv
 
         openxr_loader
         nativewindow

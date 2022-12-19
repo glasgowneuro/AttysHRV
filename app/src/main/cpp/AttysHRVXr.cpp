@@ -28,8 +28,8 @@ Copyright : Copyright (c) Facebook Technologies, LLC and its affiliates. All rig
 
 #include <assert.h>
 
-#include "OculusHRVXr.h"
-#include "OculusHRVGl.h"
+#include "AttysHRVXr.h"
+#include "AttysHRVGl.h"
 #include "SimpleXrInput.h"
 
 #include <openxr/fb_spatial_entity.h>
