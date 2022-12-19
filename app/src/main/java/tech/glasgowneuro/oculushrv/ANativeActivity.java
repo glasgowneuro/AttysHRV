@@ -13,7 +13,7 @@ public class ANativeActivity extends android.app.NativeActivity {
 
   static {
     System.loadLibrary("openxr_loader");
-    System.loadLibrary("oculusecg");
+    System.loadLibrary("oculushrv");
   }
 
   static native void dataUpdate(long inst, float v);
