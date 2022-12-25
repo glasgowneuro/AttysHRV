@@ -55,7 +55,7 @@ private:
 
     // counts towards zero every RR peak
     // if non zero the RR value is ignored
-    int ignoreRRvalue = 2;
+    int ignoreRRvalue = 3;
 
     // ignores samples to let the filter settle
     int ignoreECGdetector = 1000;
