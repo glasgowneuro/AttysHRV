@@ -3,6 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$/../AttysComm" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/cpp/cxx-spline" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/app/src/main/cpp/iir1" vcs="Git" />
   </component>
 </project>

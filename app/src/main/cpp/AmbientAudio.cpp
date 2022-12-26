@@ -154,7 +154,7 @@ AmbientAudio::MyCallback::onAudioReady(oboe::AudioStream *audioStream,
                 ) {
             int i = (int)(random() % (long)numOfWaveSounds);
             ambientAudio->waveSounds[i].play(false);
-            ALOGV("Descending HR values: %f %f %f% f%",
+            ALOGV("Descending HR values: %f %f %f %f",
                   ambientAudio->hrBuffer[0],
                   ambientAudio->hrBuffer[1],
                   ambientAudio->hrBuffer[2],

@@ -29,6 +29,7 @@ set_property(
 
 include_directories(
         ${OCULUS_OPENXR_MOBILE_SDK}/3rdParty/khronos/openxr/OpenXR-SDK/include
+        ${OCULUS_OPENXR_MOBILE_SDK}/3rdParty/khronos/openxr/OpenXR-SDK/src/common/
         ${OCULUS_OPENXR_MOBILE_SDK}/1stParty/OVR/Include/
         ${OCULUS_OPENXR_MOBILE_SDK}/OpenXR/Include
         ${ANDROID_NDK}/sources/android/native_app_glue/
