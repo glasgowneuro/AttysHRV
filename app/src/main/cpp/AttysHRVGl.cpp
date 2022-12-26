@@ -24,7 +24,6 @@
 #include "AttysHRVGl.h"
 
 #include "util.h"
-#include "spline.hpp"
 #include "VeraMoBd.h"
 #include "utf8-utils.h"
 #include "Iir.h"
@@ -1020,6 +1019,7 @@ void OvrHRPlot::CreateGeometry() {
 }
 
 void OvrHRPlot::addHR(float hr) {
+    const std::lock_guard<std::mutex> lock(mtx);
     auto current_ts = std::chrono::steady_clock::now();
     std::chrono::duration<double> d = current_ts - start_ts;
     double t = d.count();
@@ -1031,7 +1031,7 @@ void OvrHRPlot::addHR(float hr) {
         hrTs.erase(hrTs.begin());
     }
     if (hrTs.size() > 1) {
-        hrSpline.calc(hrTs, hrBuffer);
+        hrSpline = cubic_spline(hrTs, hrBuffer);
         ALOGV("Prediction: hr(%f)=%f",t+1,hrSpline(t+1));
     }
 }
@@ -1058,14 +1058,15 @@ void OvrHRPlot::draw() {
         }
     }
 
-    if (hrBuffer.size() > 1) {
+    mtx.lock();
+    if (hrSpline.hasSpline()) {
         for (int i = 0; i < shiftbuffersize; i++) {
             double dt = t - (double) i / (double) shiftbuffersize * maxtime;
             double hrInterpol = 0;
-            if (dt < (hrSpline.getLowerBound() - spline_pred_sec)) {
-                hrInterpol = hrSpline(hrSpline.getLowerBound() - spline_pred_sec);
-            } else if (dt > (hrSpline.getUpperBound() + spline_pred_sec) ) {
-                hrInterpol = hrSpline(hrSpline.getUpperBound() + spline_pred_sec);
+            if (dt < (hrSpline.lower_bound() - spline_pred_sec)) {
+                hrInterpol = hrSpline(hrSpline.lower_bound() - spline_pred_sec);
+            } else if (dt > (hrSpline.upper_bound() + spline_pred_sec) ) {
+                hrInterpol = hrSpline(hrSpline.upper_bound() + spline_pred_sec);
             } else {
                 hrInterpol = hrSpline(dt);
             }
@@ -1078,6 +1079,16 @@ void OvrHRPlot::draw() {
         if (hrnorm < minHRdiff) {
             hrnorm = minHRdiff;
         }
+    }
+    mtx.unlock();
+    if (dCtr++ > 30) {
+        std::string s = "hrShiftBuffer = ";
+        for(auto &v:hrShiftBuffer) {
+            s += std::to_string(v);
+            s += ", ";
+        }
+        ALOGV("%s",s.c_str());
+        dCtr = 0;
     }
 
     WavesAnim wavesAnim[3];

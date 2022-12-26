@@ -34,6 +34,7 @@ include_directories(
         ${OCULUS_OPENXR_MOBILE_SDK}/OpenXR/Include
         ${ANDROID_NDK}/sources/android/native_app_glue/
         iir1
+        cxx-spline
 )
 set(CODEGEN_FOLDER ../app/.cxx/openxr)
 add_subdirectory(${OCULUS_OPENXR_MOBILE_SDK}/3rdParty/khronos/openxr/OpenXR-SDK/include ${CODEGEN_FOLDER})

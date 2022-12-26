@@ -22,7 +22,7 @@
 #include "OVR_Math.h"
 
 #include "Iir.h"
-#include "spline.hpp"
+#include "cxx-spline.h"
 
 static const char* defaultgreeting = "Connecting to Attys";
 
@@ -190,6 +190,8 @@ struct OvrHRPlot : OvrGeometry {
     std::vector<double> hrBuffer;
     std::vector<double> hrTs;
     cubic_spline hrSpline;
+    std::mutex mtx;
+    int dCtr = 0;
     void addHR(float hr);
 };
 
