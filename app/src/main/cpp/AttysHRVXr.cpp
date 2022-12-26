@@ -1,14 +1,3 @@
-/************************************************************************************
-
-Filename  : SpatialAnchorXr.cpp
-Content   : This sample uses the Android NativeActivity class.
-Created   :
-Authors   :
-
-Copyright : Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
-
-*************************************************************************************/
-
 #include <openxr/openxr.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,7 +19,7 @@ Copyright : Copyright (c) Facebook Technologies, LLC and its affiliates. All rig
 
 #include "AttysHRVXr.h"
 #include "AttysHRVGl.h"
-#include "SimpleXrInput.h"
+#include "XrInput.h"
 
 #include <openxr/fb_spatial_entity.h>
 #include <openxr/fb_spatial_entity_query.h>
@@ -398,7 +387,6 @@ struct ovrExtensionFunctionPointers {
     PFN_xrEnumerateSpaceSupportedComponentsFB xrEnumerateSpaceSupportedComponentsFB = nullptr;
     PFN_xrSetSpaceComponentStatusFB xrSetSpaceComponentStatusFB = nullptr;
     PFN_xrGetSpaceComponentStatusFB xrGetSpaceComponentStatusFB = nullptr;
-    PFN_xrCreateSpatialAnchorFB xrCreateSpatialAnchorFB = nullptr;
     PFN_xrQuerySpacesFB xrQuerySpacesFB = nullptr;
     PFN_xrRetrieveSpaceQueryResultsFB xrRetrieveSpaceQueryResultsFB = nullptr;
     PFN_xrSaveSpaceFB xrSaveSpaceFB = nullptr;
@@ -444,12 +432,9 @@ struct ovrApp {
 
     bool TouchPadDownLastFrame;
 
-    bool ShouldQueryAnchors;
-
     XrSwapchain ColorSwapChain;
     uint32_t SwapChainLength;
     Vector3f StageBounds;
-    // Provided by SpatialAnchorGl, which is not aware of VrApi or OpenXR
     ovrAppRenderer AppRenderer;
 
     std::map<XrAsyncRequestIdFB, XrSpace> DestroySpaceEventMap;
@@ -488,7 +473,6 @@ void ovrApp::Clear() {
     MainThreadTid = 0;
     RenderThreadTid = 0;
     TouchPadDownLastFrame = false;
-    ShouldQueryAnchors = true;
 
     Egl.Clear();
     AppRenderer.Clear();
@@ -603,7 +587,7 @@ void ovrApp::HandleXrEvents() {
 
     // Poll for events
     for (;;) {
-        XrEventDataBaseHeader* baseEventHeader = (XrEventDataBaseHeader*)(&eventDataBuffer);
+        auto* baseEventHeader = (XrEventDataBaseHeader*)(&eventDataBuffer);
         baseEventHeader->type = XR_TYPE_EVENT_DATA_BUFFER;
         baseEventHeader->next = NULL;
         XrResult r;
@@ -662,140 +646,6 @@ void ovrApp::HandleXrEvents() {
                     default:
                         break;
                 }
-            } break;
-            case XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB: {
-                ALOGV("xrPollEvent: received XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB");
-                const XrEventDataSpaceSetStatusCompleteFB* enableResult =
-                        (XrEventDataSpaceSetStatusCompleteFB*)(baseEventHeader);
-                if (enableResult->result == XR_SUCCESS) {
-                    if (enableResult->componentType == XR_SPACE_COMPONENT_TYPE_STORABLE_FB) {
-                        XrSpaceSaveInfoFB saveInfo = {
-                                XR_TYPE_SPACE_SAVE_INFO_FB,
-                                nullptr,
-                                enableResult->space,
-                                XR_SPACE_STORAGE_LOCATION_LOCAL_FB,
-                                XR_SPACE_PERSISTENCE_MODE_INDEFINITE_FB};
-
-                        // save the space
-                        XrAsyncRequestIdFB requestId;
-                        OXR(FunPtrs.xrSaveSpaceFB(Session, &saveInfo, &requestId));
-                    } else if (
-                            enableResult->componentType == XR_SPACE_COMPONENT_TYPE_LOCATABLE_FB) {
-                        if (AppRenderer.Scene.SpaceList.size() < MAX_PERSISTENT_SPACES) {
-                            AppRenderer.Scene.SpaceList.push_back(enableResult->space);
-                        }
-                    }
-                }
-            } break;
-            case XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB: {
-                ALOGV("xrPollEvent: received XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB");
-                const XrEventDataSpatialAnchorCreateCompleteFB* createAnchorResult =
-                        (XrEventDataSpatialAnchorCreateCompleteFB*)(baseEventHeader);
-                XrSpace space = createAnchorResult->space;
-                AppRenderer.Scene.SpaceList.push_back(space);
-
-                if (IsComponentSupported(space, XR_SPACE_COMPONENT_TYPE_STORABLE_FB)) {
-                    XrSpaceComponentStatusSetInfoFB request = {
-                            XR_TYPE_SPACE_COMPONENT_STATUS_SET_INFO_FB,
-                            nullptr,
-                            XR_SPACE_COMPONENT_TYPE_STORABLE_FB,
-                            XR_TRUE,
-                            0};
-
-                    XrAsyncRequestIdFB requestId;
-                    XrResult res = FunPtrs.xrSetSpaceComponentStatusFB(space, &request, &requestId);
-                    if (res == XR_ERROR_SPACE_COMPONENT_STATUS_ALREADY_SET_FB) {
-                        XrSpaceSaveInfoFB saveInfo = {
-                                XR_TYPE_SPACE_SAVE_INFO_FB,
-                                nullptr,
-                                space,
-                                XR_SPACE_STORAGE_LOCATION_LOCAL_FB,
-                                XR_SPACE_PERSISTENCE_MODE_INDEFINITE_FB};
-
-                        // save the space
-                        ALOGV("Saving created anchor.");
-                        OXR(FunPtrs.xrSaveSpaceFB(Session, &saveInfo, &requestId));
-                    }
-                }
-
-
-                ALOGV(
-                        "Number of anchors after calling PlaceAnchor: %zu",
-                        AppRenderer.Scene.SpaceList.size());
-            } break;
-            case XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB: {
-                ALOGV("xrPollEvent: received XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB");
-                const auto resultsAvailable =
-                        (XrEventDataSpaceQueryResultsAvailableFB*)baseEventHeader;
-
-                XrResult res = XR_SUCCESS;
-
-                XrSpaceQueryResultsFB queryResults{XR_TYPE_SPACE_QUERY_RESULTS_FB};
-                queryResults.resultCapacityInput = 0;
-                queryResults.resultCountOutput = 0;
-                queryResults.results = nullptr;
-
-                res = FunPtrs.xrRetrieveSpaceQueryResultsFB(
-                        Session, resultsAvailable->requestId, &queryResults);
-                if (res != XR_SUCCESS) {
-                    ALOGV("xrRetrieveSpaceQueryResultsFB: error %u", res);
-                    break;
-                }
-
-                std::vector<XrSpaceQueryResultFB> results(queryResults.resultCountOutput);
-                queryResults.resultCapacityInput = results.size();
-                queryResults.results = results.data();
-
-                res = FunPtrs.xrRetrieveSpaceQueryResultsFB(
-                        Session, resultsAvailable->requestId, &queryResults);
-                if (res != XR_SUCCESS) {
-                    ALOGV("xrRetrieveSpaceQueryResultsFB: error %u", res);
-                    break;
-                }
-
-                for (uint32_t i = 0; i < queryResults.resultCountOutput; ++i) {
-                    auto& result = results[i];
-
-                    if (IsComponentSupported(result.space, XR_SPACE_COMPONENT_TYPE_LOCATABLE_FB)) {
-                        XrSpaceComponentStatusSetInfoFB request = {
-                                XR_TYPE_SPACE_COMPONENT_STATUS_SET_INFO_FB,
-                                nullptr,
-                                XR_SPACE_COMPONENT_TYPE_LOCATABLE_FB,
-                                XR_TRUE,
-                                0};
-                        XrAsyncRequestIdFB requestId;
-                        res =
-                                FunPtrs.xrSetSpaceComponentStatusFB(result.space, &request, &requestId);
-                        if (res == XR_ERROR_SPACE_COMPONENT_STATUS_ALREADY_SET_FB) {
-                            if (AppRenderer.Scene.SpaceList.size() < MAX_PERSISTENT_SPACES) {
-                                AppRenderer.Scene.SpaceList.push_back(result.space);
-                            }
-                        }
-                    }
-
-                    if (IsComponentSupported(result.space, XR_SPACE_COMPONENT_TYPE_STORABLE_FB)) {
-                        XrSpaceComponentStatusSetInfoFB request = {
-                                XR_TYPE_SPACE_COMPONENT_STATUS_SET_INFO_FB,
-                                nullptr,
-                                XR_SPACE_COMPONENT_TYPE_STORABLE_FB,
-                                XR_TRUE,
-                                0};
-                        XrAsyncRequestIdFB requestId;
-                        res =
-                                FunPtrs.xrSetSpaceComponentStatusFB(result.space, &request, &requestId);
-                        if (res == XR_ERROR_SPACE_COMPONENT_STATUS_ALREADY_SET_FB) {
-                            ALOGV(
-                                    "xrPollEvent: Storable component was already enabled for Space uuid: %s",
-                                    uuidToHexString(result.uuid).c_str());
-                        }
-                    }
-
-                }
-
-                ALOGV(
-                        "Number of anchors after receiving XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB: %zu",
-                        AppRenderer.Scene.SpaceList.size());
-
             } break;
             case XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB: {
                 ALOGV("xrPollEvent: received XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB");
@@ -970,59 +820,6 @@ void UpdateStageBounds(ovrApp& app) {
     app.StageBounds = Vector3f(stageBounds.width * 0.5f, 1.0f, stageBounds.height * 0.5f);
 }
 
-void DestroyAnchor(ovrApp& app) {
-    if (app.AppRenderer.Scene.SpaceList.size() == 0) {
-        return;
-    }
-
-    XrSpace space = app.AppRenderer.Scene.SpaceList.back();
-    app.AppRenderer.Scene.SpaceList.pop_back();
-    XrSpaceEraseInfoFB eraseInfo = {
-            XR_TYPE_SPACE_ERASE_INFO_FB, nullptr, space, XR_SPACE_STORAGE_LOCATION_LOCAL_FB};
-
-    XrAsyncRequestIdFB requestId;
-    XrResult res = XR_SUCCESS;
-    OXR(res = app.FunPtrs.xrEraseSpaceFB(app.Session, &eraseInfo, &requestId));
-    if (res == XR_SUCCESS) {
-        app.DestroySpaceEventMap[requestId] = space;
-    }
-
-    ALOGV(
-            "Number of anchors after calling DestroyAnchor: %zu",
-            app.AppRenderer.Scene.SpaceList.size());
-}
-
-void PlaceAnchor(ovrApp& app, SimpleXrInput* input, const XrFrameState& frameState) {
-    // Handle Right Controller Events
-    if (input == nullptr) {
-        ALOGE("input == nullptr");
-        return;
-    }
-
-    if (app.Session == XR_NULL_HANDLE) {
-        return;
-    }
-
-    if (app.AppRenderer.Scene.SpaceList.size() >= MAX_PERSISTENT_SPACES) {
-        return;
-    }
-
-    OVR::Posef localFromRightAim = input->FromControllerSpace(
-            SimpleXrInput::Side_Right,
-            SimpleXrInput::Controller_Aim,
-            app.LocalSpace,
-            frameState.predictedDisplayTime);
-
-    XrSpatialAnchorCreateInfoFB anchorCreateInfo = {};
-    anchorCreateInfo.type = XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_FB;
-    anchorCreateInfo.next = NULL;
-    anchorCreateInfo.space = app.LocalSpace;
-    anchorCreateInfo.poseInSpace = ToXrPosef(localFromRightAim);
-    anchorCreateInfo.time = frameState.predictedDisplayTime;
-    XrAsyncRequestIdFB createRequest;
-    OXR(app.FunPtrs.xrCreateSpatialAnchorFB(app.Session, &anchorCreateInfo, &createRequest));
-    ALOGV("Place Spatial Anchor initiated.");
-}
 
 static ovrApp app;
 
@@ -1164,9 +961,9 @@ void android_main(struct android_app* androidApp) {
 
     // Create the OpenXR instance.
     XrApplicationInfo appInfo = {};
-    strcpy(appInfo.applicationName, "SpatialAnchorXr");
+    strcpy(appInfo.applicationName, "AttysECG");
     appInfo.applicationVersion = 0;
-    strcpy(appInfo.engineName, "Oculus Mobile Sample");
+    strcpy(appInfo.engineName, "Oculus Mobile");
     appInfo.engineVersion = 0;
     appInfo.apiVersion = XR_CURRENT_API_VERSION;
 
@@ -1466,7 +1263,7 @@ void android_main(struct android_app* androidApp) {
 
     int frameCount = -1;
 
-    SimpleXrInput* input = CreateSimpleXrInput(instance);
+    XrInput* input = CreateSimpleXrInput(instance);
     input->BeginSession(app.Session);
 
     /// Hook up extensions for passthrough
@@ -1507,11 +1304,6 @@ void android_main(struct android_app* androidApp) {
             "xrPassthroughPauseFB",
             (PFN_xrVoidFunction*)(&app.FunPtrs.xrPassthroughPauseFB)));
 
-    /// Hook up extensions for spatial entity
-    OXR(xrGetInstanceProcAddr(
-            instance,
-            "xrCreateSpatialAnchorFB",
-            (PFN_xrVoidFunction*)(&app.FunPtrs.xrCreateSpatialAnchorFB)));
     OXR(xrGetInstanceProcAddr(
             instance,
             "xrEnumerateSpaceSupportedComponentsFB",
@@ -1627,14 +1419,6 @@ void android_main(struct android_app* androidApp) {
             stageBoundsDirty = false;
         }
 
-        if (app.ShouldQueryAnchors) {
-            // This is called after the app starts, or after Button X is pressed.
-            app.AppRenderer.Scene.SpaceList.clear();
-            QueryAnchors(app);
-            app.ShouldQueryAnchors = false;
-        }
-
-
         // NOTE: OpenXR does not use the concept of frame indices. Instead,
         // XrWaitFrame returns the predicted display time.
         XrFrameWaitInfo waitFrameInfo = {};
@@ -1681,30 +1465,6 @@ void android_main(struct android_app* androidApp) {
                 projections));
 
         auto& scene = app.AppRenderer.Scene;
-
-        // A Button: Place a world locked anchor.
-        // B Button: Destroy the last-placed anchor.
-        // X Button: Refresh anchors by querying them.
-        if (input != nullptr) {
-            aPrevButtonVal = aButtonVal;
-            aButtonVal = input->A();
-            if (aPrevButtonVal != aButtonVal && aPrevButtonVal) {
-                PlaceAnchor(app, input, frameState);
-            }
-
-            bPrevButtonVal = bButtonVal;
-            bButtonVal = input->B();
-            if (bPrevButtonVal != bButtonVal && bPrevButtonVal) {
-                DestroyAnchor(app);
-            }
-
-            xPrevButtonVal = xButtonVal;
-            xButtonVal = input->X();
-            if (xPrevButtonVal != xButtonVal && xPrevButtonVal) {
-                app.ShouldQueryAnchors = true;
-            }
-
-        }
 
         // Simple animation
         double timeInSeconds = FromXrTime(frameState.predictedDisplayTime);

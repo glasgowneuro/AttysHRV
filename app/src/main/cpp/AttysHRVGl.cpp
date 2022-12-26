@@ -1,16 +1,3 @@
-/************************************************************************************
-
-Filename	:	SpatialAnchor.cpp
-Content		:	This sample is derived from VrCubeWorld_SurfaceView.
-                When used in room scale mode, it draws a "carpet" under the
-                user to indicate where it is safe to walk around.
-Created		:	July, 2020
-Authors		:	Cass Everitt
-
-Copyright	:	Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
-
-*************************************************************************************/
-
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -1043,7 +1030,7 @@ void OvrHRPlot::addHR(float hr) {
         hrBuffer.erase(hrBuffer.begin());
         hrTs.erase(hrTs.begin());
     }
-    if (hrTs.size() > 2) {
+    if (hrTs.size() > 1) {
         hrSpline.calc(hrTs, hrBuffer);
         ALOGV("Prediction: hr(%f)=%f",t+1,hrSpline(t+1));
     }
@@ -1053,7 +1040,7 @@ void OvrHRPlot::draw() {
     const int shiftbuffersize = QUAD_GRID_SIZE * 10;
     double hrnorm = -1;
     double hrShiftBuffer[shiftbuffersize] = {};
-    const double hrDecayConstant = 0.05;
+    const double hrDecayConstant = 0.01;
 
     const std::chrono::time_point<std::chrono::steady_clock> current_ts = std::chrono::steady_clock::now();
     const std::chrono::duration<double> d = current_ts - start_ts;
@@ -1071,7 +1058,7 @@ void OvrHRPlot::draw() {
         }
     }
 
-    if (hrBuffer.size() > 2) {
+    if (hrBuffer.size() > 1) {
         for (int i = 0; i < shiftbuffersize; i++) {
             double dt = t - (double) i / (double) shiftbuffersize * maxtime;
             double hrInterpol = 0;

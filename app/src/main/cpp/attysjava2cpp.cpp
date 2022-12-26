@@ -22,7 +22,7 @@ public:
                           float bpm,
                           double,
                           double) override {
-        ALOGV("HR");
+        ALOGV("HR = %f",bpm);
         for (auto &cb: attysHRCallbacks) {
             cb(bpm);
         }

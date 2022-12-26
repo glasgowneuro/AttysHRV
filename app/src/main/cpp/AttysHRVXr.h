@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) 2022 Facebook Technologies, LLC and its affiliates.
+ * Copyright (C) 2022 Bernd Porr, <bernd@glasgowneuro.tech>
+ * GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007
+ */
+
 #pragma once
 
 #include <EGL/egl.h>

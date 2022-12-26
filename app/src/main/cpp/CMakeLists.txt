@@ -50,7 +50,7 @@ add_library( # Sets the name of the library.
         attysjava2cpp.cpp
         utf8-utils.c
         AttysHRVGl.cpp
-        SimpleXrInput.cpp
+        XrInput.cpp
         AttysHRVXr.cpp
         AmbientAudio.cpp)
 

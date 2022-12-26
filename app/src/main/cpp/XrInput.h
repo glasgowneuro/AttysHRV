@@ -17,7 +17,7 @@
 
 #include "OVR_Math.h"
 
-class SimpleXrInput {
+class XrInput {
    public:
     enum Side {
         Side_Left = 0,
@@ -29,7 +29,7 @@ class SimpleXrInput {
         Controller_Grip = 1,
     };
 
-    virtual ~SimpleXrInput() {}
+    virtual ~XrInput() {}
     virtual void BeginSession(XrSession session_) = 0;
     virtual void EndSession() = 0;
     virtual void SyncActions() = 0;
@@ -47,4 +47,4 @@ class SimpleXrInput {
     virtual bool Y() = 0;
 };
 
-SimpleXrInput* CreateSimpleXrInput(XrInstance instance_);
+XrInput* CreateSimpleXrInput(XrInstance instance_);

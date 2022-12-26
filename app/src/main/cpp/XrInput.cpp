@@ -5,10 +5,10 @@
 #include <inttypes.h>
 #include <vector>
 
-#include "SimpleXrInput.h"
+#include "XrInput.h"
 
 #define DEBUG 1
-#define OVR_LOG_TAG "SimpleXrInput"
+#define OVR_LOG_TAG "XrInput"
 
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, OVR_LOG_TAG, __VA_ARGS__)
 #define ALOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, OVR_LOG_TAG, __VA_ARGS__)
@@ -42,7 +42,7 @@ OXR_CheckErrors(XrInstance instance, XrResult result, const char* function, bool
 #define OXR(func) OXR_CheckErrors(instance, func, #func, false);
 #endif
 
-struct SimpleXrInputImpl : public SimpleXrInput {
+struct SimpleXrInputImpl : public XrInput {
     XrInstance instance = XR_NULL_HANDLE;
 
     XrPath leftHandPath;
@@ -123,7 +123,7 @@ struct SimpleXrInputImpl : public SimpleXrInput {
 
     void BeginSession(XrSession session_) override {
         if (syncCount != 0) {
-            ALOGV("SimpleXrInput::BeginSession call order invalid");
+            ALOGV("XrInput::BeginSession call order invalid");
             return;
         }
         syncCount++;
@@ -136,7 +136,7 @@ struct SimpleXrInputImpl : public SimpleXrInput {
     }
 
     void EndSession() override {
-        ALOGV("SimpleXrInput::EndSession");
+        ALOGV("XrInput::EndSession");
         syncCount = 0;
     }
 
@@ -279,6 +279,6 @@ struct SimpleXrInputImpl : public SimpleXrInput {
     }
 };
 
-SimpleXrInput* CreateSimpleXrInput(XrInstance instance_) {
+XrInput* CreateSimpleXrInput(XrInstance instance_) {
     return new SimpleXrInputImpl(instance_);
 }
