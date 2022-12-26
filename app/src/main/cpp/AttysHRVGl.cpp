@@ -821,6 +821,7 @@ void OvrECGPlot::CreateGeometry() {
 
     iirhp.setup(SAMPLINGRATE,0.5);
 
+    ALOGV("Registering ECG PlotCallback");
     registerAttysDataCallback([this](float v) { attysDataCallBack(v); });
 }
 
@@ -1040,7 +1041,7 @@ void OvrHRPlot::draw() {
     const int shiftbuffersize = QUAD_GRID_SIZE * 10;
     double hrnorm = -1;
     double hrShiftBuffer[shiftbuffersize] = {};
-    const double hrDecayConstant = 0.01;
+    const double hrDecayConstant = 0.005;
 
     const std::chrono::time_point<std::chrono::steady_clock> current_ts = std::chrono::steady_clock::now();
     const std::chrono::duration<double> d = current_ts - start_ts;
@@ -1081,7 +1082,7 @@ void OvrHRPlot::draw() {
         }
     }
     mtx.unlock();
-    if (dCtr++ > 30) {
+    if (dCtr++ > (int)fps) {
         std::string s = "hrShiftBuffer = ";
         for(auto &v:hrShiftBuffer) {
             s += std::to_string(v);
@@ -1096,7 +1097,6 @@ void OvrHRPlot::draw() {
     wavesAnim[1].temporalFreq = 4/2.0;
     wavesAnim[2].temporalFreq = 5/3.0;
 
-    //windDir += (((float)random() / (float)RAND_MAX) - 0.5f) / fps / 100;
     auto wd = (float)(windDir - M_PI/7.0f);
     for(auto &da:wavesAnim) {
         wd += (float)(M_PI/7.0f);
@@ -1595,6 +1595,7 @@ void ovrScene::Create() {
 }
 
 void ovrScene::Destroy() {
+    unregisterAllAttysCallbacks();
     GL(glDeleteBuffers(1, &SceneMatrices));
     Axes.Destroy();
     ECGPlot.Destroy();
@@ -1637,6 +1638,7 @@ void ovrAppRenderer::Create(
 
 void ovrAppRenderer::Destroy() {
     Framebuffer.Destroy();
+    Scene.Destroy();
 }
 
 void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {

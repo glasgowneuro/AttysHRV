@@ -62,3 +62,9 @@ Java_tech_glasgowneuro_attyshrv_ANativeActivity_initJava2CPP(JNIEnv *env,
     iirnotch.setup(fs, 50, 2.5);
     rrDet.init(fs);
 }
+
+void unregisterAllAttysCallbacks() {
+    ALOGV("Unregistering all Attys callbacks");
+    attysHRCallbacks.clear();
+    attysDataCallbacks.clear();
+}

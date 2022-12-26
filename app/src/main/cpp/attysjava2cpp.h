@@ -21,4 +21,6 @@ void registerAttysDataCallback(const std::function<void(float)>& f);
  */
 void registerAttysHRCallback(const std::function<void(float)>& f);
 
+void unregisterAllAttysCallbacks();
+
 #endif //OCULUSECG_ATTYSJAVA2CPP_H
