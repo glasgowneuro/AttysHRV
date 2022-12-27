@@ -2,11 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/OculusECG.iml" filepath="$PROJECT_DIR$/.idea/modules/OculusECG.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/OculusECG.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/OculusECG.app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/OculusECG.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/OculusECG.app.androidTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/OculusECG.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/OculusECG.app.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/OculusECG.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/OculusECG.app.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AttysHRV.iml" filepath="$PROJECT_DIR$/.idea/modules/AttysHRV.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/AttysHRV.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/AttysHRV.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/AttysHRV.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/AttysHRV.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/AttysHRV.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/AttysHRV.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/AttysHRV.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/AttysHRV.app.unitTest.iml" />
     </modules>
   </component>
 </project>

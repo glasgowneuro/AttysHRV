@@ -1,5 +1,6 @@
-//
-// Created by bp1 on 18/10/2022.
+// (c) 2022 Bernd Porr, bernd@glasgowneuro.tech
+// GNU GENERAL PUBLIC LICENSE
+// Version 3, 29 June 2007
 //
 
 #ifndef OCULUSECG_AMBIENTAUDIO_H

@@ -8,7 +8,7 @@
 #include <android/log.h>
 
 #define DEBUG 1
-#define LOG_TAG "OculusECG"
+#define LOG_TAG "AttysHRV"
 
 #define ALOGE(...) __android_log_print( ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__ )
 #if DEBUG

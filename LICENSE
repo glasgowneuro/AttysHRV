@@ -1,4 +1,4 @@
-Meta Platform Technologies SDK License Agreement for these 6 files (anything else is GPLv3):
+Meta Platform Technologies SDK License Agreement for these files:
 
 app/src/main/cpp/AttysHRVGl.cpp
 app/src/main/cpp/AttysHRVGl.h
@@ -7,8 +7,7 @@ app/src/main/cpp/AttysHRVXr.h
 app/src/main/cpp/XrInput.cpp
 app/src/main/cpp/XrInput.h
 
-which are based on *sample source code* in
-"XrSamples" in the ovr_openxr_mobile_sdk and require the Meta Platform Technologies SDK License:
+which are based on sample source code in "XrSamples" in the ovr_openxr_mobile_sdk and require the Meta Platform Technologies SDK License:
 
 Effective date: October 25, 2022
 
@@ -147,7 +146,13 @@ MPT and/or its affiliates makes certain Platform Services (defined below) availa
 
 7.4.10 If any provision of this dispute resolution provision is found unenforceable, that provision will be severed and the balance of the dispute resolution provision will remain in full force and effect.
 
+--------------------------------------------------------------------------------------------
 
+OSI-approved BSD 2-Clause License
+
+utf8-utils.c
+utf8-utils.h
+VeraMoBd.h
 
 --------------------------------------------------------------------------------------------
 
