@@ -1,11 +1,13 @@
-Meta Platform Technologies SDK License Agreement for these 4 files (anything else is GPLv3):
+Meta Platform Technologies SDK License Agreement for these 6 files (anything else is GPLv3):
 
 app/src/main/cpp/AttysHRVGl.cpp
 app/src/main/cpp/AttysHRVGl.h
 app/src/main/cpp/AttysHRVXr.cpp
 app/src/main/cpp/AttysHRVXr.h
+app/src/main/cpp/XrInput.cpp
+app/src/main/cpp/XrInput.h
 
-which are based on the *sample source code*
+which are based on *sample source code* in
 "XrSamples" in the ovr_openxr_mobile_sdk and require the Meta Platform Technologies SDK License:
 
 Effective date: October 25, 2022

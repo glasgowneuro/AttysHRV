@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) 2022 MPT
+ * Copyright (C) 2022 Bernd Porr, <bernd@glasgowneuro.tech>
+ * Meta Platform Technologies SDK License Agreement
+ * Based on the sample source code SimpleXrInput.cpp
+ */
 // Simple Xr Input
 
 #include <android/log.h>
