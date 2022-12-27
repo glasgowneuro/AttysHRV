@@ -1,7 +1,8 @@
 /**
- * Copyright (C) 2020 Cass Everitt
+ * Copyright (C) 2020 Cass Everitt, MPT
  * Copyright (C) 2022 Bernd Porr, <bernd@glasgowneuro.tech>
- * GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007
+ * Meta Platform Technologies SDK License Agreement
+ * Based on the sample source code SpatialAnchorGl.h
  */
 
 #pragma once
