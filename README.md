@@ -2,7 +2,7 @@
 
 ![alt tag](screenshots/attyshrv02.jpg)
 
-An immersive biofeedback app which displays the heartrate variability to de-stress.
+An immersive HRV biofeedback app for the Oculus Quest 2 and the [Attys](https://www.attys.tech) to de-stress.
 
 ## Prerequisites
 
