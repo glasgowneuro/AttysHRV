@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="tech.glasgowneuro.attyshrv"
     android:installLocation="auto"
-    android:versionCode="1"
+    android:versionCode="2"
     android:versionName="1.0">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -31,7 +32,9 @@
     <uses-permission android:name="com.oculus.permission.USE_ANCHOR_API" />
     <application
         android:label="AttysHRV"
-        android:icon="@mipmap/ic_launcher">
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        tools:ignore="DataExtractionRules">
         <meta-data
             android:name="com.oculus.ossplash"
             android:value="true" />
