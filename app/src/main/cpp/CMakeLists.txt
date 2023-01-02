@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.18.1)
 project("attyshrv")
 
 # set it to the oculus API
-set(OCULUS_OPENXR_MOBILE_SDK /home/bp1/sandbox/ovr_openxr_mobile_sdk)
+set(OCULUS_OPENXR_MOBILE_SDK "d:/ovr_openxr_mobile_sdk")
 
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 

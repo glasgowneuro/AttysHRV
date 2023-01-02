@@ -18,11 +18,8 @@
 
     <uses-feature
         android:name="android.hardware.vr.headtracking"
-        android:required="true" />
-    <!-- Volume Control -->
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+        android:required="true"
+        android:version="1" />
 
     <!-- Allows to access TrackingEnvironment functionality -->
     <uses-permission android:name="com.oculus.permission.ACCESS_TRACKING_ENV" />
@@ -43,7 +40,9 @@
             android:value="vr_only" />
         <meta-data
             android:name="com.oculus.supportedDevices"
-            android:value="all" />
+            android:value="quest2" />
+
+        <meta-data android:name="com.oculus.vr.focusaware" android:value="true"/>
 
         <activity
             android:name="tech.glasgowneuro.attyshrv.ANativeActivity"
