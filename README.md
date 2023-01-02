@@ -1,6 +1,6 @@
 # AttysHRV
 
-![alt tag](screenshots/attyshrv02.jpg)
+![alt tag](attyshrv_splash.jpg)
 
 An immersive HRV biofeedback app for the Oculus Quest 2 and the [Attys](https://www.attys.tech) to de-stress.
 
