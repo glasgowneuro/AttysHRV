@@ -26,6 +26,6 @@ git https://github.com/berndporr/cxx-spline.git
 
 Start Android Studio, open AttysHRV and click `run`.
 
-## How to use the app to de-stress
+## How to use the app
 
 https://glasgowneuro.github.io/AttysHRV/
