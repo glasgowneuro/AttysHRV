@@ -28,8 +28,6 @@
     <!-- Grants access to Passthrough API. -->
     <uses-feature android:name="com.oculus.feature.PASSTHROUGH" />
 
-    <!-- Grants access to Spatial Anchors. -->
-    <uses-permission android:name="com.oculus.permission.USE_ANCHOR_API" />
     <application
         android:label="AttysHRV"
         android:allowBackup="false"
