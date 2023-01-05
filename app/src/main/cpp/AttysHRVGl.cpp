@@ -894,10 +894,9 @@ in vec3 fragPosition;
 in vec3 fragOrigPosition;
 out lowp vec4 outColor;
 const float pi = 3.14159;
-uniform highp float time;
-float wave(float x, float y, float t, float speed, vec2 direction) {
+float wave(float x, float y, float speed, vec2 direction) {
     float theta = dot(direction, vec2(x, y));
-    return (sin(theta * pi + t * speed) + 2.0) / 3.0;
+    return (sin(theta * pi) + 2.0) / 3.0;
 }
 void main()
 {
@@ -946,8 +945,8 @@ void main()
     }
 
     // moving blue shadows
-    float v1 = wave(fragPosition.x, fragPosition.z, time, -0.7, vec2(0.03,0.07));
-    float v2 = wave(fragPosition.x, fragPosition.z, time, 0.51, vec2(0.03,-0.03));
+    float v1 = wave(fragPosition.x, fragPosition.z, -0.7, vec2(0.03,0.07));
+    float v2 = wave(fragPosition.x, fragPosition.z, 0.51, vec2(0.03,-0.03));
     float vSlow = (v1+v2)/6.0+0.75;
     float vSlow2 = (v1+v2);
 
@@ -1777,11 +1776,6 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
                 GL_TRUE,
                 &m1.M[0][0]));
     }
-    auto current_ts = std::chrono::steady_clock::now();
-    std::chrono::duration<double> d = current_ts - start_ts;
-    t = (float) (d.count());
-    //ALOGV("time = %f",t);
-    GL(glUniform1f(Scene.HrPlot.UniformLocation[ovrUniform::Index::TIME_S], t));
     Scene.HrPlot.draw();
     GL(glUseProgram(0));
 
