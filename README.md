@@ -10,7 +10,7 @@ An immersive HRV biofeedback app for the Oculus Quest 2 and the [Attys](https://
 
 ```
 git clone https://github.com/berndporr/iir1.git
-git https://github.com/berndporr/cxx-spline.git
+git clone https://github.com/berndporr/cxx-spline.git
 ```
 
 2. Download the [Oculus openXR API](https://developer.oculus.com/downloads/package/oculus-openxr-mobile-sdk/), create

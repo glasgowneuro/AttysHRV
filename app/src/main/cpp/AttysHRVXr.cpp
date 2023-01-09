@@ -6,14 +6,14 @@
  */
 
 #include <openxr/openxr.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h> // for memset
+#include <cstdio>
+#include <cstdlib>
+
+#include <cstring> // for memset
 #include <map>
-#include <math.h>
+#include <cmath>
 #include <string>
-#include <time.h>
+#include <ctime>
 
 #include <unistd.h>
 #include <pthread.h>
@@ -22,15 +22,11 @@
 #include <android/native_window_jni.h> // for native window JNI
 #include <android_native_app_glue.h>
 
-#include <assert.h>
+#include <cassert>
 
 #include "AttysHRVXr.h"
 #include "AttysHRVGl.h"
 #include "XrInput.h"
-
-#include <openxr/fb_spatial_entity.h>
-#include <openxr/fb_spatial_entity_query.h>
-#include <openxr/fb_spatial_entity_storage.h>
 
 #include "util.h"
 
@@ -795,23 +791,6 @@ static Posef OvrFromXr(const XrPosef& p) {
     return Posef(OvrFromXr(p.orientation), OvrFromXr(p.position));
 }
 
-static void QueryAnchors(ovrApp& app) {
-    ALOGV("QueryAnchors");
-    XrSpaceQueryInfoFB queryInfo = {
-            XR_TYPE_SPACE_QUERY_INFO_FB,
-            nullptr,
-            XR_SPACE_QUERY_ACTION_LOAD_FB,
-            MAX_PERSISTENT_SPACES,
-            0,
-            nullptr,
-            nullptr};
-
-    XrAsyncRequestIdFB requestId;
-    OXR(app.FunPtrs.xrQuerySpacesFB(
-            app.Session, (XrSpaceQueryInfoBaseHeaderFB*)&queryInfo, &requestId));
-}
-
-
 void UpdateStageBounds(ovrApp& app) {
     XrExtent2Df stageBounds = {};
 
@@ -906,10 +885,7 @@ void android_main(struct android_app* androidApp) {
             XR_KHR_OPENGL_ES_ENABLE_EXTENSION_NAME,
             XR_EXT_PERFORMANCE_SETTINGS_EXTENSION_NAME,
             XR_KHR_ANDROID_THREAD_SETTINGS_EXTENSION_NAME,
-            XR_FB_PASSTHROUGH_EXTENSION_NAME,
-            XR_FB_SPATIAL_ENTITY_EXTENSION_NAME,
-            XR_FB_SPATIAL_ENTITY_QUERY_EXTENSION_NAME,
-            XR_FB_SPATIAL_ENTITY_STORAGE_EXTENSION_NAME
+            XR_FB_PASSTHROUGH_EXTENSION_NAME
     };
     const uint32_t numRequiredExtensions =
             sizeof(requiredExtensionNames) / sizeof(requiredExtensionNames[0]);

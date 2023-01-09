@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="tech.glasgowneuro.attyshrv"
     android:installLocation="auto"
-    android:versionCode="2"
-    android:versionName="1.0">
+    android:versionCode="3"
+    android:versionName="1.1">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -28,8 +28,6 @@
     <!-- Grants access to Passthrough API. -->
     <uses-feature android:name="com.oculus.feature.PASSTHROUGH" />
 
-    <!-- Grants access to Spatial Anchors. -->
-    <uses-permission android:name="com.oculus.permission.USE_ANCHOR_API" />
     <application
         android:label="AttysHRV"
         android:allowBackup="false"
