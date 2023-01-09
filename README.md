@@ -7,7 +7,7 @@ An immersive heartrate variability (HRV) biofeedback app for the Oculus Quest 2 
 The app turns the heartrate into a seaside animation where the idea is
 that a relaxed person has a regular physiological heartrate variability
 which creates large regular waves in the animation. The person can use
-deep breathing to create these and in turn also relax.
+deep breathing to create these and in turn relax.
 
 The high precision bioamplifier [Attys](https://www.attys.tech) is
 used to record the ECG in realtime and the Oculus then detects
