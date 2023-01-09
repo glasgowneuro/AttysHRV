@@ -2,7 +2,20 @@
 
 ![alt tag](attyshrv.jpg)
 
-An immersive HRV biofeedback app for the Oculus Quest 2 and the [Attys](https://www.attys.tech) to de-stress.
+An immersive heartrate variability (HRV) biofeedback app for the Oculus Quest 2 and the [Attys](https://www.attys.tech) to de-stress.
+
+The app turns the heartrate into a seaside animation where the idea is
+that a relaxed person has a regular physiological heartrate variability
+which creates large regular waves in the animation. The person can use
+deep breathing to create these and in turn also relax.
+
+The high precision bioamplifier [Attys](https://www.attys.tech) is
+used to record the ECG in realtime and the Oculus then detects
+with high precision the heartbeats and calculates the heartrate.
+
+The app is written in C++ using the openXR / openGL framework
+which allows realtime processing and animation of the ECG
+in the headset.
 
 ## Prerequisites
 
