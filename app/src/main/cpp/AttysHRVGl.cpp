@@ -1157,6 +1157,9 @@ void OvrHRPlot::CreateGeometry() {
 
     CreateVAO();
 
+    minHR = 1000;
+    maxHR = 0;
+
     registerAttysHRCallback([this](float v){ addHR(v); });
 }
 
