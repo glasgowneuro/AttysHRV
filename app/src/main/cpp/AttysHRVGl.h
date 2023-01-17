@@ -229,7 +229,6 @@ struct ovrScene {
     void SetClearColor(const float* c);
     bool CreatedScene;
     GLuint SceneMatrices;
-    OvrAxes Axes;
     OvrSkybox ovrSkybox;
     OvrECGPlot ECGPlot;
     OvrHRPlot HrPlot;

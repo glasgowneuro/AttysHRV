@@ -521,38 +521,6 @@ void OvrSkybox::draw(GLuint sceneMatrices) {
 //////////////// AXES ////////////////////////
 
 
-static const char* AXES_VERTEX_SHADER = R"SHADER_SRC(
-        #define NUM_VIEWS 2
-        #define VIEW_ID gl_ViewID_OVR
-        #extension GL_OVR_multiview2 : require
-        layout(num_views=NUM_VIEWS) in;
-        in vec3 vertexPosition;
-        in vec4 vertexColor;
-        uniform mat4 ModelMatrix;
-        uniform SceneMatrices
-        {
-        	uniform mat4 ViewMatrix[NUM_VIEWS];
-        	uniform mat4 ProjectionMatrix[NUM_VIEWS];
-        } sm;
-        out vec4 fragmentColor;
-        void main()
-        {
-        	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );
-        	fragmentColor = vertexColor;
-        }
-)SHADER_SRC";
-
-
-static const char* AXES_FRAGMENT_SHADER = R"SHADER_SRC(
-        in lowp vec4 fragmentColor;
-        out lowp vec4 outColor;
-        void main()
-        {
-        	outColor = fragmentColor;
-        }
-)SHADER_SRC";
-
-
 void OvrAxes::CreateGeometry() {
     struct ovrAxesVertices {
         float positions[6][3];
@@ -885,6 +853,38 @@ void OvrHRText::attysDataCallBack(float v) {
 
 //////////////////////////////////////////////////////////////////////
 // ECG Plot
+
+static const char* ECG_PLOT_VERTEX_SHADER = R"SHADER_SRC(
+        #define NUM_VIEWS 2
+        #define VIEW_ID gl_ViewID_OVR
+        #extension GL_OVR_multiview2 : require
+        layout(num_views=NUM_VIEWS) in;
+        in vec3 vertexPosition;
+        in vec4 vertexColor;
+        uniform mat4 ModelMatrix;
+        uniform SceneMatrices
+        {
+        	uniform mat4 ViewMatrix[NUM_VIEWS];
+        	uniform mat4 ProjectionMatrix[NUM_VIEWS];
+        } sm;
+        out vec4 fragmentColor;
+        void main()
+        {
+        	gl_Position = sm.ProjectionMatrix[VIEW_ID] * ( sm.ViewMatrix[VIEW_ID] * ( ModelMatrix * ( vec4( vertexPosition, 1.0 ) ) ) );
+        	fragmentColor = vertexColor;
+        }
+)SHADER_SRC";
+
+
+static const char* ECG_PLOT_FRAGMENT_SHADER = R"SHADER_SRC(
+        in lowp vec4 fragmentColor;
+        out lowp vec4 outColor;
+        void main()
+        {
+        	outColor = fragmentColor;
+        }
+)SHADER_SRC";
+
 
 void OvrECGPlot::CreateGeometry() {
     ALOGV("OvrECGPlot::Create()");
@@ -1675,10 +1675,10 @@ void ovrScene::SetClearColor(const float *c) {
 void ovrScene::Clear() {
     CreatedScene = false;
     SceneMatrices = 0;
-
-    Axes.Clear();
     ECGPlot.Clear();
     HrPlot.Clear();
+    HrText.Clear();
+    ovrSkybox.Clear();
 }
 
 bool ovrScene::IsCreated() const {
@@ -1702,17 +1702,12 @@ void ovrScene::Create() {
         ALOGE("Failed to compile Skybox program");
     }
 
-    // Axes
-    if (!Axes.Create(AXES_VERTEX_SHADER, AXES_FRAGMENT_SHADER)) {
-        ALOGE("Failed to compile axes program");
-    }
-
     if (!HrText.Create(HRTEXT_VERTEX_SHADER, HRTEXT_FRAGMENT_SHADER)) {
         ALOGE("Failed to compile hrtext program");
     }
 
     // ECG
-    if (!ECGPlot.Create(AXES_VERTEX_SHADER, AXES_FRAGMENT_SHADER)) {
+    if (!ECGPlot.Create(ECG_PLOT_VERTEX_SHADER, ECG_PLOT_FRAGMENT_SHADER)) {
         ALOGE("Failed to compile plot program");
     }
 
@@ -1730,9 +1725,9 @@ void ovrScene::Create() {
 void ovrScene::Destroy() {
     unregisterAllAttysCallbacks();
     GL(glDeleteBuffers(1, &SceneMatrices));
-    Axes.Destroy();
     ECGPlot.Destroy();
     HrPlot.Destroy();
+    HrText.Destroy();
     ovrSkybox.Destroy();
     CreatedScene = false;
 }
@@ -1808,9 +1803,6 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
 
     // Skybox
     Scene.ovrSkybox.draw(Scene.SceneMatrices);
-
-    // Axes
-    Scene.Axes.draw(Scene.SceneMatrices);
 
     // ECG Plot
     Scene.ECGPlot.draw(Scene.SceneMatrices);
