@@ -213,7 +213,7 @@ static const std::chrono::time_point<std::chrono::steady_clock> start_ts = std::
 /// SKYBOX ///
 //////////////
 
-static const char* SKYBOX_VERTEX_SHADER = R"SHADER_SRC(
+const char* SKYBOX_VERTEX_SHADER = R"SHADER_SRC(
         #define NUM_VIEWS 2
         #define VIEW_ID gl_ViewID_OVR
         #extension GL_OVR_multiview2 : require
@@ -239,7 +239,7 @@ static const char* SKYBOX_VERTEX_SHADER = R"SHADER_SRC(
         }
 )SHADER_SRC";
 
-static const char* SKYBOX_FRAGMENT_SHADER = R"SHADER_SRC(
+const char* SKYBOX_FRAGMENT_SHADER = R"SHADER_SRC(
         in vec4 fragmentColor;
         in vec3 texCoords;
         uniform samplerCube skybox;
@@ -472,7 +472,7 @@ void OvrSkybox::render(GLuint sceneMatrices) {
 /// HR TEXT
 //////////////
 
-static const char* HRTEXT_VERTEX_SHADER = R"SHADER_SRC(
+const char* HRTEXT_VERTEX_SHADER = R"SHADER_SRC(
         #define NUM_VIEWS 2
         #define VIEW_ID gl_ViewID_OVR
         #extension GL_OVR_multiview2 : require
@@ -496,7 +496,7 @@ static const char* HRTEXT_VERTEX_SHADER = R"SHADER_SRC(
         }
 )SHADER_SRC";
 
-static const char* HRTEXT_FRAGMENT_SHADER = R"SHADER_SRC(
+const char* HRTEXT_FRAGMENT_SHADER = R"SHADER_SRC(
         in vec4 fragmentColor;
         in lowp vec2 fragmentTexCoord;
         uniform sampler2D Texture0;
@@ -713,7 +713,7 @@ void OvrHRText::attysDataCallBack(float v) {
 // ECG Plot
 //////////////
 
-static const char* ECG_PLOT_VERTEX_SHADER = R"SHADER_SRC(
+const char* ECG_PLOT_VERTEX_SHADER = R"SHADER_SRC(
         #define NUM_VIEWS 2
         #define VIEW_ID gl_ViewID_OVR
         #extension GL_OVR_multiview2 : require
@@ -735,7 +735,7 @@ static const char* ECG_PLOT_VERTEX_SHADER = R"SHADER_SRC(
 )SHADER_SRC";
 
 
-static const char* ECG_PLOT_FRAGMENT_SHADER = R"SHADER_SRC(
+const char* ECG_PLOT_FRAGMENT_SHADER = R"SHADER_SRC(
         in lowp vec4 fragmentColor;
         out lowp vec4 outColor;
         void main()
@@ -1285,7 +1285,7 @@ void OvrGeometry::DestroyVAO() {
     }
 }
 
-static const char *programVersion = "#version 300 es\n";
+const char *programVersion = "#version 300 es\n";
 
 bool OvrGeometry::Create(const char *vertexSource, const char *fragmentSource) {
     GLint r;
