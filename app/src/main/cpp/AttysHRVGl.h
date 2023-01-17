@@ -47,7 +47,7 @@ public:
     void Destroy();
 
     virtual void CreateGeometry() = 0;
-    virtual void draw() = 0;
+    virtual void draw(GLuint sceneMatrices) = 0;
 
     GLuint Program;
     GLuint VertexShader;
@@ -81,7 +81,7 @@ public:
 
 struct OvrAxes : OvrGeometry {
     void CreateGeometry();
-    virtual void draw();
+    virtual void draw(GLuint sceneMatrices);
 };
 
 
@@ -90,7 +90,7 @@ struct OvrSkybox : OvrGeometry {
     AAssetManager *aAssetManager = nullptr;
     void loadTextures(const std::vector<std::string> &faces) const;
     void CreateGeometry();
-    virtual void draw();
+    virtual void draw(GLuint sceneMatrices);
 };
 
 struct OvrHRText : OvrGeometry {
@@ -106,7 +106,7 @@ struct OvrHRText : OvrGeometry {
     AxesVertices axesVertices = {};
     unsigned short axesIndices[nPoints];
     void CreateGeometry();
-    virtual void draw();
+    virtual void draw(GLuint sceneMatrices);
     void add_text(const char *text,
                   unsigned char r, unsigned char g, unsigned char b,
                   float x, float y,
@@ -131,7 +131,7 @@ struct OvrECGPlot : OvrGeometry {
     unsigned short axesIndices[(nPoints*2)+1] = {};
 
     void CreateGeometry();
-    void draw();
+    void draw(GLuint sceneMatrices);
 
     static constexpr int iirorder = 2;
 
@@ -182,7 +182,7 @@ struct OvrHRPlot : OvrGeometry {
     unsigned short indices[NR_INDICES] = {};
 
     void CreateGeometry();
-    void draw();
+    void draw(GLuint sceneMatrices);
     int frameCtr = 0;
     int fps = 0;
     std::chrono::time_point<std::chrono::steady_clock> start_fps_ts;

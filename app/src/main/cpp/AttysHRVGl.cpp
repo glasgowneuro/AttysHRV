@@ -202,6 +202,43 @@ void vecDiff(const float v_A[3], const float v_B[3], float c_P[3]) {
 }
 
 
+//////////////////////////////////////////////////////
+// Uniform defintions
+//////////////////////////////////////////////////////
+struct ovrUniform {
+    enum Index {
+        MODEL_MATRIX,
+        VIEW_ID,
+        SCENE_MATRICES,
+        COLOR_SCALE,
+        COLOR_BIAS,
+        TIME_S,
+    };
+    enum Type {
+        VECTOR4,
+        MATRIX4X4,
+        INTEGER,
+        BUFFER,
+        FLOAT,
+    };
+
+    Index index;
+    Type type;
+    const char *name;
+};
+
+static ovrUniform ProgramUniforms[] = {
+        {ovrUniform::Index::MODEL_MATRIX,   ovrUniform::Type::MATRIX4X4, "ModelMatrix"},
+        {ovrUniform::Index::VIEW_ID,        ovrUniform::Type::INTEGER,   "ViewID"},
+        {ovrUniform::Index::SCENE_MATRICES, ovrUniform::Type::BUFFER,    "SceneMatrices"},
+        {ovrUniform::Index::COLOR_SCALE,    ovrUniform::Type::VECTOR4,   "ColorScale"},
+        {ovrUniform::Index::COLOR_BIAS,     ovrUniform::Type::VECTOR4,   "ColorBias"},
+        {ovrUniform::Index::TIME_S,         ovrUniform::Type::FLOAT,     "time"},
+};
+
+
+
+
 
 /*
 ================================================================================
@@ -434,7 +471,24 @@ void OvrSkybox::CreateGeometry() {
     CreateVAO();
 }
 
-void OvrSkybox::draw() {
+void OvrSkybox::draw(GLuint sceneMatrices) {
+    GL(glUseProgram(Program));
+    GL(glBindBufferBase(
+            GL_UNIFORM_BUFFER,
+            UniformBinding[ovrUniform::Index::SCENE_MATRICES],
+            sceneMatrices));
+    if (UniformLocation[ovrUniform::Index::VIEW_ID] >= 0)
+    {
+        GL(glUniform1i(UniformLocation[ovrUniform::Index::VIEW_ID], 0));
+    }
+    if (UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
+        const Matrix4f rot = Matrix4f::RotationY(M_PI/2.0f) * Matrix4f::Scaling(10.0, 10.0, 10.0);
+        GL(glUniformMatrix4fv(
+                UniformLocation[ovrUniform::Index::MODEL_MATRIX],
+                1,
+                GL_TRUE,
+                &rot.M[0][0]));
+    }
     GL(glActiveTexture(GL_TEXTURE11));
     GL(glBindTexture(GL_TEXTURE_CUBE_MAP, texid));
     GL(glBindVertexArray(VertexArrayObject));
@@ -451,6 +505,7 @@ void OvrSkybox::draw() {
 
     GL(glBindVertexArray(0));
     GL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
+    GL(glUseProgram(0));
 }
 
 
@@ -557,11 +612,37 @@ void OvrAxes::CreateGeometry() {
     CreateVAO();
 }
 
-void OvrAxes::draw() {
+void OvrAxes::draw(GLuint sceneMatrices) {
+    GL(glLineWidth(3.0));
+    // "tracking space" axes (could be LOCAL or LOCAL_FLOOR)
+    GL(glUseProgram(Program));
+    GL(glBindBufferBase(
+            GL_UNIFORM_BUFFER,
+            UniformBinding[ovrUniform::Index::SCENE_MATRICES],
+            sceneMatrices));
+    if (UniformLocation[ovrUniform::Index::VIEW_ID] >=
+        0) // NOTE: will not be present when multiview path is enabled.
+    {
+        GL(glUniform1i(UniformLocation[ovrUniform::Index::VIEW_ID], 0));
+    }
+    if (UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
+        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
+        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -1, -2);
+        const Matrix4f m1 = stagePoseMat * scale;
+        GL(glUniformMatrix4fv(
+                UniformLocation[ovrUniform::Index::MODEL_MATRIX],
+                1,
+                GL_TRUE,
+                &m1.M[0][0]));
+    }
     GL(glBindVertexArray(VertexArrayObject));
     GL(glDrawElements(GL_LINES, IndexCount, GL_UNSIGNED_SHORT, nullptr));
     GL(glBindVertexArray(0));
+    GL(glUseProgram(0));
 }
+
+
+
 
 //////////////////////////////HR TEXT/////////////////////////////////////////////////////
 
@@ -658,7 +739,29 @@ void OvrHRText::CreateGeometry() {
     registerAttysDataCallback([this](float v){ attysDataCallBack(v); });
 }
 
-void OvrHRText::draw() {
+void OvrHRText::draw(GLuint sceneMatrices) {
+    GL(glUseProgram(Program));
+    GL(glBindBufferBase(
+            GL_UNIFORM_BUFFER,
+            UniformBinding[ovrUniform::Index::SCENE_MATRICES],
+            sceneMatrices));
+    if (UniformLocation[ovrUniform::Index::VIEW_ID] >=
+        0) // NOTE: will not be present when multiview path is enabled.
+    {
+        GL(glUniform1i(UniformLocation[ovrUniform::Index::VIEW_ID], 0));
+    }
+    if (UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
+        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
+        const Matrix4f stagePoseMat = Matrix4f::Translation(0.0, -0.5, -0.75);
+        const Matrix4f rot = Matrix4f::RotationX(-M_PI/2.0);
+        const Matrix4f m1 = stagePoseMat * scale * rot;
+        GL(glUniformMatrix4fv(
+                UniformLocation[ovrUniform::Index::MODEL_MATRIX],
+                1,
+                GL_TRUE,
+                &m1.M[0][0]));
+    }
+
     // just updating it
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
     GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_DYNAMIC_DRAW));
@@ -688,6 +791,8 @@ void OvrHRText::draw() {
 
     GL(glBindVertexArray(0));
     GL(glBindTexture(GL_TEXTURE_2D, 0));
+
+    GL(glUseProgram(0));
 }
 
 void OvrHRText::add_text(const char *text,
@@ -775,7 +880,11 @@ void OvrHRText::attysDataCallBack(float v) {
     instructionShown = true;
 }
 
+
+
+
 //////////////////////////////////////////////////////////////////////
+// ECG Plot
 
 void OvrECGPlot::CreateGeometry() {
     ALOGV("OvrECGPlot::Create()");
@@ -840,7 +949,27 @@ void OvrECGPlot::attysDataCallBack(float v) {
     axesVertices.positions[nPoints - 1][1] = (float) v2 * 1000;
 }
 
-void OvrECGPlot::draw() {
+void OvrECGPlot::draw(GLuint sceneMatrices) {
+    GL(glUseProgram(Program));
+    GL(glBindBufferBase(
+            GL_UNIFORM_BUFFER,
+            UniformBinding[ovrUniform::Index::SCENE_MATRICES],
+            sceneMatrices));
+    if (UniformLocation[ovrUniform::Index::VIEW_ID] >=
+        0) // NOTE: will not be present when multiview path is enabled.
+    {
+        GL(glUniform1i(UniformLocation[ovrUniform::Index::VIEW_ID], 0));
+    }
+    if (UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
+        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
+        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -0.5, -1);
+        const Matrix4f m1 = stagePoseMat * scale;
+        GL(glUniformMatrix4fv(
+                UniformLocation[ovrUniform::Index::MODEL_MATRIX],
+                1,
+                GL_TRUE,
+                &m1.M[0][0]));
+    }
 
 #ifdef FAKE_DATA
     for(int i = 0; i < nPoints; i++) {
@@ -857,10 +986,16 @@ void OvrECGPlot::draw() {
     GL(glBindVertexArray(VertexArrayObject));
     GL(glDrawElements(GL_LINES, IndexCount, GL_UNSIGNED_SHORT, nullptr));
     GL(glBindVertexArray(0));
+
+    GL(glUseProgram(0));
 }
 
 
+
+
+
 /////////////////////////////////////
+// HR Plot
 
 const char* HRPLOT_VERTEX_SHADER = R"SHADER_SRC(
         #define NUM_VIEWS 2
@@ -1043,7 +1178,7 @@ void OvrHRPlot::addHR(float hr) {
     }
 }
 
-void OvrHRPlot::draw() {
+void OvrHRPlot::draw(GLuint sceneMatrices) {
     const int shiftbuffersize = QUAD_GRID_SIZE * 10;
     double hrnorm = -1;
     double hrShiftBuffer[shiftbuffersize] = {};
@@ -1182,6 +1317,27 @@ void OvrHRPlot::draw() {
         }
     }
 
+    GL(glUseProgram(Program));
+    GL(glBindBufferBase(
+            GL_UNIFORM_BUFFER,
+            UniformBinding[ovrUniform::Index::SCENE_MATRICES],
+            sceneMatrices));
+    if (UniformLocation[ovrUniform::Index::VIEW_ID] >=
+        0) // NOTE: will not be present when multiview path is enabled.
+    {
+        GL(glUniform1i(UniformLocation[ovrUniform::Index::VIEW_ID], 0));
+    }
+    if (UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
+        const Matrix4f scale = Matrix4f::Scaling(0.2, 0.1, 0.2);
+        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -1, 0);
+        const Matrix4f m1 = stagePoseMat * scale;
+        GL(glUniformMatrix4fv(
+                UniformLocation[ovrUniform::Index::MODEL_MATRIX],
+                1,
+                GL_TRUE,
+                &m1.M[0][0]));
+    }
+
     GL(glDepthMask(GL_FALSE));
     GL(glEnable(GL_DEPTH_TEST));
     GL(glDepthFunc(GL_LEQUAL));
@@ -1199,6 +1355,8 @@ void OvrHRPlot::draw() {
 
     GL(glDepthMask(GL_TRUE));
     GL(glDisable(GL_BLEND));
+
+    GL(glUseProgram(0));
 
     // calculating the samplingrate
     frameCtr++;
@@ -1264,37 +1422,6 @@ void OvrGeometry::DestroyVAO() {
         hasVAO = false;
     }
 }
-
-struct ovrUniform {
-    enum Index {
-        MODEL_MATRIX,
-        VIEW_ID,
-        SCENE_MATRICES,
-        COLOR_SCALE,
-        COLOR_BIAS,
-        TIME_S,
-    };
-    enum Type {
-        VECTOR4,
-        MATRIX4X4,
-        INTEGER,
-        BUFFER,
-        FLOAT,
-    };
-
-    Index index;
-    Type type;
-    const char *name;
-};
-
-static ovrUniform ProgramUniforms[] = {
-        {ovrUniform::Index::MODEL_MATRIX,   ovrUniform::Type::MATRIX4X4, "ModelMatrix"},
-        {ovrUniform::Index::VIEW_ID,        ovrUniform::Type::INTEGER,   "ViewID"},
-        {ovrUniform::Index::SCENE_MATRICES, ovrUniform::Type::BUFFER,    "SceneMatrices"},
-        {ovrUniform::Index::COLOR_SCALE,    ovrUniform::Type::VECTOR4,   "ColorScale"},
-        {ovrUniform::Index::COLOR_BIAS,     ovrUniform::Type::VECTOR4,   "ColorBias"},
-        {ovrUniform::Index::TIME_S,         ovrUniform::Type::FLOAT,     "time"},
-};
 
 static const char *programVersion = "#version 300 es\n";
 
@@ -1679,133 +1806,20 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
             Scene.ClearColor[0], Scene.ClearColor[1], Scene.ClearColor[2], Scene.ClearColor[3]));
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
+    // Skybox
+    Scene.ovrSkybox.draw(Scene.SceneMatrices);
 
-    // skybox
-    GL(glUseProgram(Scene.ovrSkybox.Program));
-    GL(glBindBufferBase(
-            GL_UNIFORM_BUFFER,
-            Scene.ovrSkybox.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
-            Scene.SceneMatrices));
-    if (Scene.ovrSkybox.UniformLocation[ovrUniform::Index::VIEW_ID] >=
-        0) // NOTE: will not be present when multiview path is enabled.
-    {
-        GL(glUniform1i(Scene.ovrSkybox.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
-    }
-    if (Scene.Axes.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-        const Matrix4f rot = Matrix4f::RotationY(M_PI/2.0f) * Matrix4f::Scaling(10.0, 10.0, 10.0);
-        GL(glUniformMatrix4fv(
-                Scene.Axes.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
-                1,
-                GL_TRUE,
-                &rot.M[0][0]));
-    }
-    Scene.ovrSkybox.draw();
-    GL(glUseProgram(0));
-
-
-    GL(glLineWidth(3.0));
-    // "tracking space" axes (could be LOCAL or LOCAL_FLOOR)
-    GL(glUseProgram(Scene.Axes.Program));
-    GL(glBindBufferBase(
-            GL_UNIFORM_BUFFER,
-            Scene.Axes.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
-            Scene.SceneMatrices));
-    if (Scene.Axes.UniformLocation[ovrUniform::Index::VIEW_ID] >=
-        0) // NOTE: will not be present when multiview path is enabled.
-    {
-        GL(glUniform1i(Scene.Axes.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
-    }
-    if (Scene.Axes.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -1, -2);
-        const Matrix4f m1 = stagePoseMat * scale;
-        GL(glUniformMatrix4fv(
-                Scene.Axes.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
-                1,
-                GL_TRUE,
-                &m1.M[0][0]));
-    }
-    Scene.Axes.draw();
-    GL(glUseProgram(0));
-
-
+    // Axes
+    Scene.Axes.draw(Scene.SceneMatrices);
 
     // ECG Plot
-    GL(glUseProgram(Scene.ECGPlot.Program));
-    GL(glBindBufferBase(
-            GL_UNIFORM_BUFFER,
-            Scene.ECGPlot.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
-            Scene.SceneMatrices));
-    if (Scene.ECGPlot.UniformLocation[ovrUniform::Index::VIEW_ID] >=
-        0) // NOTE: will not be present when multiview path is enabled.
-    {
-        GL(glUniform1i(Scene.ECGPlot.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
-    }
-    if (Scene.ECGPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -0.5, -1);
-        const Matrix4f m1 = stagePoseMat * scale;
-        GL(glUniformMatrix4fv(
-                Scene.ECGPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
-                1,
-                GL_TRUE,
-                &m1.M[0][0]));
-    }
-    Scene.ECGPlot.draw();
-    GL(glUseProgram(0));
-
+    Scene.ECGPlot.draw(Scene.SceneMatrices);
 
     // HRPlot
-    GL(glUseProgram(Scene.HrPlot.Program));
-    GL(glBindBufferBase(
-            GL_UNIFORM_BUFFER,
-            Scene.HrPlot.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
-            Scene.SceneMatrices));
-    if (Scene.HrPlot.UniformLocation[ovrUniform::Index::VIEW_ID] >=
-        0) // NOTE: will not be present when multiview path is enabled.
-    {
-        GL(glUniform1i(Scene.HrPlot.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
-    }
-    if (Scene.HrPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-        const Matrix4f scale = Matrix4f::Scaling(0.2, 0.1, 0.2);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -1, 0);
-        const Matrix4f m1 = stagePoseMat * scale;
-        GL(glUniformMatrix4fv(
-                Scene.HrPlot.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
-                1,
-                GL_TRUE,
-                &m1.M[0][0]));
-    }
-    Scene.HrPlot.draw();
-    GL(glUseProgram(0));
-
+    Scene.HrPlot.draw(Scene.SceneMatrices);
 
     // HR Text
-    GL(glUseProgram(Scene.HrText.Program));
-    GL(glBindBufferBase(
-            GL_UNIFORM_BUFFER,
-            Scene.HrText.UniformBinding[ovrUniform::Index::SCENE_MATRICES],
-            Scene.SceneMatrices));
-    if (Scene.HrText.UniformLocation[ovrUniform::Index::VIEW_ID] >=
-        0) // NOTE: will not be present when multiview path is enabled.
-    {
-        GL(glUniform1i(Scene.HrText.UniformLocation[ovrUniform::Index::VIEW_ID], 0));
-    }
-    if (Scene.HrText.UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(0.0, -0.5, -0.75);
-        const Matrix4f rot = Matrix4f::RotationX(-M_PI/2.0);
-        const Matrix4f m1 = stagePoseMat * scale * rot;
-        GL(glUniformMatrix4fv(
-                Scene.HrText.UniformLocation[ovrUniform::Index::MODEL_MATRIX],
-                1,
-                GL_TRUE,
-                &m1.M[0][0]));
-    }
-    Scene.HrText.draw();
-    GL(glUseProgram(0));
-
+    Scene.HrText.draw(Scene.SceneMatrices);
 
     Framebuffer.Unbind();
 }
-
