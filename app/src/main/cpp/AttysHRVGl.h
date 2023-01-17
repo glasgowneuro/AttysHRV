@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2020 Cass Everitt, MPT
- * Copyright (C) 2022 Bernd Porr, <bernd@glasgowneuro.tech>
+ * Copyright (C) 2022-2023 Bernd Porr, <bernd@glasgowneuro.tech>
  * Meta Platform Technologies SDK License Agreement
  * Based on the sample source code SpatialAnchorGl.h
  */
@@ -31,6 +31,27 @@ static const char* defaultgreeting = "Connecting to Attys";
 
 constexpr int SAMPLINGRATE = 250;
 
+
+/////////////////
+// Uniform types
+////////////////
+struct ovrUniform {
+    enum Index {
+        MODEL_MATRIX,
+        VIEW_ID,
+        SCENE_MATRICES
+    };
+    enum Type {
+        MATRIX4X4,
+        INTEGER,
+        BUFFER
+    };
+
+    Index index;
+    Type type;
+    std::string name;
+};
+
 class OvrGeometry {
 public:
     static constexpr int MAX_PROGRAM_UNIFORMS = 8;
@@ -46,8 +67,11 @@ public:
 
     void Destroy();
 
+    // Inits the vertex and index buffers. Can also add more uniforms if needed.
     virtual void CreateGeometry() = 0;
-    virtual void draw(GLuint sceneMatrices) = 0;
+
+    // called from the scene render routine for every frame
+    virtual void render(GLuint sceneMatrices) = 0;
 
     GLuint Program;
     GLuint VertexShader;
@@ -76,12 +100,19 @@ public:
     int IndexCount;
     VertexAttribPointer VertexAttribs[MAX_VERTEX_ATTRIB_POINTERS];
     bool hasVAO = false;
+
+    // default uniforms which can be expanded upon in the inherited classes
+    std::vector<ovrUniform> ProgramUniforms = {
+            {ovrUniform::Index::MODEL_MATRIX, ovrUniform::Type::MATRIX4X4, "ModelMatrix"},
+            {ovrUniform::Index::VIEW_ID, ovrUniform::Type::INTEGER, "ViewID"},
+            {ovrUniform::Index::SCENE_MATRICES, ovrUniform::Type::BUFFER,"SceneMatrices"}
+    };
 };
 
 
 struct OvrAxes : OvrGeometry {
     void CreateGeometry();
-    virtual void draw(GLuint sceneMatrices);
+    virtual void render(GLuint sceneMatrices);
 };
 
 
@@ -90,7 +121,7 @@ struct OvrSkybox : OvrGeometry {
     AAssetManager *aAssetManager = nullptr;
     void loadTextures(const std::vector<std::string> &faces) const;
     void CreateGeometry();
-    virtual void draw(GLuint sceneMatrices);
+    virtual void render(GLuint sceneMatrices);
 };
 
 struct OvrHRText : OvrGeometry {
@@ -106,7 +137,7 @@ struct OvrHRText : OvrGeometry {
     AxesVertices axesVertices = {};
     unsigned short axesIndices[nPoints];
     void CreateGeometry();
-    virtual void draw(GLuint sceneMatrices);
+    virtual void render(GLuint sceneMatrices);
     void add_text(const char *text,
                   unsigned char r, unsigned char g, unsigned char b,
                   float x, float y,
@@ -131,7 +162,7 @@ struct OvrECGPlot : OvrGeometry {
     unsigned short axesIndices[(nPoints*2)+1] = {};
 
     void CreateGeometry();
-    void draw(GLuint sceneMatrices);
+    void render(GLuint sceneMatrices);
 
     static constexpr int iirorder = 2;
 
@@ -182,7 +213,7 @@ struct OvrHRPlot : OvrGeometry {
     unsigned short indices[NR_INDICES] = {};
 
     void CreateGeometry();
-    void draw(GLuint sceneMatrices);
+    void render(GLuint sceneMatrices);
     int frameCtr = 0;
     int fps = 0;
     std::chrono::time_point<std::chrono::steady_clock> start_fps_ts;

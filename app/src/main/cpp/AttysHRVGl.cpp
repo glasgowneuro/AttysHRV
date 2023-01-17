@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2020 Cass Everitt, MPT
- * Copyright (C) 2022 Bernd Porr, <bernd@glasgowneuro.tech>
+ * Copyright (C) 2022-2023 Bernd Porr, <bernd@glasgowneuro.tech>
  * Meta Platform Technologies SDK License Agreement
  * Based on the sample source code SpatialAnchorGl.cpp
  */
@@ -202,59 +202,16 @@ void vecDiff(const float v_A[3], const float v_B[3], float c_P[3]) {
 }
 
 
-//////////////////////////////////////////////////////
-// Uniform defintions
-//////////////////////////////////////////////////////
-struct ovrUniform {
-    enum Index {
-        MODEL_MATRIX,
-        VIEW_ID,
-        SCENE_MATRICES,
-        COLOR_SCALE,
-        COLOR_BIAS,
-        TIME_S,
-    };
-    enum Type {
-        VECTOR4,
-        MATRIX4X4,
-        INTEGER,
-        BUFFER,
-        FLOAT,
-    };
-
-    Index index;
-    Type type;
-    const char *name;
-};
-
-static ovrUniform ProgramUniforms[] = {
-        {ovrUniform::Index::MODEL_MATRIX,   ovrUniform::Type::MATRIX4X4, "ModelMatrix"},
-        {ovrUniform::Index::VIEW_ID,        ovrUniform::Type::INTEGER,   "ViewID"},
-        {ovrUniform::Index::SCENE_MATRICES, ovrUniform::Type::BUFFER,    "SceneMatrices"},
-        {ovrUniform::Index::COLOR_SCALE,    ovrUniform::Type::VECTOR4,   "ColorScale"},
-        {ovrUniform::Index::COLOR_BIAS,     ovrUniform::Type::VECTOR4,   "ColorBias"},
-        {ovrUniform::Index::TIME_S,         ovrUniform::Type::FLOAT,     "time"},
-};
-
-
-
-
-
-/*
-================================================================================
-
-OvrGeometry
-
-================================================================================
-*/
-
+// saves a timestamp at the creation of the program
 static const std::chrono::time_point<std::chrono::steady_clock> start_ts = std::chrono::steady_clock::now();
 
 
 
 
 
-////////////// SKYBOX /////////////////////
+//////////////
+/// SKYBOX ///
+//////////////
 
 static const char* SKYBOX_VERTEX_SHADER = R"SHADER_SRC(
         #define NUM_VIEWS 2
@@ -471,7 +428,7 @@ void OvrSkybox::CreateGeometry() {
     CreateVAO();
 }
 
-void OvrSkybox::draw(GLuint sceneMatrices) {
+void OvrSkybox::render(GLuint sceneMatrices) {
     GL(glUseProgram(Program));
     GL(glBindBufferBase(
             GL_UNIFORM_BUFFER,
@@ -511,108 +468,9 @@ void OvrSkybox::draw(GLuint sceneMatrices) {
 
 
 
-
-
-
-
-
-
-
-//////////////// AXES ////////////////////////
-
-
-void OvrAxes::CreateGeometry() {
-    struct ovrAxesVertices {
-        float positions[6][3];
-        unsigned char colors[6][4];
-    };
-
-    static const ovrAxesVertices axesVertices = {
-            // positions
-            {{0,   0, 0}, {1,   0, 0}, {0, 0,   0}, {0, 1,   0}, {0, 0, 0}, {0, 0, 1}},
-            // colors
-            {{0, 255, 0, 128},
-             {0, 255, 0, 128},
-             {0, 255, 0, 128},
-             {0, 255, 0, 128},
-             {0, 255, 0, 128},
-             {0, 255, 0, 128}},
-    };
-
-    static const unsigned short axesIndices[6] = {
-            0,
-            1, // x axis - red
-            2,
-            3, // y axis - green
-            4,
-            5 // z axis - blue
-    };
-
-    VertexCount = 6;
-    IndexCount = 6;
-
-    VertexAttribs[0].Index = 0;
-    VertexAttribs[1].Name = "vertexPosition";
-    VertexAttribs[0].Size = 3;
-    VertexAttribs[0].Type = GL_FLOAT;
-    VertexAttribs[0].Normalized = false;
-    VertexAttribs[0].Stride = sizeof(axesVertices.positions[0]);
-    VertexAttribs[0].Pointer = (const GLvoid *) offsetof(ovrAxesVertices, positions);
-
-    VertexAttribs[1].Index = 1;
-    VertexAttribs[1].Name = "vertexColor";
-    VertexAttribs[1].Size = 4;
-    VertexAttribs[1].Type = GL_UNSIGNED_BYTE;
-    VertexAttribs[1].Normalized = true;
-    VertexAttribs[1].Stride = sizeof(axesVertices.colors[0]);
-    VertexAttribs[1].Pointer = (const GLvoid *) offsetof(ovrAxesVertices, colors);
-
-    GL(glGenBuffers(1, &VertexBuffer));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
-    GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STATIC_DRAW));
-    GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-
-    GL(glGenBuffers(1, &IndexBuffer));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer));
-    GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(axesIndices), axesIndices, GL_STATIC_DRAW));
-    GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-
-    CreateVAO();
-}
-
-void OvrAxes::draw(GLuint sceneMatrices) {
-    GL(glLineWidth(3.0));
-    // "tracking space" axes (could be LOCAL or LOCAL_FLOOR)
-    GL(glUseProgram(Program));
-    GL(glBindBufferBase(
-            GL_UNIFORM_BUFFER,
-            UniformBinding[ovrUniform::Index::SCENE_MATRICES],
-            sceneMatrices));
-    if (UniformLocation[ovrUniform::Index::VIEW_ID] >=
-        0) // NOTE: will not be present when multiview path is enabled.
-    {
-        GL(glUniform1i(UniformLocation[ovrUniform::Index::VIEW_ID], 0));
-    }
-    if (UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -1, -2);
-        const Matrix4f m1 = stagePoseMat * scale;
-        GL(glUniformMatrix4fv(
-                UniformLocation[ovrUniform::Index::MODEL_MATRIX],
-                1,
-                GL_TRUE,
-                &m1.M[0][0]));
-    }
-    GL(glBindVertexArray(VertexArrayObject));
-    GL(glDrawElements(GL_LINES, IndexCount, GL_UNSIGNED_SHORT, nullptr));
-    GL(glBindVertexArray(0));
-    GL(glUseProgram(0));
-}
-
-
-
-
-//////////////////////////////HR TEXT/////////////////////////////////////////////////////
+///////////////
+/// HR TEXT
+//////////////
 
 static const char* HRTEXT_VERTEX_SHADER = R"SHADER_SRC(
         #define NUM_VIEWS 2
@@ -707,7 +565,7 @@ void OvrHRText::CreateGeometry() {
     registerAttysDataCallback([this](float v){ attysDataCallBack(v); });
 }
 
-void OvrHRText::draw(GLuint sceneMatrices) {
+void OvrHRText::render(GLuint sceneMatrices) {
     GL(glUseProgram(Program));
     GL(glBindBufferBase(
             GL_UNIFORM_BUFFER,
@@ -851,8 +709,9 @@ void OvrHRText::attysDataCallBack(float v) {
 
 
 
-//////////////////////////////////////////////////////////////////////
+///////////////
 // ECG Plot
+//////////////
 
 static const char* ECG_PLOT_VERTEX_SHADER = R"SHADER_SRC(
         #define NUM_VIEWS 2
@@ -949,7 +808,7 @@ void OvrECGPlot::attysDataCallBack(float v) {
     axesVertices.positions[nPoints - 1][1] = (float) v2 * 1000;
 }
 
-void OvrECGPlot::draw(GLuint sceneMatrices) {
+void OvrECGPlot::render(GLuint sceneMatrices) {
     GL(glUseProgram(Program));
     GL(glBindBufferBase(
             GL_UNIFORM_BUFFER,
@@ -994,9 +853,9 @@ void OvrECGPlot::draw(GLuint sceneMatrices) {
 
 
 
-/////////////////////////////////////
+////////////
 // HR Plot
-
+////////////
 const char* HRPLOT_VERTEX_SHADER = R"SHADER_SRC(
         #define NUM_VIEWS 2
         #define VIEW_ID gl_ViewID_OVR
@@ -1181,7 +1040,7 @@ void OvrHRPlot::addHR(float hr) {
     }
 }
 
-void OvrHRPlot::draw(GLuint sceneMatrices) {
+void OvrHRPlot::render(GLuint sceneMatrices) {
     const int shiftbuffersize = QUAD_GRID_SIZE * 10;
     double hrnorm = -1;
     double hrShiftBuffer[shiftbuffersize] = {};
@@ -1471,24 +1330,6 @@ bool OvrGeometry::Create(const char *vertexSource, const char *fragmentSource) {
         return false;
     }
 
-    int numBufferBindings = 0;
-
-    memset(UniformLocation, -1, sizeof(UniformLocation));
-    for (size_t i = 0; i < sizeof(ProgramUniforms) / sizeof(ProgramUniforms[0]); i++) {
-        const int uniformIndex = ProgramUniforms[i].index;
-        if (ProgramUniforms[i].type == ovrUniform::Type::BUFFER) {
-            GL(UniformLocation[uniformIndex] =
-                       glGetUniformBlockIndex(Program, ProgramUniforms[i].name));
-            UniformBinding[uniformIndex] = numBufferBindings++;
-            GL(glUniformBlockBinding(
-                    Program, UniformLocation[uniformIndex], UniformBinding[uniformIndex]));
-        } else {
-            GL(UniformLocation[uniformIndex] =
-                       glGetUniformLocation(Program, ProgramUniforms[i].name));
-            UniformBinding[uniformIndex] = UniformLocation[uniformIndex];
-        }
-    }
-
     GL(glUseProgram(Program));
 
     CreateGeometry();
@@ -1496,6 +1337,26 @@ bool OvrGeometry::Create(const char *vertexSource, const char *fragmentSource) {
     // Bind the vertex attribute locations.
     for (auto &a: VertexAttribs) {
         GL(glBindAttribLocation(Program, a.Index, a.Name.c_str()));
+    }
+
+    // Find the indices for the uniforms
+    for(auto &v:UniformLocation) {
+        v = -1;
+    }
+    int numBufferBindings = 0;
+    for (auto &pu: ProgramUniforms) {
+        const int uniformIndex = pu.index;
+        if (pu.type == ovrUniform::Type::BUFFER) {
+            GL(UniformLocation[uniformIndex] =
+                       glGetUniformBlockIndex(Program, pu.name.c_str()));
+            UniformBinding[uniformIndex] = numBufferBindings++;
+            GL(glUniformBlockBinding(
+                    Program, UniformLocation[uniformIndex], UniformBinding[uniformIndex]));
+        } else {
+            GL(UniformLocation[uniformIndex] =
+                       glGetUniformLocation(Program, pu.name.c_str()));
+            UniformBinding[uniformIndex] = UniformLocation[uniformIndex];
+        }
     }
 
     GL(glUseProgram(0));
@@ -1805,16 +1666,16 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
     // Skybox
-    Scene.ovrSkybox.draw(Scene.SceneMatrices);
+    Scene.ovrSkybox.render(Scene.SceneMatrices);
 
     // ECG Plot
-    Scene.ECGPlot.draw(Scene.SceneMatrices);
+    Scene.ECGPlot.render(Scene.SceneMatrices);
 
     // HRPlot
-    Scene.HrPlot.draw(Scene.SceneMatrices);
+    Scene.HrPlot.render(Scene.SceneMatrices);
 
     // HR Text
-    Scene.HrText.draw(Scene.SceneMatrices);
+    Scene.HrText.render(Scene.SceneMatrices);
 
     Framebuffer.Unbind();
 }
