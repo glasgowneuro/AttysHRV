@@ -1,52 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N9CRXKSBG2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-N9CRXKSBG2',{ 'anonymize_ip': true });
+</script>
+  
     <meta charset="utf8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AttysHRV">
+    <meta name="description" content="ATTYS, the bluetooth data acquisition device.">
     <meta name="author" content="Bernd Porr">
+	<link rel="canonical" href="https://www.attys.tech/" />
+
     <title>AttysHRV</title>
 
+    <link rel="stylesheet" href="/iconsmind/style.css">
+    <!-- Bootstrap core CSS -->
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 
-    
+    <link rel="stylesheet" href="https://www.attys.tech/bootstrap-4.4.1-dist/css/bootstrap.min.css">
+
+    <script src="https://www.attys.tech//bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="https://www.attys.tech//style.css">
+
+    <style>
+      .jumbotron {
+          background-color: white;
+      }
+      .frontpageicons {
+          font-size: 500%;
+      }
+    </style>
+
+
   </head>
 
   <body>
+
+ <nav class="navbar navbar-expand-md bg-dark navbar-dark">
+  <!-- Brand -->
+  <a class="navbar-brand" href="/">Attys DAQ</a>
+
+  <!-- Toggler/collapsibe Button -->
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <!-- Navbar links -->
+  <div class="collapse navbar-collapse" id="collapsibleNavbar">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="https://www.attys.tech/shop/">Shop</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://www.attys.tech/software">Software</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://www.attys.tech/how-to">How to</a>
+      </li>
+      <li>
+        <a class="nav-link" href="https://www.attys.tech/consultancy">Consultancy</a>
+      </li>        
+    </ul>
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="https://www.attys.tech/contact">Contact</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+
+<div class="container">
+  <div class="row">
+    <h1>AttysHRV</h1>
+    <img src="attys_hrv_splash.png" class="img-fluid" />
+  </div><!--/row-->
   
-  <div class="container">
-	
-      <div class="jumbotron">
-
-      <h1>AttysHRV</h1>
-	  
-	  <p><img src="attys_hrv_splash.png" class="img-fluid" alt="Screenshot of AttysHRV" width="100%"></p>
-
-	  <p class="lead">Use deep breathing to de-stress: The more you relax the more your heartrate will by in sync with your breathing. 
-	  We've made a biofeedback app for the Oculus Quest 2 which turns your heartrate into a seaside animation.
-    The heartbeat (ECG) is measured with the <a href="https://www.attys.tech">Attys</a>.
-	  </p>
-	 
-	  
-	</div>
-
   <div class="row">
     <div class="col-md-2"></div>
-    <div class="col-md-8">
-
-      <p>Your heart beats a bit faster when you are breathing in and a bit slower when you are breathing out. 
-      The more relaxed you are the more your heart-rate changes during breathing. 
-      However, this also works the other way around: you can use deep breathing to de-stress which in 
-      turn will change your heart-rate according to your breathing.</p>
+    <div class="col-md-8 mt-4">    
+      <p class="mt-5 mb-5">Your heart beats a bit faster when you are breathing in and a bit slower when you are breathing out. 
+	The more relaxed you are the more your heart-rate changes during breathing. 
+	However, this also works the other way around: you can use deep breathing to de-stress which in 
+	turn will change your heart-rate according to your breathing.</p>
     </div>
     <div class="col-md-2"></div>
   </div>
-
+  
   <div class="row mt-2 mb-5">
     <div class="col-md-2"></div>
     <div class="col-md-8">
@@ -107,34 +157,27 @@
   <div class="row mt-5">
     <div class="col-md-2"></div>
     <div class="col-md-8 small">
+      
+      <h4 id="privacy">Privacy</h4>
+      
+      <p>AttysHRV is an app operated by Glasgow Neuro LTD ("We"). We are a private company limited by shares incorporated in Scotland on 19 April 2016 under the Companies Act 2006 with registered company number SC533018 and having its registered office at 28 Harley Street, 1/1, Glasgow, Scotland, G51 1AJ. Our VAT number is 254 4867 77.</p>
+      
+      <p>What data the app is collecting about the user?<br />AttysHRV does not collect any data.</p>
+      
+      <p>How is the app using user data?<br />The app measures ECG (the electrical activity of the heart) but the ECG is not stored anywhere.</p>
+      
+      <p>How can the user may request that their user data that has been collected or stored can be deleted?<br />Not applicable (see above) as no data is being stored.</p>
+      
+      <p>Organisation and app clear data protection checks:<br />Data protection is guaranteed as no data is being collected or stored. Glasgow Neuro LTD is registered with ICO.</p>
 
-  <h4 id="privacy">Privacy</h4>
-
-  <p>AttysHRV is an app operated by Glasgow Neuro LTD ("We"). We are a private company limited by shares incorporated in Scotland on 19 April 2016 under the Companies Act 2006 with registered company number SC533018 and having its registered office at 28 Harley Street, 1/1, Glasgow, Scotland, G51 1AJ. Our VAT number is 254 4867 77.</p>
-
-  <p>What data the app is collecting about the user?<br />AttysHRV does not collect any data.</p>
-  
-  <p>How is the app using user data?<br />The app measures ECG (the electrical activity of the heart) but the ECG is not stored anywhere.</p>
-  
-  <p>How can the user may request that their user data that has been collected or stored can be deleted?<br />Not applicable (see above) as no data is being stored.</p>
-  
-  <p>Organisation and app clear data protection checks:<br />Data protection is guaranteed as no data is being collected or stored. Glasgow Neuro LTD is registered with ICO.</p>
-
-  </div>
-  <div class="col-md-2"></div>
-  </div>
-
-  <div class="row mt-5 mb-5">
-    <div class="col-md-2"></div>
-    <div class="col-md-8">
-      <h4>Source code</h4>
-      <p><a href="https://github.com/glasgowneuro/AttysHRV">github</a></p>
     </div>
+
     <div class="col-md-2"></div>
   </div>
-
-
-</div>
     
-</body>
+  <div id="footer" class="container-fluid mb-5">
+    <div class="row">(C) 2016-2020 GLASGOW NEURO LTD, SC533018. Design created with&nbsp;<a href="https://getbootstrap.com/">Bootstrap</a>.</div>
+  </div>
+    
+  </body>
 </html>
