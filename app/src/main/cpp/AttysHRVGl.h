@@ -293,5 +293,3 @@ struct ovrAppRenderer {
     ovrScene Scene;
     float t;
 };
-
-extern ovrScene* scenePtr;
