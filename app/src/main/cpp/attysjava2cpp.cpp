@@ -53,12 +53,24 @@ Java_tech_glasgowneuro_attyshrv_ANativeActivity_dataUpdate(JNIEnv *, jclass, jlo
     }
 }
 
+////////////////////////////////////////////////
+// Init callback that the Attys has been started
+std::vector<std::function<void(float)>> attysInitCallbacks;
+
+void registerAttysInitCallback(const std::function<void(float)> &f) {
+    attysInitCallbacks.emplace_back(f);
+}
+
 extern "C"
 JNIEXPORT void JNICALL
 Java_tech_glasgowneuro_attyshrv_ANativeActivity_initJava2CPP(JNIEnv *env,
                                                               jclass clazz,
                                                               jfloat fs) {
     ALOGV("Settting up the notch filter and HR detector: fs = %f", fs);
+    for(auto &v : attysInitCallbacks) {
+        v(fs);
+    }
+    if (fs < 125) return;
     iirnotch.setup(fs, 50, 2.5);
     rrDet.init(fs);
 }
@@ -67,4 +79,5 @@ void unregisterAllAttysCallbacks() {
     ALOGV("Unregistering all Attys callbacks");
     attysHRCallbacks.clear();
     attysDataCallbacks.clear();
+    attysInitCallbacks.clear();
 }

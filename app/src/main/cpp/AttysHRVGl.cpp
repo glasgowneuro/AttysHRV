@@ -1626,6 +1626,7 @@ void ovrAppRenderer::Create(
         // but with the linear->sRGB conversion disabled on write.
         GL(glDisable(GL_FRAMEBUFFER_SRGB_EXT));
     }
+    registerAttysInitCallback([this](float fs){ attysInitCB(fs);});
 }
 
 void ovrAppRenderer::Destroy() {
@@ -1668,14 +1669,18 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     // Skybox
     Scene.ovrSkybox.render(Scene.SceneMatrices);
 
-    // ECG Plot
-    Scene.ECGPlot.render(Scene.SceneMatrices);
+    if (hasAttys) {
+        // ECG Plot
+        Scene.ECGPlot.render(Scene.SceneMatrices);
+    }
 
     // HRPlot
     Scene.HrPlot.render(Scene.SceneMatrices);
 
-    // HR Text
-    Scene.HrText.render(Scene.SceneMatrices);
+    if (hasAttys) {
+        // HR Text
+        Scene.HrText.render(Scene.SceneMatrices);
+    }
 
     Framebuffer.Unbind();
 }

@@ -17,9 +17,16 @@ void registerAttysDataCallback(const std::function<void(float)>& f);
 
 /**
  * Registers a callback to receive the heartrate
- * @param f heartrate in BPM
+ * @param f Callback with the currnet heartrate in BPM
  */
 void registerAttysHRCallback(const std::function<void(float)>& f);
+
+/**
+ * Registering a callback when the Attys has been initialised or failed.
+ * @param f Callback function which has the sampling rate as the argument
+ */
+void registerAttysInitCallback(const std::function<void(float)> &f);
+
 
 void unregisterAllAttysCallbacks();
 

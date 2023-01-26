@@ -29,6 +29,10 @@ public class ANativeActivity extends android.app.NativeActivity {
   static native void initJava2CPP(float fs);
 
   static void startAttysComm(long inst) {
+    if (AttysComm.findAttysBtDevice() == null) {
+      initJava2CPP(0);
+      return;
+    }
     Log.d(TAG, "Starting AttysComm");
     instance = inst;
     attysComm = new AttysComm();

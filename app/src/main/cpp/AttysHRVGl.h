@@ -289,7 +289,12 @@ struct ovrAppRenderer {
 
     void RenderFrame(FrameIn frameIn);
 
+    void attysInitCB(float fs) {
+        hasAttys = fs > 1;
+    }
+
     ovrFramebuffer Framebuffer;
     ovrScene Scene;
     float t;
+    bool hasAttys = true;
 };
