@@ -47,4 +47,4 @@ Start Android Studio, open AttysHRV and click `run`.
 
 ## How to use the app
 
-https://glasgowneuro.github.io/AttysHRV/
+https://www.attys.tech/software/attyshrv/
