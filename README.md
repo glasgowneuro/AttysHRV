@@ -17,9 +17,10 @@ The app is written in C++ using the openXR / openGL framework
 which allows realtime processing and animation of the ECG
 in the headset.
 
-## APK
+## Installation
 
-Download the [APK](<./app-release.apk>) and sideload it on the Oculus.
+ - Release version: [Oculus App Lab](https://www.oculus.com/experiences/quest/6176094515757000/)
+ - For development versions either use the pre-compiled APK or compile from source below.
 
 ## Compiling from source
 
