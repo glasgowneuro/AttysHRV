@@ -81,3 +81,10 @@ void unregisterAllAttysCallbacks() {
     attysDataCallbacks.clear();
     attysInitCallbacks.clear();
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_tech_glasgowneuro_attyshrv_ANativeActivity_setHRfilePath(JNIEnv *env, jclass clazz,
+                                                              jstring path) {
+    // TODO: implement setHRfilePath()
+}

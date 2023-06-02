@@ -1,11 +1,15 @@
 package tech.glasgowneuro.attyshrv;
 
+import android.os.Bundle;
 import android.util.Log;
+
+import java.io.File;
 
 import tech.glasgowneuro.attyscomm.AttysComm;
 
 public class ANativeActivity extends android.app.NativeActivity {
   static final String TAG = "AttysHRV";
+  static final String HR_FILE = "attyshrv_heartrate.tsv";
 
   static private long instance = 0;
 
@@ -14,6 +18,17 @@ public class ANativeActivity extends android.app.NativeActivity {
   static {
     System.loadLibrary("openxr_loader");
     System.loadLibrary("attyshrv");
+  }
+
+  static native void setHRfilePath(String path);
+
+  @Override
+  protected void onCreate (Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    File f = new File(getBaseContext().getExternalFilesDir(null), HR_FILE);
+    String full_hr_file_path = f.getAbsolutePath();
+    Log.d(TAG,"Full path to local dir: "+full_hr_file_path);
+    setHRfilePath(full_hr_file_path);
   }
 
   static native void dataUpdate(long inst, float v);
