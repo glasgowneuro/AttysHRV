@@ -1587,7 +1587,6 @@ void ovrScene::Create() {
 }
 
 void ovrScene::Destroy() {
-    unregisterAllAttysCallbacks();
     GL(glDeleteBuffers(1, &SceneMatrices));
     ECGPlot.Destroy();
     HrPlot.Destroy();
@@ -1627,9 +1626,15 @@ void ovrAppRenderer::Create(
         GL(glDisable(GL_FRAMEBUFFER_SRGB_EXT));
     }
     registerAttysInitCallback([this](float fs){ attysInitCB(fs);});
+    registerAttysHRCallback([this](float hr){writeHR2file(hr);});
+    if (hasAttys) {
+        openHRfile(getAttysHRfilepath());
+    }
 }
 
 void ovrAppRenderer::Destroy() {
+    unregisterAllAttysCallbacks();
+    closeHRfile();
     Framebuffer.Destroy();
     Scene.Destroy();
 }
@@ -1683,4 +1688,41 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     }
 
     Framebuffer.Unbind();
+}
+
+void ovrAppRenderer::openHRfile(const std::string& path) {
+    if (!hasAttys) {
+        ALOGV("Not logging to HR file as we have no Attys.");
+        return;
+    }
+    if (nullptr != hrFile) {
+        ALOGV("HR file already open");
+        return;
+    }
+    if (path.empty()) {
+        ALOGV("HR file path not set");
+        return;
+    }
+    hrFile = fopen(path.c_str(),"at");
+    if (nullptr == hrFile) {
+        ALOGE("Cannot write to HR file: %s",path.c_str());
+    } else {
+        ALOGV("Writing to HR file: %s", path.c_str());
+    }
+}
+
+void ovrAppRenderer::closeHRfile() {
+    if (nullptr == hrFile) return;
+    fclose(hrFile);
+    hrFile = nullptr;
+    ALOGV("HR file closed");
+}
+
+void ovrAppRenderer::writeHR2file(float hr) const {
+    if (nullptr == hrFile) return;
+    struct timeval tv = {};
+    gettimeofday(&tv, nullptr);
+    const long epo = (long)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+    ALOGV("Writing to HR file: %ld,%f", epo, hr);
+    fprintf(hrFile,"%ld\t%f\n", epo, hr);
 }

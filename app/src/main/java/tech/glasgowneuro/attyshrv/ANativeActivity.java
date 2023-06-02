@@ -1,5 +1,6 @@
 package tech.glasgowneuro.attyshrv;
 
+import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -15,6 +16,8 @@ public class ANativeActivity extends android.app.NativeActivity {
 
   static AttysComm attysComm;
 
+  File fullpath = null;
+
   static {
     System.loadLibrary("openxr_loader");
     System.loadLibrary("attyshrv");
@@ -25,8 +28,8 @@ public class ANativeActivity extends android.app.NativeActivity {
   @Override
   protected void onCreate (Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    File f = new File(getBaseContext().getExternalFilesDir(null), HR_FILE);
-    String full_hr_file_path = f.getAbsolutePath();
+    File fullpath = new File(getBaseContext().getExternalFilesDir(null), HR_FILE);
+    String full_hr_file_path = fullpath.getAbsolutePath();
     Log.d(TAG,"Full path to local dir: "+full_hr_file_path);
     setHRfilePath(full_hr_file_path);
   }

@@ -27,6 +27,11 @@ void registerAttysHRCallback(const std::function<void(float)>& f);
  */
 void registerAttysInitCallback(const std::function<void(float)> &f);
 
+/**
+ * Returns the absolute path to the Attys HR file
+ * @return full path of the filename
+ */
+std::string getAttysHRfilepath();
 
 void unregisterAllAttysCallbacks();
 

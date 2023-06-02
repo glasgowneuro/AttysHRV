@@ -75,16 +75,29 @@ Java_tech_glasgowneuro_attyshrv_ANativeActivity_initJava2CPP(JNIEnv *env,
     rrDet.init(fs);
 }
 
-void unregisterAllAttysCallbacks() {
-    ALOGV("Unregistering all Attys callbacks");
-    attysHRCallbacks.clear();
-    attysDataCallbacks.clear();
-    attysInitCallbacks.clear();
+//////////////////////////////////
+// filename
+
+std::string attysHRfilepath;
+
+std::string getAttysHRfilepath() {
+    return  attysHRfilepath;
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_tech_glasgowneuro_attyshrv_ANativeActivity_setHRfilePath(JNIEnv *env, jclass clazz,
                                                               jstring path) {
-    // TODO: implement setHRfilePath()
+    const char *fnUTF = env->GetStringUTFChars(path, NULL);
+    ALOGV("Callback from onCreate for HR with path: %s",fnUTF);
+    attysHRfilepath = std::string(fnUTF);
+    env->ReleaseStringUTFChars(path, fnUTF);
+}
+
+
+void unregisterAllAttysCallbacks() {
+    ALOGV("Unregistering all Attys callbacks");
+    attysHRCallbacks.clear();
+    attysDataCallbacks.clear();
+    attysInitCallbacks.clear();
 }
