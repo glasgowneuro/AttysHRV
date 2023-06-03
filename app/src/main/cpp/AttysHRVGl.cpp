@@ -1704,6 +1704,11 @@ void ovrAppRenderer::openHRfile(const std::string& path) {
     } else {
         fseek(hrFile, 0L, SEEK_END);
         long sz = ftell(hrFile);
+        if (sz > MAX_HR_FILESIZE) {
+            closeHRfile();
+            ALOGV("HR file %s too large: size = %ld", path.c_str(),sz);
+            return;
+        }
         ALOGV("Writing to HR file: %s, size = %ld", path.c_str(),sz);
     }
 }

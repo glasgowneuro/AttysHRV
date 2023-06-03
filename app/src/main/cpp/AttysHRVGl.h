@@ -27,6 +27,8 @@
 
 static const char* defaultgreeting = "Connecting to Attys";
 
+constexpr long MAX_HR_FILESIZE = 100000000; // 100MB
+
 #define NUM_EYES 2
 
 constexpr int SAMPLINGRATE = 250;
