@@ -125,7 +125,7 @@ struct OvrHRText : OvrGeometry {
     static constexpr float fontsize = 36;
 
     const OVR::Matrix4f scale = OVR::Matrix4f::Scaling(0.1, 0.1, 0.1);
-    const OVR::Matrix4f translation = OVR::Matrix4f::Translation(0.0, -0.65, -0.45);
+    const OVR::Matrix4f translation = OVR::Matrix4f::Translation(0.0, -1.5, -1.0);
     const OVR::Matrix4f rot = OVR::Matrix4f::RotationX(-M_PI/2.0);
 
     // 100mV
@@ -154,7 +154,7 @@ struct OvrECGPlot : OvrGeometry {
     float offset = 0;
 
     const OVR::Matrix4f scale = OVR::Matrix4f::Scaling(0.1, 0.1, 0.1);
-    const OVR::Matrix4f translation = OVR::Matrix4f::Translation(0, -0.65, -0.35);
+    const OVR::Matrix4f translation = OVR::Matrix4f::Translation(0, -1.5, -0.9);
 
     struct ovrAxesVertices {
         float positions[nPoints][3];
@@ -182,8 +182,10 @@ struct OvrHRPlot : OvrGeometry {
     static constexpr int NR_VERTICES = (QUAD_GRID_SIZE+1)*(QUAD_GRID_SIZE+1);
     static constexpr int NR_TRIANGLES = 2*QUAD_GRID_SIZE*QUAD_GRID_SIZE;
     static constexpr int NR_INDICES = 3*NR_TRIANGLES;
-    static constexpr double scale = 50.0f;
-    static constexpr const double delta = 2.0/(double)QUAD_GRID_SIZE;
+    static constexpr double scaleGrid = 50.0f;
+    static constexpr const double deltaGrid = 2.0/(double)QUAD_GRID_SIZE;
+    const OVR::Matrix4f scale = OVR::Matrix4f::Scaling(0.2, 0.1, 0.2);
+    const OVR::Matrix4f translation = OVR::Matrix4f::Translation(0, -1, 0);
 
     struct HRVertices {
         float vertices[NR_VERTICES][3] = {};

@@ -504,8 +504,8 @@ const char* HRTEXT_FRAGMENT_SHADER = R"SHADER_SRC(
         void main()
         {
            vec4 color = texture( Texture0, fragmentTexCoord );
-           color.a = color.a * 2.0;
-           outColor = vec4(fragmentColor.rgb,color.a);
+           vec3 c = fragmentColor.rgb;
+           outColor = vec4(c,color.a * 0.5);
         }
 )SHADER_SRC";
 
@@ -747,7 +747,7 @@ void OvrECGPlot::CreateGeometry() {
     VertexCount = nPoints;
     IndexCount = (nPoints * 2) + 1;
 
-    ALOGE("Creating ECG plot with %d vertices.", VertexCount);
+    ALOGV("Creating ECG plot with %d vertices.", VertexCount);
     for (int i = 0; i < nPoints; i++) {
         axesIndices[i * 2] = i;
         axesIndices[i * 2 + 1] = i + 1;
@@ -836,9 +836,20 @@ void OvrECGPlot::render(GLuint sceneMatrices) {
     GL(glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer));
     GL(glBufferData(GL_ARRAY_BUFFER, sizeof(axesVertices), &axesVertices, GL_STREAM_DRAW));
     GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-
     GL(glBindVertexArray(VertexArrayObject));
+
+    GL(glDepthMask(GL_FALSE));
+    GL(glEnable(GL_DEPTH_TEST));
+    GL(glDepthFunc(GL_LEQUAL));
+    GL(glDisable(GL_CULL_FACE));
+    GL(glEnable(GL_BLEND));
+    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
     GL(glDrawElements(GL_LINES, IndexCount, GL_UNSIGNED_SHORT, nullptr));
+
+    GL(glDepthMask(GL_TRUE));
+    GL(glDisable(GL_BLEND));
+
     GL(glBindVertexArray(0));
 
     GL(glUseProgram(0));
@@ -959,9 +970,11 @@ void OvrHRPlot::CreateGeometry() {
     for (int y = 0; y <= QUAD_GRID_SIZE; y++) {
         for (int x = 0; x <= QUAD_GRID_SIZE; x++) {
             int vertexPosition = y * (QUAD_GRID_SIZE + 1) + x;
-            hrVertices.vertices[vertexPosition][0] = (float)(((double) x * delta - 1.0) * scale);
+            hrVertices.vertices[vertexPosition][0] =
+                    (float)(((double) x * deltaGrid - 1.0) * scaleGrid);
             hrVertices.vertices[vertexPosition][1] = 0;
-            hrVertices.vertices[vertexPosition][2] = (float)(((double) y * delta - 1.0) * scale);
+            hrVertices.vertices[vertexPosition][2] =
+                    (float)(((double) y * deltaGrid - 1.0) * scaleGrid);
             hrVertices.normals[vertexPosition][0] = 0;
             hrVertices.normals[vertexPosition][1] = 1;
             hrVertices.normals[vertexPosition][2] = 0;
@@ -1185,9 +1198,7 @@ void OvrHRPlot::render(GLuint sceneMatrices) {
         GL(glUniform1i(UniformLocation[ovrUniform::Index::VIEW_ID], 0));
     }
     if (UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-        const Matrix4f scale = Matrix4f::Scaling(0.2, 0.1, 0.2);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -1, 0);
-        const Matrix4f m1 = stagePoseMat * scale;
+        const Matrix4f m1 = translation * scale;
         GL(glUniformMatrix4fv(
                 UniformLocation[ovrUniform::Index::MODEL_MATRIX],
                 1,
@@ -1669,18 +1680,18 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     // Skybox
     Scene.ovrSkybox.render(Scene.SceneMatrices);
 
-    if (hasAttys) {
-        // ECG Plot
-        Scene.ECGPlot.render(Scene.SceneMatrices);
-    }
+    // HRPlot
+    Scene.HrPlot.render(Scene.SceneMatrices);
 
     if (hasAttys) {
         // HR Text
         Scene.HrText.render(Scene.SceneMatrices);
     }
 
-    // HRPlot
-    Scene.HrPlot.render(Scene.SceneMatrices);
+    if (hasAttys) {
+        // ECG Plot
+        Scene.ECGPlot.render(Scene.SceneMatrices);
+    }
 
     Framebuffer.Unbind();
 }
