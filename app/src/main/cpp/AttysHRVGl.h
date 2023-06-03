@@ -110,12 +110,6 @@ public:
 };
 
 
-struct OvrAxes : OvrGeometry {
-    void CreateGeometry();
-    virtual void render(GLuint sceneMatrices);
-};
-
-
 struct OvrSkybox : OvrGeometry {
     GLuint texid = 0;
     AAssetManager *aAssetManager = nullptr;
@@ -127,6 +121,11 @@ struct OvrSkybox : OvrGeometry {
 struct OvrHRText : OvrGeometry {
     static constexpr int nPoints = 500;
     static constexpr float fontsize = 36;
+
+    const OVR::Matrix4f scale = OVR::Matrix4f::Scaling(0.1, 0.1, 0.1);
+    const OVR::Matrix4f translation = OVR::Matrix4f::Translation(0.0, -0.65, -0.45);
+    const OVR::Matrix4f rot = OVR::Matrix4f::RotationX(-M_PI/2.0);
+
     // 100mV
     struct AxesVertices {
         float positions[nPoints][3];
@@ -151,6 +150,9 @@ struct OvrHRText : OvrGeometry {
 struct OvrECGPlot : OvrGeometry {
     static constexpr int nPoints = 500;
     float offset = 0;
+
+    const OVR::Matrix4f scale = OVR::Matrix4f::Scaling(0.1, 0.1, 0.1);
+    const OVR::Matrix4f translation = OVR::Matrix4f::Translation(0, -0.65, -0.35);
 
     struct ovrAxesVertices {
         float positions[nPoints][3];

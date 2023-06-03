@@ -504,7 +504,7 @@ const char* HRTEXT_FRAGMENT_SHADER = R"SHADER_SRC(
         void main()
         {
            vec4 color = texture( Texture0, fragmentTexCoord );
-           color.a = color.a * 0.5;
+           color.a = color.a * 2.0;
            outColor = vec4(fragmentColor.rgb,color.a);
         }
 )SHADER_SRC";
@@ -577,10 +577,7 @@ void OvrHRText::render(GLuint sceneMatrices) {
         GL(glUniform1i(UniformLocation[ovrUniform::Index::VIEW_ID], 0));
     }
     if (UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(0.0, -0.5, -0.75);
-        const Matrix4f rot = Matrix4f::RotationX(-M_PI/2.0);
-        const Matrix4f m1 = stagePoseMat * scale * rot;
+        const Matrix4f m1 = translation * scale * rot;
         GL(glUniformMatrix4fv(
                 UniformLocation[ovrUniform::Index::MODEL_MATRIX],
                 1,
@@ -820,9 +817,7 @@ void OvrECGPlot::render(GLuint sceneMatrices) {
         GL(glUniform1i(UniformLocation[ovrUniform::Index::VIEW_ID], 0));
     }
     if (UniformLocation[ovrUniform::Index::MODEL_MATRIX] >= 0) {
-        const Matrix4f scale = Matrix4f::Scaling(0.1, 0.1, 0.1);
-        const Matrix4f stagePoseMat = Matrix4f::Translation(0, -0.5, -1);
-        const Matrix4f m1 = stagePoseMat * scale;
+        const Matrix4f m1 = translation * scale;
         GL(glUniformMatrix4fv(
                 UniformLocation[ovrUniform::Index::MODEL_MATRIX],
                 1,
@@ -1679,13 +1674,13 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
         Scene.ECGPlot.render(Scene.SceneMatrices);
     }
 
-    // HRPlot
-    Scene.HrPlot.render(Scene.SceneMatrices);
-
     if (hasAttys) {
         // HR Text
         Scene.HrText.render(Scene.SceneMatrices);
     }
+
+    // HRPlot
+    Scene.HrPlot.render(Scene.SceneMatrices);
 
     Framebuffer.Unbind();
 }
@@ -1707,7 +1702,9 @@ void ovrAppRenderer::openHRfile(const std::string& path) {
     if (nullptr == hrFile) {
         ALOGE("Cannot write to HR file: %s",path.c_str());
     } else {
-        ALOGV("Writing to HR file: %s", path.c_str());
+        fseek(hrFile, 0L, SEEK_END);
+        long sz = ftell(hrFile);
+        ALOGV("Writing to HR file: %s, size = %ld", path.c_str(),sz);
     }
 }
 
@@ -1723,6 +1720,6 @@ void ovrAppRenderer::writeHR2file(float hr) const {
     struct timeval tv = {};
     gettimeofday(&tv, nullptr);
     const long epo = (long)tv.tv_sec * 1000 + tv.tv_usec / 1000;
-    ALOGV("Writing to HR file: %ld,%f", epo, hr);
-    fprintf(hrFile,"%ld\t%f\n", epo, hr);
+    ALOGV("Writing to HR file: %ld, %.1f", epo, hr);
+    fprintf(hrFile,"%ld\t%.1f\n", epo, hr);
 }
