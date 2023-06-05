@@ -15,13 +15,16 @@ a {
     padding: 8px;
     font-size: 18px;
 }
+
 #drag_upload_file {
   width:50%;
   margin:0 auto;
 }
+
 #drag_upload_file p {
   text-align: center;
 }
+
 #drag_upload_file #selectfile {
   display: none;
 }

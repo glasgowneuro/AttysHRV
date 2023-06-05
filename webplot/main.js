@@ -9,13 +9,20 @@ function plot_data(r) {
         document.getElementById("ecg_hr"),
 	r, {
 	    ylabel: 'HR / bpm',
-            axes: { y: {axisLabelWidth: 50} },
 	    animatedZooms: true,
-	    xlabel: 't/sec',
             drawPoints: true,
 	    width: winx,
 	    height: winy,
-	    valueRange: [ 0, 200 ]
+	    valueRange: [ 0, 200 ],
+	    axes : {
+                x : {
+                    valueFormatter: Dygraph.dateString_,
+                    ticker: Dygraph.dateTicker
+                },
+		y : {
+		    axisLabelWidth: 50
+		}
+            }
 	}
     );
 
