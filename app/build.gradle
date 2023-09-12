@@ -8,9 +8,10 @@ android {
     defaultConfig {
         applicationId "tech.glasgowneuro.attyshrv"
         minSdk 29
+        //noinspection OldTargetApi
         targetSdk 32
-        versionCode 4
-        versionName "1.2"
+        versionCode 5
+        versionName "1.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -20,6 +21,7 @@ android {
             }
         }
         ndk {
+            //noinspection ChromeOsAbiSupport
             abiFilters 'arm64-v8a'
         }
     }
@@ -52,6 +54,7 @@ android {
             }
         }
     }
+    namespace 'tech.glasgowneuro.attyshrv'
 }
 
 dependencies {
