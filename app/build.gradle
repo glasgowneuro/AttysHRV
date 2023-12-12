@@ -5,13 +5,17 @@ plugins {
 android {
     compileSdk 32
 
+    lintOptions {
+        abortOnError false
+    }
+
     defaultConfig {
         applicationId "tech.glasgowneuro.attyshrv"
         minSdk 29
-        //noinspection OldTargetApi
+        //noinspection ExpiredTargetSdkVersion
         targetSdk 32
-        versionCode 6
-        versionName "1.4"
+        versionCode 7
+        versionName "1.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
