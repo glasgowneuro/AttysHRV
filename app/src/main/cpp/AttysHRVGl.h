@@ -299,13 +299,10 @@ struct ovrAppRenderer {
         hasAttys = fs > 1;
     }
 
-    void openHRfile(const std::string& path);
-    void closeHRfile();
     void writeHR2file(float hr) const;
 
     ovrFramebuffer Framebuffer;
     ovrScene Scene;
     float t;
     bool hasAttys = true;
-    FILE* hrFile = nullptr;
 };

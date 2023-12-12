@@ -1633,14 +1633,10 @@ void ovrAppRenderer::Create(
     }
     registerAttysInitCallback([this](float fs){ attysInitCB(fs);});
     registerAttysHRCallback([this](float hr){writeHR2file(hr);});
-    if (hasAttys) {
-        openHRfile(getAttysHRfilepath());
-    }
 }
 
 void ovrAppRenderer::Destroy() {
     unregisterAllAttysCallbacks();
-    closeHRfile();
     Framebuffer.Destroy();
     Scene.Destroy();
 }
@@ -1696,46 +1692,32 @@ void ovrAppRenderer::RenderFrame(ovrAppRenderer::FrameIn frameIn) {
     Framebuffer.Unbind();
 }
 
-void ovrAppRenderer::openHRfile(const std::string& path) {
-    if (!hasAttys) {
-        ALOGV("Not logging to HR file as we have no Attys.");
-        return;
-    }
-    if (nullptr != hrFile) {
-        ALOGV("HR file already open");
-        return;
-    }
-    if (path.empty()) {
-        ALOGV("HR file path not set");
-        return;
-    }
-    hrFile = fopen(path.c_str(),"at");
-    if (nullptr == hrFile) {
-        ALOGE("Cannot write to HR file: %s",path.c_str());
-    } else {
-        fseek(hrFile, 0L, SEEK_END);
-        long sz = ftell(hrFile);
-        if (sz > MAX_HR_FILESIZE) {
-            closeHRfile();
-            ALOGV("HR file %s too large: size = %ld", path.c_str(),sz);
-            return;
-        }
-        ALOGV("Writing to HR file: %s, size = %ld", path.c_str(),sz);
-    }
-}
-
-void ovrAppRenderer::closeHRfile() {
-    if (nullptr == hrFile) return;
-    fclose(hrFile);
-    hrFile = nullptr;
-    ALOGV("HR file closed");
-}
-
 void ovrAppRenderer::writeHR2file(float hr) const {
-    if (nullptr == hrFile) return;
+    const std::string path = getAttysHRfilepath();
+    if (path.empty()) {
+        ALOGE("HR file path not set");
+        return;
+    }
+    FILE* hrFile = fopen(path.c_str(), "at");
+    if (nullptr == hrFile) {
+        ALOGE("Cannot write to HR file: %s", path.c_str());
+        return;
+    }
+    fseek(hrFile, 0L, SEEK_END);
+    long sz = ftell(hrFile);
+    ALOGV("Writing to HR file: %s, size = %ld", path.c_str(), sz);
+    if (sz > MAX_HR_FILESIZE) {
+        fclose(hrFile);
+        ALOGV("HR file %s too large: size = %ld", path.c_str(), sz);
+        return;
+    }
     struct timeval tv = {};
     gettimeofday(&tv, nullptr);
-    const long epo = (long)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+    const long epo = (long) tv.tv_sec * 1000 + tv.tv_usec / 1000;
     ALOGV("Writing to HR file: %ld, %.1f", epo, hr);
-    fprintf(hrFile,"%ld\t%.1f\n", epo, hr);
+    const int r = fprintf(hrFile, "%ld\t%.1f\n", epo, hr);
+    if (r < 0) {
+        ALOGE("Could not write to heartrate-file!");
+    }
+    fclose(hrFile);
 }
