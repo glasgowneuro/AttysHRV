@@ -11,11 +11,11 @@ android {
 
     defaultConfig {
         applicationId "tech.glasgowneuro.attyshrv"
-        minSdk 29
+        minSdk 32
         //noinspection ExpiredTargetSdkVersion
         targetSdk 32
-        versionCode 7
-        versionName "1.5"
+        versionCode 8
+        versionName "1.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -63,5 +63,5 @@ android {
 
 dependencies {
     implementation 'uk.me.berndporr:iirj:1.5'
-    implementation 'com.google.oboe:oboe:1.8.0'
+    implementation 'com.google.oboe:oboe:1.9.0'
 }
