@@ -17,14 +17,7 @@ The app is written in C++ using the openXR / openGL framework
 which allows realtime processing and animation of the ECG
 in the headset.
 
-## Installation
-
- - Release version: [Oculus App Lab](https://www.oculus.com/experiences/quest/6176094515757000/)
- - For development versions either use the pre-compiled APK or compile from source below.
-
-## Compiling from source
-
-### Prerequisites
+## Prerequisites
 
 1. Change into `AttysHRV/app/src/main/cpp` and clone the IIR filter library and the spline interpolation library:
 
@@ -42,7 +35,7 @@ git clone https://github.com/berndporr/cxx-spline.git
 3. Clone [AttysComm](https://github.com/glasgowneuro/AttysComm) and modify `app/build.gradle` so that it points
    to AttysComm.
 
-### Compile & run
+## Compile & run
 
 Start Android Studio, open AttysHRV and click `run`.
 
