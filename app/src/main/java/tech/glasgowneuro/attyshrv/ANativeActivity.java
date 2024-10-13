@@ -1,10 +1,16 @@
 package tech.glasgowneuro.attyshrv;
 
+import android.content.Context;
 import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.Locale;
 
 import tech.glasgowneuro.attyscomm.AttysComm;
 
@@ -16,7 +22,7 @@ public class ANativeActivity extends android.app.NativeActivity {
 
   static AttysComm attysComm;
 
-  File fullpath = null;
+  static PrintWriter rawdatalog = null;
 
   static {
     System.loadLibrary("openxr_loader");
@@ -32,6 +38,20 @@ public class ANativeActivity extends android.app.NativeActivity {
     String full_hr_file_path = fullpath.getAbsolutePath();
     Log.d(TAG,"Full path to local dir: "+full_hr_file_path);
     setHRfilePath(full_hr_file_path);
+    // raw data
+    try {
+      File logFile = new File(getBaseContext().getExternalFilesDir(null), "raw.csv");
+      rawdatalog =  new PrintWriter(new FileOutputStream(fullpath, true));
+    }
+    catch (IOException e) {
+      Log.e(TAG, "Raw log file could not be opened: ", e);
+    }
+  }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+    rawdatalog.close();
   }
 
   static native void dataUpdate(long inst, float v);
@@ -40,7 +60,11 @@ public class ANativeActivity extends android.app.NativeActivity {
     @Override
     public void gotData(long l, float[] f) {
       double v = f[AttysComm.INDEX_Analogue_channel_1];
-      dataUpdate(instance, (float)v);
+      dataUpdate(instance, (float) v);
+      String s = String.format(Locale.US, "%d,%f,%f\n",
+              System.currentTimeMillis(), v, f[AttysComm.INDEX_Analogue_channel_2]);
+      rawdatalog.write(s);
+      rawdatalog.flush();
     }
   };
 
