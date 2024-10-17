@@ -5,9 +5,6 @@ plugins {
 android {
     compileSdk 32
 
-    lintOptions {
-        abortOnError false
-    }
 
     defaultConfig {
         applicationId "tech.glasgowneuro.attyshrv"
@@ -58,6 +55,9 @@ android {
         }
     }
     namespace 'tech.glasgowneuro.attyshrv'
+    lint {
+        abortOnError false
+    }
 }
 
 dependencies {
